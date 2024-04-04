@@ -1,0 +1,50 @@
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import { useAppSelector } from "../../hooks/hooks";
+import { authSelector } from "../../redux/auth/AuthSlice";
+import RespositoryService from "../../services/RespositoryService";
+import { useState } from "react";
+
+type UserDetails = {
+  badges: {
+    icon: string;
+    name: string;
+    description: string;
+  }[];
+  things: {
+    uuid: string;
+    name: string;
+    streakCount: number;
+    startTime: string;
+    endTime: string;
+  }[];
+  levels: {
+    currentLevel: {
+      level: string;
+      minThreshold: number;
+    };
+    nextLevel: {
+      level: string;
+      minThreshold: number;
+    };
+  };
+};
+
+export const useProfileScreenLogic = () => {
+  const authState = useAppSelector(authSelector);
+  const user = authState.user;
+
+  const [data, setData] = useState<UserDetails | null>(null);
+
+  const getData = async () => {
+    const repositoryService = new RespositoryService();
+    const token = await AsyncStorage.getItem("token") ?? '';
+    const response = await repositoryService.authRespoitory.getUserDetails<UserDetails | null>(token);
+    setData(response);
+  };
+
+  return {
+    user,
+    data,
+    getData,
+  };
+};
