@@ -36,12 +36,14 @@ imageRouter.post("/", jwt({ secret: jwtSecret }), async (c) => {
     const filePath = path.join(process.env.API_VOLUME_PATH, "images", fileName);
     await sharp(Buffer.from(fileData))
       .jpeg({ quality: 50, mozjpeg: true })
+      .flop() // Because the image is mirrored
       .toFile(filePath);
     console.log(`Image saved to ${filePath}`);
   } else {
     const filePath = path.join(cwd(), "/images", fileName);
     await sharp(Buffer.from(fileData))
       .jpeg({ quality: 50, mozjpeg: true })
+      .flop() // Because the image is mirrored
       .toFile(filePath);
     console.log(`Image saved to ${filePath}`);
   }
