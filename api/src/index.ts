@@ -24,10 +24,11 @@ app.route("/things", thingRouter);
 app.route("/image-upload", imageRouter);
 app.route("/user", userRouter);
 
-const port = process.env.API_PORT as unknown as number;
+const port = process.env.PORT as unknown as number;
 console.log(`Server is running on port ${port}`);
 
 serve({
+  hostname: "0.0.0.0",
   fetch: app.fetch,
   port,
 });
