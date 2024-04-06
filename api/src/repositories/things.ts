@@ -144,8 +144,7 @@ export async function getOthersThingsToday(user_uuid: string) {
   // add domain to photoUuid
   return result.map((thing) => ({
     ...thing,
-    photoUuid: `http://10.0.3.190:3000/image/${thing.photoUuid}`, //robi
-    // photoUuid: `http://10.0.3.137:3000/image/${thing.photoUuid}`, //szabi
+    photoUuid: `${process.env.API_HOST}/images/${thing.photoUuid}`,
   }));
 }
 
@@ -274,7 +273,7 @@ export async function getThingDetails(user_uuid: string, thing_uuid: string) {
 
   // Alter the previous checkpoints query (add domain)
   previousCheckpointsQuery.map((checkpoint) => {
-    checkpoint.photoUuid = `${process.env.API_HOST}/image/${checkpoint.photoUuid}`;
+    checkpoint.photoUuid = `${process.env.API_HOST}/images/${checkpoint.photoUuid}`;
   });
 
   // Combine the above queries

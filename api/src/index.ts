@@ -1,6 +1,7 @@
 import "dotenv/config";
 
 import { serve } from "@hono/node-server";
+import { logger } from "hono/logger";
 import { Hono } from "hono";
 
 import { authRoutes } from "./routes/auth.js";
@@ -8,10 +9,12 @@ import { thingRouter } from "./routes/things.js";
 import { imageRouter } from "./routes/image.js";
 import { userRouter } from "./routes/user.js";
 
-import { serveStatic } from "@hono/node-server/serve-static";
+import { serveStatic } from "./utils/serve-static.js";
 import { access, mkdir } from "fs/promises";
 
 const app = new Hono();
+
+app.use(logger());
 
 if (process.env.API_VOLUME_PATH) {
   // Check if the image directory exists
@@ -33,9 +36,7 @@ if (process.env.API_VOLUME_PATH) {
 app.use(
   "/images/*",
   serveStatic({
-    root: process.env.API_VOLUME_PATH
-      ? process.env.API_VOLUME_PATH + "/"
-      : "./",
+    root: process.env.API_VOLUME_PATH ? process.env.API_VOLUME_PATH : "./",
   })
 );
 
