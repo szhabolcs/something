@@ -5,7 +5,7 @@ import { cwd } from "process";
 import { randomUUID } from "crypto";
 import path from "path";
 import { writeFileSync } from "fs";
-import { updateCheckpoint } from "../repositories/checkpoint";
+import { updateCheckpoint } from "../repositories/checkpoint.js";
 export const imageRouter = new Hono();
 
 // JWT secret key

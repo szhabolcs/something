@@ -1,14 +1,14 @@
 import { Hono } from "hono";
 import { StatusCodes } from "http-status-codes";
 import { jwt } from "hono/jwt";
-import { getUserThings } from "../repositories/things";
-import { getTopBadges, getAllBadges } from "../repositories/badges";
-import { getLevels } from "../repositories/levels";
+import { getUserThings } from "../repositories/things.js";
+import { getTopBadges, getAllBadges } from "../repositories/badges.js";
+import { getLevels } from "../repositories/levels.js";
 import {
   getLeaderBoard,
   currentLeaderBoardVisibility,
   toggleLeaderboardVisibility,
-} from "../repositories/leaderboard";
+} from "../repositories/leaderboard.js";
 
 export const userRouter = new Hono();
 

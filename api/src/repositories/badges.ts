@@ -1,6 +1,6 @@
 import { eq, desc } from "drizzle-orm";
-import { db } from "./db";
-import { user, badgeDefinition, badge } from "./schema";
+import { db } from "../db/db.js";
+import { user, badgeDefinition, badge } from "../db/schema.js";
 import { union } from "drizzle-orm/pg-core";
 
 export async function getTopBadges(user_uuid: string, limit: number = 3) {

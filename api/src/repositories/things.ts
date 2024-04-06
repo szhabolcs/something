@@ -12,8 +12,8 @@ import {
   desc,
   sql,
 } from "drizzle-orm";
-import { db } from "./db";
-import { thing, schedule, checkpoint, sharing, streak, user } from "./schema";
+import { db } from "../db/db.js";
+import { thing, schedule, checkpoint, sharing, streak, user } from "../db/schema.js";
 import { union } from "drizzle-orm/pg-core";
 
 export async function getUserThingsToday(

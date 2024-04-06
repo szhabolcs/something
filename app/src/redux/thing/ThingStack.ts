@@ -73,8 +73,10 @@ export const getTodaysPersonalThingsPreview = createAsyncThunk(
         }
         const repositoryService = new RespositoryService();
         const response = await repositoryService.thingRepository.getTodaysPersonalThings<PersonalThing[]>(userState.user.token);
+        if (!response) {
+            throw new Error("No response");
+        }
         return response;
-
     }
 );
 
@@ -228,6 +230,7 @@ const thingSlice = createSlice({
         builder.addCase(getTodaysPersonalThingsPreview.rejected, (state, action) => {
             state.loading = false;
             state.error = action.error.message;
+            console.log(`"${getTodaysPersonalThingsPreview.typePrefix}" rejected with error: `, action.error.message);
         });
 
         builder.addCase(getOtherThingsToday.pending, (state) => {

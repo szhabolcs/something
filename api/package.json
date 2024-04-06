@@ -1,7 +1,10 @@
 {
+  "type": "module",
   "scripts": {
     "generate": "drizzle-kit generate:pg",
-    "dev": "tsx watch src/index.ts"
+    "dev": "tsx watch src/index.ts",
+    "build": "tsc",
+    "start": "node dist/index.js"
   },
   "dependencies": {
     "@hono/node-server": "^1.8.2",
@@ -12,7 +15,8 @@
     "http-status-codes": "^2.3.0",
     "jsonwebtoken": "^9.0.2",
     "pg": "^8.11.3",
-    "postgres": "^3.4.4"
+    "postgres": "^3.4.4",
+    "typescript": "^5.4.4"
   },
   "devDependencies": {
     "@types/bcrypt": "^5.0.2",

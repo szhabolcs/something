@@ -2,21 +2,13 @@ import "dotenv/config";
 
 import { serve } from "@hono/node-server";
 import { Hono } from "hono";
-import { initializeDatabase } from "./repositories/db";
 
-import { authRoutes } from "./routes/auth";
-import { thingRouter } from "./routes/things";
-import { imageRouter } from "./routes/image";
-import { userRouter } from "./routes/user";
+import { authRoutes } from "./routes/auth.js";
+import { thingRouter } from "./routes/things.js";
+import { imageRouter } from "./routes/image.js";
+import { userRouter } from "./routes/user.js";
 
 import { serveStatic } from "@hono/node-server/serve-static";
-serveStatic;
-
-// DB migrations
-initializeDatabase().catch((err) => {
-  console.error("Database initialization failed:", err);
-  process.exit(1);
-});
 
 const app = new Hono();
 

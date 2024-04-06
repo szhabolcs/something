@@ -19,13 +19,6 @@ export const user = pgTable("user", {
   updatedAt: timestamp("updated_at").notNull().defaultNow(),
 });
 
-// TODO: After generating remove double quotes
-const geometry = customType({
-  dataType() {
-    return `GEOMETRY(Point, 4326)`;
-  },
-});
-
 export const thing = pgTable("thing", {
   uuid: uuid("uuid").defaultRandom().notNull().primaryKey(),
   name: text("name").notNull(),
@@ -37,7 +30,6 @@ export const thing = pgTable("thing", {
     .default("personal")
     .$type<"personal" | "social">()
     .notNull(),
-  location: geometry("location"),
   createdAt: timestamp("created_at").notNull().defaultNow(),
 });
 

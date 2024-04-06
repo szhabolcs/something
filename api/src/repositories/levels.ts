@@ -1,6 +1,6 @@
 import { eq, desc, lte, gte } from "drizzle-orm";
-import { db } from "./db";
-import { user, levelDefinition, point } from "./schema";
+import { db } from "../db/db.js";
+import { user, levelDefinition, point } from "../db/schema.js";
 import { union } from "drizzle-orm/pg-core";
 
 export async function getLevels(user_uuid: string) {

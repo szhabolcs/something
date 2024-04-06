@@ -1,6 +1,6 @@
 import { Hono } from "hono";
 import { jwt } from "hono/jwt";
-import { registerUser, loginUser } from "../repositories/auth";
+import { registerUser, loginUser } from "../repositories/auth.js";
 import { StatusCodes } from "http-status-codes";
 
 export const authRoutes = new Hono();

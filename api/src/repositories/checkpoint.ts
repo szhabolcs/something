@@ -1,6 +1,6 @@
 import { eq, and } from "drizzle-orm";
-import { db } from "./db";
-import { user, checkpoint, thing } from "./schema";
+import { db } from "../db/db.js";
+import { user, checkpoint, thing } from "../db/schema.js";
 
 export async function updateCheckpoint(
   user_uuid: string,

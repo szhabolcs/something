@@ -42,7 +42,7 @@ export default class ApiService {
 
             return await response.json();
         } catch (e) {
-            console.log('Error while fetching: ', e);
+            console.log('Error while fetching: ', JSON.stringify(e, null, 2));
             return null;
         }
     }
@@ -72,7 +72,7 @@ export default class ApiService {
                 body: options?.body
             });
         } catch (e) {
-            console.log('Error while fetching: ', e);
+            console.log('Error while fetching: ', JSON.stringify(e, null, 2));
         }
     }
 

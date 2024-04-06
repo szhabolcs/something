@@ -7,7 +7,7 @@ import {
   getUserThings,
   getThingDetails,
   createThing,
-} from "../repositories/things";
+} from "../repositories/things.js";
 
 export const thingRouter = new Hono();
 

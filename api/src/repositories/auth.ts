@@ -1,8 +1,8 @@
 import bcrypt from "bcrypt";
 import { Jwt } from "hono/utils/jwt";
-import { user } from "./schema"; // Update the import path based on your project structure
+import { user } from "../db/schema.js"; // Update the import path based on your project structure
 import { eq } from "drizzle-orm";
-import { db } from "./db";
+import { db } from "../db/db.js";
 import { StatusCodes } from "http-status-codes";
 
 const jwt_secret_key = process.env.JWT_SECRET || "your-secret-key";
