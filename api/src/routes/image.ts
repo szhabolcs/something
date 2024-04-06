@@ -6,6 +6,8 @@ import { randomUUID } from "crypto";
 import path from "path";
 import { writeFile } from "fs/promises";
 import { updateCheckpoint } from "../repositories/checkpoint.js";
+import sharp from "sharp";
+
 export const imageRouter = new Hono();
 
 // JWT secret key
@@ -31,12 +33,16 @@ imageRouter.post("/", jwt({ secret: jwtSecret }), async (c) => {
 
   // On production, we have a mounted volume
   if (process.env.API_VOLUME_PATH) {
-    const filePath = path.join(process.env.API_VOLUME_PATH, 'images', fileName);
-    await writeFile(filePath, Buffer.from(fileData));
+    const filePath = path.join(process.env.API_VOLUME_PATH, "images", fileName);
+    await sharp(Buffer.from(fileData))
+      .jpeg({ quality: 50, mozjpeg: true })
+      .toFile(filePath);
     console.log(`Image saved to ${filePath}`);
   } else {
     const filePath = path.join(cwd(), "/images", fileName);
-    await writeFile(filePath, Buffer.from(fileData));
+    await sharp(Buffer.from(fileData))
+      .jpeg({ quality: 50, mozjpeg: true })
+      .toFile(filePath);
     console.log(`Image saved to ${filePath}`);
   }
 
