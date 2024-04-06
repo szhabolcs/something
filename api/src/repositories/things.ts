@@ -274,7 +274,7 @@ export async function getThingDetails(user_uuid: string, thing_uuid: string) {
 
   // Alter the previous checkpoints query (add domain)
   previousCheckpointsQuery.map((checkpoint) => {
-    checkpoint.photoUuid = `${process.env.API_HOST}:${process.env.API_PORT}/image/${checkpoint.photoUuid}`;
+    checkpoint.photoUuid = `${process.env.API_HOST}/image/${checkpoint.photoUuid}`;
   });
 
   // Combine the above queries

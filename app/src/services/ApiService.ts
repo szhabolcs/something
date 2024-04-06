@@ -16,11 +16,8 @@ export default class ApiService {
         body?: any
     }) {
         try {
-            // console.log('Current token:', options?.token);
-
             if (!options?.token) {
-              console.error("Token not found");
-              return;
+              console.trace("No token provieded");
             }
 
             console.log('Fetching data from:', `${this.baseUrl}/${endPoint}`);

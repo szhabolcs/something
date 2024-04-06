@@ -4,7 +4,7 @@ import { jwt } from "hono/jwt";
 import { cwd } from "process";
 import { randomUUID } from "crypto";
 import path from "path";
-import { writeFileSync } from "fs";
+import { writeFile } from "fs/promises";
 import { updateCheckpoint } from "../repositories/checkpoint.js";
 export const imageRouter = new Hono();
 
@@ -28,8 +28,15 @@ imageRouter.post("/", jwt({ secret: jwtSecret }), async (c) => {
   const fileData = await file.arrayBuffer();
   const fileExt = ".jpg";
   const fileName = `${randomUUID()}${fileExt}`;
-  const filePath = path.join(cwd(), "/image", fileName);
-  await writeFileSync(filePath, Buffer.from(fileData));
+
+  // On production, we have a mounted volume
+  if (process.env.API_IMAGE_DIR) {
+    const filePath = path.join(process.env.API_IMAGE_DIR, fileName);
+    await writeFile(filePath, Buffer.from(fileData));
+  } else {
+    const filePath = path.join(cwd(), "/image", fileName);
+    await writeFile(filePath, Buffer.from(fileData));
+  }
 
   try {
     await updateCheckpoint(user_uuid, thing_uuid, fileName);

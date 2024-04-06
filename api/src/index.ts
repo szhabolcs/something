@@ -12,7 +12,11 @@ import { serveStatic } from "@hono/node-server/serve-static";
 
 const app = new Hono();
 
-app.use("/image/*", serveStatic({ root: "./" }));
+if (process.env.API_IMAGE_DIR) {
+  app.use(`${process.env.API_IMAGE_DIR}/*`, serveStatic());
+} else {
+  app.use("/image/*", serveStatic({ root: "./" }));
+}
 
 app.get("/", (c) => {
   return c.text("hello something user:) !");
