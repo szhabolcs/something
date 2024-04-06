@@ -30,12 +30,14 @@ imageRouter.post("/", jwt({ secret: jwtSecret }), async (c) => {
   const fileName = `${randomUUID()}${fileExt}`;
 
   // On production, we have a mounted volume
-  if (process.env.API_IMAGE_DIR) {
-    const filePath = path.join(process.env.API_IMAGE_DIR, fileName);
+  if (process.env.API_VOLUME_PATH) {
+    const filePath = path.join(process.env.API_VOLUME_PATH, 'images', fileName);
     await writeFile(filePath, Buffer.from(fileData));
+    console.log(`Image saved to ${filePath}`);
   } else {
-    const filePath = path.join(cwd(), "/image", fileName);
+    const filePath = path.join(cwd(), "/images", fileName);
     await writeFile(filePath, Buffer.from(fileData));
+    console.log(`Image saved to ${filePath}`);
   }
 
   try {
