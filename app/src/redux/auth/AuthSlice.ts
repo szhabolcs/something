@@ -35,6 +35,12 @@ const initialState: AuthState = {
   error: undefined,
 };
 
+export const logout = createAsyncThunk("auth/logout", async () => {
+  await AsyncStorage.removeItem("token");
+  await AsyncStorage.removeItem("username");
+  return;
+});
+
 export const loginSilently = createAsyncThunk(
   "auth/loginSilently",
   async () => {
@@ -144,6 +150,11 @@ export const authSlice = createSlice({
     builder.addCase(register.rejected, (state, action) => {
       state.loading = false;
       state.error = action.error.message;
+    });
+
+    builder.addCase(logout.pending, (state) => {
+      state.loading = false;
+      state.user = null;
     });
   },
 });

@@ -1,4 +1,5 @@
 import { useAppDispatch, useAppSelector } from "../../hooks/hooks";
+import { logout } from "../../redux/auth/AuthSlice";
 import {
   getAllTodaysPersonalThings,
   getOtherThingsToday,
@@ -18,8 +19,13 @@ export const useHomeScreenLogic = () => {
 
   const todaysOtherThings = otherThings.today;
 
-  const getTodaysThingsPreview = () => {
-    dispatch(getTodaysPersonalThingsPreview());
+  const getTodaysThingsPreview = async () => {
+    try {
+      await dispatch(getTodaysPersonalThingsPreview());
+    } catch (error) {
+      console.log('Dispatch error: ', error);
+      dispatch(logout());
+    }
   };
 
   const getTodaysOtherThings = () => {

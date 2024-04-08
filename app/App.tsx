@@ -1,49 +1,19 @@
 import { NavigationContainer } from "@react-navigation/native";
 import { Linking, SafeAreaView, StyleSheet } from "react-native";
-import { RootNavigation, navigate } from "./src/navigation/RootNavigation";
+import { RootNavigation } from "./src/navigation/RootNavigation";
 import { Provider } from "react-redux";
 import { store } from "./src/redux/store";
-import { useEffect, useRef } from "react";
-import * as Notifications from "expo-notifications";
-import { registerForPushNotificationsAsync } from "./src/hooks/notifications";
+import { useEffect} from "react";
 import { navigationRef } from "./src/navigation/RootNavigation";
 import { useFonts } from "expo-font";
+import { usePushNotifications } from "./src/hooks/notifications";
 
 export default function App() {
-  // Expo notification start
-  const notificationListener = useRef();
-  const responseListener = useRef();
+  const { expoPushToken, notification, lastNotificationResponse } = usePushNotifications();
 
   useEffect(() => {
-
-    registerForPushNotificationsAsync().then((token: any) => {
-      console.log("Push notification token: ", token);
-    });
-
-    // @ts-ignore
-    notificationListener.current =
-      Notifications.addNotificationReceivedListener((notification: any) => {
-        console.log("notification: ", notification);
-        // navigate("Camera");
-      });
-
-    // @ts-ignore
-    responseListener.current =
-      Notifications.addNotificationResponseReceivedListener((response) => {
-        console.log("response: ", response);
-        navigate("Camera", response.notification.request.content.data);
-      });
-
-    return () => {
-      Notifications.removeNotificationSubscription(
-        // @ts-ignore
-        notificationListener.current
-      );
-      // @ts-ignore
-      Notifications.removeNotificationSubscription(responseListener.current);
-    };
-  }, []);
-  // Expo notification end
+    console.log("lastNotificationResponse", lastNotificationResponse);
+  }, [lastNotificationResponse]);
 
   const [fontsLoaded] = useFonts({
     "Cursive-Regular": require("./assets/fonts/CedarvilleCursive-Regular.ttf"),

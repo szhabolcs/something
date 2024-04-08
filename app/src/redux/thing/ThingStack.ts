@@ -230,7 +230,8 @@ const thingSlice = createSlice({
         builder.addCase(getTodaysPersonalThingsPreview.rejected, (state, action) => {
             state.loading = false;
             state.error = action.error.message;
-            console.log(`"${getTodaysPersonalThingsPreview.typePrefix}" rejected with error: `, action.error.message);
+            // Throw an error to distinguish between no response and an error response
+            throw new Error(action.error.message);
         });
 
         builder.addCase(getOtherThingsToday.pending, (state) => {
