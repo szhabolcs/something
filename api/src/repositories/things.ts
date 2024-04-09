@@ -13,24 +13,24 @@ import {
   sql,
 } from "drizzle-orm";
 import { db } from "../db/db.js";
-import { thing, schedule, checkpoint, sharing, streak, user } from "../db/schema.js";
+import {
+  thing,
+  schedule,
+  checkpoint,
+  sharing,
+  streak,
+  user,
+} from "../db/schema.js";
 import { union } from "drizzle-orm/pg-core";
 
 export async function getUserThingsToday(
   user_uuid: string,
   limit: number | undefined = undefined
 ) {
-  const today = new Date();
-  const startOfDay = new Date(
-    today.getFullYear(),
-    today.getMonth(),
-    today.getDate()
-  );
-  const endOfDay = new Date(
-    today.getFullYear(),
-    today.getMonth(),
-    today.getDate() + 1
-  );
+  const startOfToday = new Date();
+  startOfToday.setHours(0, 0, 0, 0);
+  const endOfToday = new Date();
+  endOfToday.setHours(23, 59, 59, 999);
 
   const userThings = db
     .select({
@@ -57,7 +57,7 @@ export async function getUserThingsToday(
       endTime: schedule.endTime,
     })
     .from(thing)
-    .leftJoin(streak, eq(thing.uuid, streak.thingUuid))
+    .leftJoin(streak, and(eq(thing.uuid, streak.thingUuid), eq(streak.userUuid, user_uuid)))
     .leftJoin(schedule, eq(thing.uuid, schedule.thingUuid))
     .leftJoin(checkpoint, eq(thing.uuid, checkpoint.thingUuid))
     .where(
@@ -67,20 +67,22 @@ export async function getUserThingsToday(
           sq.map((thing) => thing.uuid)
         ),
         and(
-          gte(checkpoint.utcTimestamp, startOfDay),
-          lt(checkpoint.utcTimestamp, endOfDay)
+          gte(checkpoint.utcTimestamp, startOfToday),
+          lt(checkpoint.utcTimestamp, endOfToday)
         ),
+        eq(checkpoint.completed, false),
         isNotNull(schedule.startTime),
-        isNotNull(schedule.endTime)
+        isNotNull(schedule.endTime),
+        eq(checkpoint.userUuid, user_uuid)
       )
     )
-    .groupBy(thing.uuid, streak.count, schedule.startTime, schedule.endTime);
+    .orderBy(desc(schedule.startTime))
+    // .groupBy(thing.uuid, thing.name, streak.count, schedule.startTime, schedule.endTime);
 
   let result;
   if (limit) {
     result = await query.limit(limit);
   } else {
-    console.log(query.toSQL());
     result = await query;
   }
 
@@ -137,7 +139,8 @@ export async function getOthersThingsToday(user_uuid: string) {
         lt(checkpoint.utcTimestamp, endOfDay),
         eq(checkpoint.completed, true)
       )
-    );
+    )
+    .orderBy(desc(checkpoint.createdAt));
 
   const result = await query;
 
@@ -187,6 +190,7 @@ export async function getUserThings(user_uuid: string) {
         isNotNull(schedule.endTime)
       )
     )
+    .orderBy(desc(thing.createdAt))
     .groupBy(thing.uuid, streak.count, schedule.startTime, schedule.endTime);
 
   const result = await query;
@@ -268,8 +272,10 @@ export async function getThingDetails(user_uuid: string, thing_uuid: string) {
     .leftJoin(user, eq(checkpoint.userUuid, user.uuid))
     .leftJoin(thing, eq(checkpoint.thingUuid, thing.uuid))
     .leftJoin(schedule, eq(thing.uuid, schedule.thingUuid))
-    .where(and(eq(schedule.thingUuid, thing_uuid), eq(checkpoint.completed, true)))
-    .orderBy(desc(checkpoint.utcTimestamp));
+    .where(
+      and(eq(schedule.thingUuid, thing_uuid), eq(checkpoint.completed, true))
+    )
+    .orderBy(desc(checkpoint.createdAt));
 
   // Alter the previous checkpoints query (add domain)
   previousCheckpointsQuery.map((checkpoint) => {
@@ -336,6 +342,10 @@ export async function createThing(
   // Step2: Create schedules
   if (occurances) {
     for (const occurrence of occurances) {
+      if (occurrence.repeat === "once" || occurrence.repeat === "daily") {
+        occurrence.dayOfWeek = ["mon"]; // arbitrary day
+      }
+
       for (const day of occurrence.dayOfWeek) {
         await db
           .insert(schedule)
@@ -416,16 +426,19 @@ export async function createThing(
     }
 
     for (const timestamp of timestamps) {
-      await db
-        .insert(checkpoint)
-        .values({
-          userUuid: userWithThing.uuid,
-          thingUuid: newThing[0].uuid,
-          utcTimestamp: timestamp,
-          photoUuid: null,
-          completed: false,
-        })
-        .returning();
+      // TEMPORARY: Add checkpoints for the next 7 days
+      for (let i = 0; i < 7; i++) {
+        await db
+          .insert(checkpoint)
+          .values({
+            userUuid: userWithThing.uuid,
+            thingUuid: newThing[0].uuid,
+            utcTimestamp: timestamp,
+            photoUuid: null,
+            completed: false,
+          });
+        timestamp.setDate(timestamp.getDate() + 1);
+      }
     }
   }
 }

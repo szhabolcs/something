@@ -12,8 +12,6 @@ export default class CameraRepository extends BaseRepository {
     });
     body.append("thing_uuid", uuid);
 
-    console.log("uuid", uuid);
-
     await this.api.postFormData("image-upload", {
       body,
       token: (await AsyncStorage.getItem("token")) || "",

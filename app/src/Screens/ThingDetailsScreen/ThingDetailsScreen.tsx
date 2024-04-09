@@ -124,10 +124,10 @@ const ThingDetailsScreen = ({ route, navigation }: any) => {
             <FlatList
               scrollEnabled={false}
               data={thing.previousCheckpoints}
-              keyExtractor={(item) => item.photoUuid}
-              renderItem={({ item }) => (
+              keyExtractor={(item, index) => index.toString()}
+              renderItem={({ item, index}) => (
                 <ImageViewer
-                  key={item.photoUuid}
+                  key={index.toString()}
                   uri={item.photoUuid}
                   name={item.thingName}
                   username={item.username}

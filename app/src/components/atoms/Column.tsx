@@ -1,20 +1,42 @@
-import { View, Text, ViewStyle, StyleSheet, ScrollView, SafeAreaView, StatusBar } from "react-native";
+import {
+  View,
+  Text,
+  ViewStyle,
+  StyleSheet,
+  ScrollView,
+  SafeAreaView,
+  StatusBar,
+  RefreshControl,
+} from "react-native";
 import React from "react";
 
 type ColumProps = {
   children?: React.ReactNode;
   styles?: ViewStyle | ViewStyle[];
   scrollable?: boolean;
+  refreshing?: any;
+  getData?: () => void;
 };
 
-const Column = ({ children, styles, scrollable }: ColumProps) => {
+const Column = ({
+  children,
+  styles,
+  scrollable,
+  refreshing,
+  getData,
+}: ColumProps) => {
   if (scrollable) {
     return (
-      <SafeAreaView>
-        <ScrollView>
-          <View style={[ColumStyles.column, styles]}>{children}</View>
-        </ScrollView>
-      </SafeAreaView>
+      // <SafeAreaView>
+      <ScrollView
+        style={{ flex: 1, height: "100%" }}
+        refreshControl={
+          <RefreshControl refreshing={refreshing} onRefresh={getData} />
+        }
+      >
+        <View style={[ColumStyles.column, styles]}>{children}</View>
+      </ScrollView>
+      // </SafeAreaView>
     );
   }
   return <View style={[ColumStyles.column, styles]}>{children}</View>;
@@ -31,7 +53,7 @@ const ColumStyles = StyleSheet.create({
     paddingTop: StatusBar.currentHeight,
   },
   scrollView: {
-    backgroundColor: 'pink',
+    backgroundColor: "pink",
     marginHorizontal: 20,
   },
 });

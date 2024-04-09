@@ -1,6 +1,7 @@
 import {
   Button,
   Dimensions,
+  RefreshControl,
   ScrollView,
   StyleSheet,
   Text,
@@ -23,15 +24,13 @@ const HomeScreen = ({ navigation }: any) => {
   const {
     todaysPersonalThings,
     todaysOtherThings,
-    allTodaysPersonalThings,
-    getTodaysThingsPreview,
-    getTodaysOtherThings,
+    getHomeThings,
+    refreshing,
     loading,
   } = useHomeScreenLogic();
 
   useEffect(() => {
-    getTodaysThingsPreview();
-    getTodaysOtherThings();
+    getHomeThings();
   }, []);
 
   const renderTodayThings = () => {
@@ -116,7 +115,12 @@ const HomeScreen = ({ navigation }: any) => {
 
   return (
     <Column styles={{ flex: 1 }}>
-      <ScrollView style={styles.container}>
+      <ScrollView
+        style={styles.container}
+        refreshControl={
+          <RefreshControl refreshing={refreshing} onRefresh={getHomeThings} />
+        }
+      >
         <H2>
           Todays <H2 accent>Things</H2>
         </H2>

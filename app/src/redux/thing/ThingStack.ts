@@ -141,7 +141,7 @@ export const createThing = createAsyncThunk(
             return;
         }
         const repositoryService = new RespositoryService();
-        console.log(JSON.stringify(data));
+        console.log('Creating thing...', JSON.stringify(data));
         const response = await repositoryService.thingRepository.createThing<PersonalThing>(data, userState.user.token);
 
         return response;

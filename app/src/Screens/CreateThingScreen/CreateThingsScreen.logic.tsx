@@ -18,11 +18,11 @@ export const useCreateThingScreenLogic = () => {
   const newThing = thingState.personalThings.today.new;
 
   const handleCreateThing = () => {
-    if (thingName && thingDescription && newThing && newThing?.occurances) {
+    if (thingName && newThing && newThing?.occurances) {
       dispatch(
         createThing({
           name: thingName,
-          description: thingDescription,
+          description: thingDescription ?? "",
           occurances: newThing.occurances,
           sharedUsernames: sharedUsernames,
         })

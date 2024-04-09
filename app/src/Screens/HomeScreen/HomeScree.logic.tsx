@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { useAppDispatch, useAppSelector } from "../../hooks/hooks";
 import { logout } from "../../redux/auth/AuthSlice";
 import {
@@ -8,6 +9,8 @@ import {
 } from "../../redux/thing/ThingStack";
 
 export const useHomeScreenLogic = () => {
+  const [refreshing, setRefreshing] = useState(true);
+
   const dispatch = useAppDispatch();
 
   const thingState = useAppSelector(thingSelector);
@@ -23,13 +26,20 @@ export const useHomeScreenLogic = () => {
     try {
       await dispatch(getTodaysPersonalThingsPreview());
     } catch (error) {
-      console.log('Dispatch error: ', error);
+      console.log("Dispatch error: ", error);
       dispatch(logout());
     }
   };
 
-  const getTodaysOtherThings = () => {
-    dispatch(getOtherThingsToday());
+  const getTodaysOtherThings = async () => {
+    await dispatch(getOtherThingsToday());
+  };
+
+  const getHomeThings = async () => {
+    setRefreshing(true);
+    await getTodaysThingsPreview();
+    await getTodaysOtherThings();
+    setRefreshing(false);
   };
 
   const getAllPersonalThings = () => {
@@ -43,5 +53,7 @@ export const useHomeScreenLogic = () => {
     getTodaysThingsPreview,
     getTodaysOtherThings,
     loading,
+    refreshing,
+    getHomeThings
   };
 };

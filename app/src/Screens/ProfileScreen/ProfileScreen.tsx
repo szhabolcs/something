@@ -1,6 +1,7 @@
 import {
   ActivityIndicator,
   Pressable,
+  RefreshControl,
   StyleSheet,
   Text,
   View,
@@ -19,9 +20,9 @@ import H3 from "../../components/atoms/H3";
 import ThingCard from "../../components/molecules/ThingCard";
 
 const ProfileScreen = ({ navigation }: any) => {
-  const { user, getData, data } = useProfileScreenLogic();
+  const { user, getData, data, refreshing } = useProfileScreenLogic();
 
-  const [opened, setOpened] = useState(false);
+  const [opened, setOpened] = useState(true);
 
   useEffect(() => {
     getData();
@@ -43,6 +44,8 @@ const ProfileScreen = ({ navigation }: any) => {
   return (
     <Column
       scrollable
+      refreshing={refreshing}
+      getData={getData}
       styles={{
         flex: 1,
         padding: 16,
@@ -84,8 +87,8 @@ const ProfileScreen = ({ navigation }: any) => {
             styles={{
               height: "100%",
               width: `${
-                (data.levels.currentLevel.minThreshold /
-                  data.levels.nextLevel.minThreshold) *
+                (data?.levels?.currentLevel?.minThreshold /
+                  data?.levels?.nextLevel?.minThreshold) *
                 100
               }%`,
               backgroundColor: "#16a34a",
@@ -123,46 +126,6 @@ const ProfileScreen = ({ navigation }: any) => {
           }}
         />
       </Column>
-      <Column
-        styles={{
-          borderColor: "#f0f0f0",
-          borderWidth: 1,
-          borderRadius: 8,
-          paddingHorizontal: 16,
-          paddingTop: 16,
-          paddingBottom: opened ? 16 : 5,
-          marginTop: 16,
-          width: "100%",
-        }}
-      >
-        <H3 accent>My Things</H3>
-        <FlatList
-          data={opened ? data.things : data.things.slice(0, 3)}
-          renderItem={({ item }) => (
-            <ThingCard
-              name={item.name}
-              startTime={item.startTime}
-              endTime={item.endTime}
-              streak={item.streakCount}
-              id={item.uuid}
-              navigation={navigation}
-            />
-          )}
-        />
-        <Pressable
-          onPress={() => {
-            setOpened((o) => !o);
-          }}
-        >
-          <Text
-            style={{
-              textAlign: "center",
-            }}
-          >
-            {opened ? "Show less" : "Show more"}
-          </Text>
-        </Pressable>
-      </Column>
       <Pressable
         onPress={() => {
           navigation.push("Leaderboard");
@@ -185,6 +148,34 @@ const ProfileScreen = ({ navigation }: any) => {
           </H3>
         </Column>
       </Pressable>
+      <Column
+        styles={{
+          borderColor: "#f0f0f0",
+          borderWidth: 1,
+          borderRadius: 8,
+          paddingHorizontal: 16,
+          paddingTop: 16,
+          paddingBottom: opened ? 16 : 5,
+          marginTop: 16,
+          width: "100%",
+        }}
+      >
+        <H3 accent>My Things</H3>
+        <FlatList
+          scrollEnabled={false}
+          data={opened ? data.things : data.things.slice(0, 3)}
+          renderItem={({ item }) => (
+            <ThingCard
+              name={item.name}
+              startTime={item.startTime}
+              endTime={item.endTime}
+              streak={item.streakCount}
+              id={item.uuid}
+              navigation={navigation}
+            />
+          )}
+        />
+      </Column>
     </Column>
   );
 };

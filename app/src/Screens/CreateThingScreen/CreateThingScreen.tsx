@@ -72,14 +72,13 @@ const CreateThingScreen = ({ navigation }: any) => {
           }}
         >
           {newThing &&
-            newThing.occurances.map((occurance: any) => {
+            newThing.occurances.map((occurance: any, idx) => {
               return (
-                <>
-                  <H3>
-                    {occurance.startTime} - {occurance.endTime} repeats:{" "}
-                    {occurance.repeat} on {occurance.dayOfWeek?.join(", ")}
-                  </H3>
-                </>
+                <H3 key={idx}>
+                  {occurance.startTime} - {occurance.endTime} repeats:{" "}
+                  {occurance.repeat} {occurance.dayOfWeek.length ? "on" : ""}{" "}
+                  {occurance.dayOfWeek?.join(", ")}
+                </H3>
               );
             })}
         </Column>

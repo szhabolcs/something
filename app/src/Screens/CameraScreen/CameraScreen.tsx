@@ -6,6 +6,7 @@ import {
   Dimensions,
   View,
   TouchableOpacity,
+  ActivityIndicator,
 } from "react-native";
 import H1 from "../../components/atoms/H1";
 import H3 from "../../components/atoms/H3";
@@ -15,7 +16,7 @@ import CameraRepository from "../../repositories/camera/CameraRepository";
 
 export default function CameraScreen({ route, navigation }: any) {
   const [hasPermission, setHasPermission] = useState(false);
-  const [capturingImage, setCapturingImage] = useState(false);
+  const [capturingImage, setCapturingImage] = useState(true);
   const [type, setType] = useState(CameraType.front);
   const [picture, setPicture] = useState<string>();
 
@@ -53,10 +54,9 @@ export default function CameraScreen({ route, navigation }: any) {
 
         const repo = new CameraRepository();
         await repo.uploadImage(uri!, route.params.uuid);
-        navigation.navigate("Home");
-        
-        console.log("Captured image as base64");
         setCapturingImage(false);
+
+        navigation.navigate("Home");
       } catch (error) {
         console.error("Error capturing image:", error);
       }
@@ -72,22 +72,12 @@ export default function CameraScreen({ route, navigation }: any) {
     );
   }
 
-  const handleFinish = async () => {
-    console.log("Sending pictures to server");
-    // await fetchData('student/face-features', 'POST', {}, pictures);
-    // route.replace('/specialization');
-  };
-
-  const cameraReady = async () => {
-    console.log(await cameraRef.current?.getSupportedRatiosAsync());
-  };
-
   return (
     <View style={styles.container}>
       <Camera
+        onCameraReady={() => setCapturingImage(false)}
         ref={cameraRef}
         type={type}
-        onCameraReady={cameraReady}
         style={[
           styles.camera,
           {
@@ -100,10 +90,13 @@ export default function CameraScreen({ route, navigation }: any) {
         ]}
       ></Camera>
       <Row>
-        <TouchableOpacity
-          style={styles.shutter}
-          onPress={captureImage}
-        ></TouchableOpacity>
+        {!capturingImage && (
+          <TouchableOpacity
+            style={styles.shutter}
+            onPress={captureImage}
+          ></TouchableOpacity>
+        )}
+        {capturingImage && <ActivityIndicator size="large" />}
         <TouchableOpacity style={styles.change} onPress={toggleCameraType}>
           <RefreshCcw color={"black"} />
         </TouchableOpacity>
