@@ -21,8 +21,10 @@ export const useThingDetailsScreenLogic = () => {
       photoUuid: string;
     }[];
   } | null>(null);
+  const [refreshing, setRefreshing] = useState(true);
 
   const getDetails = async (id: string) => {
+    setRefreshing(true);
     const repositoryService = new RespositoryService();
 
     const response = await repositoryService.thingRepository.getThingDetails<{
@@ -45,9 +47,11 @@ export const useThingDetailsScreenLogic = () => {
     }>(id, (await AsyncStorage.getItem("token")) || "");
 
     setThing(response);
+    setRefreshing(false);
   };
   return {
     thing,
     getDetails,
+    refreshing,
   };
 };

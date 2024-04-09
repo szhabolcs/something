@@ -15,7 +15,7 @@ type ColumProps = {
   styles?: ViewStyle | ViewStyle[];
   scrollable?: boolean;
   refreshing?: any;
-  getData?: () => void;
+  getData?: () => void | Promise<void>;
 };
 
 const Column = ({

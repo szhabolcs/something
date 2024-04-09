@@ -13,7 +13,7 @@ import ImageViewer from "../../components/molecules/ImageViewer";
 import Label from "../../components/atoms/Label";
 import MyButton from "../../components/molecules/MyButton";
 const ThingDetailsScreen = ({ route, navigation }: any) => {
-  const { getDetails, thing } = useThingDetailsScreenLogic();
+  const { getDetails, thing, refreshing } = useThingDetailsScreenLogic();
 
   const { thingId, streakCount } = route.params;
 
@@ -37,107 +37,112 @@ const ThingDetailsScreen = ({ route, navigation }: any) => {
     );
 
   return (
-    <ScrollView>
-      <Column
+    <Column
+      scrollable
+      refreshing={refreshing}
+      getData={() => getDetails(thingId)}
+      styles={{
+        flex: 1,
+        gap: 32,
+        padding: 16,
+      }}
+    >
+      <Row
         styles={{
-          flex: 1,
-          gap: 32,
-          padding: 16,
+          justifyContent: "space-between",
+          alignItems: "center",
         }}
       >
+        <ChevronLeft
+          width={32}
+          height={32}
+          color={"black"}
+          onPress={() => {
+            navigation.pop();
+          }}
+        />
+        <H1>{thing.name}</H1>
+        <StreakChip streak={streakCount} />
+      </Row>
+      <Column
+        styles={{
+          gap: 16,
+        }}
+      >
+        <H3>Next occurance</H3>
+        <H4>
+          {thing.nextOccurrence?.startTime} - {thing.nextOccurrence?.endTime}
+        </H4>
+      </Column>
+      <Column
+        styles={{
+          gap: 16,
+        }}
+      >
+        <H4>Description</H4>
+        <H3>{thing.description}</H3>
+      </Column>
+      <Column
+        styles={{
+          gap: 16,
+        }}
+      >
+        <H4>Shared with</H4>
+        {thing.sharedWith.map((shared) => (
+          <Column
+            key={shared.userUuid}
+            styles={{
+              paddingHorizontal: 10,
+              paddingVertical: 8,
+              backgroundColor: "#16a34a",
+              borderRadius: 10,
+              width: "auto",
+              alignSelf: "flex-start",
+            }}
+          >
+            <H3 key={shared.userUuid} white>
+              @{shared.username}
+            </H3>
+          </Column>
+        ))}
+      </Column>
+      <Column>
         <Row
           styles={{
             justifyContent: "space-between",
-            alignItems: "center",
+            alignContent: "center",
           }}
         >
-          <ChevronLeft
-            width={32}
-            height={32}
-            color={"black"}
+          <H4>Memories</H4>
+          <MyButton
+            small
+            accent
+            text={"Create more"}
             onPress={() => {
-              navigation.pop();
+              navigation.navigate("Camera", {
+                name: thing.name,
+                uuid: thingId,
+              });
             }}
           />
-          <H1>{thing.name}</H1>
-          <StreakChip streak={streakCount} />
         </Row>
-        <Column
-          styles={{
-            gap: 16,
-          }}
-        >
-          <H3>Next occurance</H3>
-          <H4>
-            {thing.nextOccurrence?.startTime} - {thing.nextOccurrence?.endTime}
-          </H4>
-        </Column>
-        <Column
-          styles={{
-            gap: 16,
-          }}
-        >
-          <H4>Description</H4>
-          <H3>{thing.description}</H3>
-        </Column>
-        <Column
-          styles={{
-            gap: 16,
-          }}
-        >
-          <H4>Shared with</H4>
-          {thing.sharedWith.map((shared) => (
-            <Column
-              styles={{
-                paddingHorizontal: 10,
-                paddingVertical: 8,
-                backgroundColor: "#16a34a",
-                borderRadius: 10,
-                width: "auto",
-                alignSelf: "flex-start",
-              }}
-            >
-              <H3 key={shared.userUuid} white>
-                @{shared.username}
-              </H3>
-            </Column>
-          ))}
-        </Column>
         <Column>
-          <Row
-            styles={{
-              justifyContent: "space-between",
-              alignContent: "center",
-            }}
-          >
-            <H4>Memories</H4>
-            <MyButton
-              small
-              accent
-              text={"Create more"}
-              onPress={() => {
-                navigation.navigate("Camera", { name: thing.name, uuid: thingId });
-              }}
-            />
-          </Row>
-          <Column>
-            <FlatList
-              scrollEnabled={false}
-              data={thing.previousCheckpoints}
-              keyExtractor={(item, index) => index.toString()}
-              renderItem={({ item, index}) => (
-                <ImageViewer
-                  key={index.toString()}
-                  uri={item.photoUuid}
-                  name={item.thingName}
-                  username={item.username}
-                />
-              )}
-            />
-          </Column>
+          <FlatList
+            scrollEnabled={false}
+            data={thing.previousCheckpoints}
+            keyExtractor={(item, index) => index.toString()}
+            renderItem={({ item, index }) => (
+              <ImageViewer
+                key={index.toString()}
+                uri={item.photoUuid}
+                name={item.thingName}
+                username={item.username}
+              />
+            )}
+          />
         </Column>
       </Column>
-    </ScrollView>
+    </Column>
   );
 };
 
