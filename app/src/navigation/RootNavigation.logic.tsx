@@ -51,7 +51,7 @@ async function scheduleNotificationForThing(thing: any) {
     content: {
       title: "You have a ✨thing✨ to do!",
       body: `Don't forget to: ${thing.name}`,
-      data: { thing },
+      data: { name: thing.name, uuid: thing.uuid },
     },
     trigger: {
       hour: time[0],

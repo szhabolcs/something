@@ -243,14 +243,6 @@ const ProfileScreen = ({ navigation }: any) => {
             ? "Notifications are scheduled"
             : "Notifications are not scheduled"}
         </H3>
-        <Spacer space={10} />
-        <MyButton
-          accent
-          smalltext
-          text="Remove all scheduled notifications"
-          onPress={removeNotifications}
-        />
-        <Spacer space={20} />
         <H3>
           {allowNotifications
             ? "Notifications are allowed"

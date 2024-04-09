@@ -13,6 +13,7 @@ import H3 from "../../components/atoms/H3";
 import Row from "../../components/atoms/Row";
 import { RefreshCcw, Send } from "react-native-feather";
 import CameraRepository from "../../repositories/camera/CameraRepository";
+import { manipulateAsync, FlipType, SaveFormat } from 'expo-image-manipulator';
 
 export default function CameraScreen({ route, navigation }: any) {
   const [hasPermission, setHasPermission] = useState(false);
@@ -43,14 +44,26 @@ export default function CameraScreen({ route, navigation }: any) {
   };
 
   const captureImage = async () => {
-    const { uri } = await cameraRef?.current?.takePictureAsync({
+    if (!cameraRef?.current) return;
+
+    let photo = await cameraRef.current.takePictureAsync({
       base64: true,
       exif: true,
     });
+    if (type === CameraType.back) {
+      photo = await manipulateAsync(
+          photo.uri,
+          [
+              { rotate: 90 },
+              { flip: FlipType.Vertical },
+          ]
+      );
+  }
+
     await cameraRef.current?.pausePreview();
     setPauseImageCapture(true);
     setCapturingImage(false);
-    setUri(uri);
+    setUri(photo.uri);
   };
 
   const retakeImage = () => {
