@@ -11,14 +11,15 @@ import {
 import H1 from "../../components/atoms/H1";
 import H3 from "../../components/atoms/H3";
 import Row from "../../components/atoms/Row";
-import { RefreshCcw } from "react-native-feather";
+import { RefreshCcw, Send } from "react-native-feather";
 import CameraRepository from "../../repositories/camera/CameraRepository";
 
 export default function CameraScreen({ route, navigation }: any) {
   const [hasPermission, setHasPermission] = useState(false);
   const [capturingImage, setCapturingImage] = useState(true);
   const [type, setType] = useState(CameraType.front);
-  const [picture, setPicture] = useState<string>();
+  const [pauseImageCapture, setPauseImageCapture] = useState(false);
+  const [uri, setUri] = useState<string | null>(null);
 
   const { height, width } = Dimensions.get("window");
   const cameraWidth = 300;
@@ -42,16 +43,29 @@ export default function CameraScreen({ route, navigation }: any) {
   };
 
   const captureImage = async () => {
+    const { uri } = await cameraRef?.current?.takePictureAsync({
+      base64: true,
+      exif: true,
+    });
+    await cameraRef.current?.pausePreview();
+    setPauseImageCapture(true);
+    setCapturingImage(false);
+    setUri(uri);
+  };
+
+  const retakeImage = () => {
+    setPauseImageCapture(false);
+    cameraRef.current?.resumePreview();
+  }
+
+  const sendImage = async () => {
     if (capturingImage) return;
 
     if (cameraRef.current) {
       setCapturingImage(true);
 
       try {
-        const { base64, uri } = await cameraRef.current.takePictureAsync({
-          base64: true,
-        });
-
+        setPauseImageCapture(true);
         const repo = new CameraRepository();
         await repo.uploadImage(uri!, route.params.uuid);
         setCapturingImage(false);
@@ -90,16 +104,30 @@ export default function CameraScreen({ route, navigation }: any) {
         ]}
       ></Camera>
       <Row>
-        {!capturingImage && (
+        {!capturingImage && !pauseImageCapture && (
           <TouchableOpacity
             style={styles.shutter}
             onPress={captureImage}
           ></TouchableOpacity>
         )}
         {capturingImage && <ActivityIndicator size="large" />}
-        <TouchableOpacity style={styles.change} onPress={toggleCameraType}>
-          <RefreshCcw color={"black"} />
-        </TouchableOpacity>
+        {!capturingImage && !pauseImageCapture && (
+          <TouchableOpacity style={styles.change} onPress={toggleCameraType}>
+            <RefreshCcw color={"black"} />
+          </TouchableOpacity>
+        )}
+        {pauseImageCapture && !capturingImage && (
+          <TouchableOpacity style={styles.retake} onPress={retakeImage}>
+            <Text>Retake</Text>
+            <RefreshCcw color={"black"} />
+          </TouchableOpacity>
+        )}
+        {pauseImageCapture && !capturingImage && (
+          <TouchableOpacity style={styles.send} onPress={sendImage}>
+            <Text>Send</Text>
+            <Send color={"black"} />
+          </TouchableOpacity>
+        )}
       </Row>
       <View style={{ marginBottom: 50 }}>
         <H3>
@@ -143,6 +171,31 @@ const styles = StyleSheet.create({
     marginBottom: 50,
     marginRight: 20,
     marginLeft: 50,
+  },
+  send: {
+    width: 100,
+    height: 50,
+    flexDirection: "row",
+    gap: 10,
+    borderWidth: 2,
+    borderRadius: 10,
+    justifyContent: "center",
+    alignItems: "center",
+    marginBottom: 50,
+    marginRight: 20,
+  },
+  retake: {
+    width: 100,
+    height: 50,
+    flexDirection: "row",
+    gap: 10,
+    borderWidth: 2,
+    borderRadius: 10,
+    justifyContent: "center",
+    alignItems: "center",
+    marginBottom: 50,
+    marginRight: 20,
+    marginLeft: 20,
   },
   change: {
     width: 50,
