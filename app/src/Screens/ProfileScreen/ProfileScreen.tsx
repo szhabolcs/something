@@ -164,6 +164,8 @@ const ProfileScreen = ({ navigation }: any) => {
         <FlatList
           scrollEnabled={false}
           data={opened ? data.things : data.things.slice(0, 3)}
+          style={{ marginTop: 16 }}
+          contentContainerStyle={{ gap: 5 }}
           renderItem={({ item }) => (
             <ThingCard
               name={item.name}

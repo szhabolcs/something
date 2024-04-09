@@ -33,7 +33,7 @@ const ImageViewer = ({ uri, name, username }: ImageViewerProps) => {
       />
       <H2 cursive>{name}</H2>
       <H4 cursive accent>
-        -{username}
+        {username}
       </H4>
     </Column>
   );

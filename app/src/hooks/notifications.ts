@@ -59,7 +59,7 @@ export const usePushNotifications = (): PushNotificationState => {
           importance: Notifications.AndroidImportance.MAX,
         });
 
-        console.log('Set notification channel')
+        console.log("Set notification channel");
       }
 
       token = await Notifications.getExpoPushTokenAsync({
@@ -75,10 +75,10 @@ export const usePushNotifications = (): PushNotificationState => {
   useEffect(() => {
     registerForPushNotificationsAsync().then((token) => {
       setExpoPushToken(token);
-      console.log("Expo Push Token: ", token?.data);
+      console.log("Expo Push Token:", token?.data);
 
       Notifications.getLastNotificationResponseAsync().then((response) => {
-        console.log('Expo last notification response: ', response);
+        console.log("Expo last notification response: ", response);
         setLastNotificationResponse(response ?? undefined);
         if (response?.notification.request.content.data) {
           navigate("Camera", response?.notification.request.content.data);
@@ -92,18 +92,21 @@ export const usePushNotifications = (): PushNotificationState => {
       });
 
     responseListener.current =
-      Notifications.addNotificationResponseReceivedListener(async (response) => {
-        console.log('Expo notification response: ', response);
-        if (response?.notification.request.content.data) {
-          navigate("Camera", response?.notification.request.content.data);
-        } else {
-          const _response = await Notifications.getLastNotificationResponseAsync();
-          console.log('Expo last notification _response: ', _response);
-          if (_response?.notification.request.content.data) {
-            navigate("Camera", _response?.notification.request.content.data);
+      Notifications.addNotificationResponseReceivedListener(
+        async (response) => {
+          console.log("Expo notification response: ", response);
+          if (response?.notification.request.content.data) {
+            navigate("Camera", response?.notification.request.content.data);
+          } else {
+            const _response =
+              await Notifications.getLastNotificationResponseAsync();
+            console.log("Expo last notification _response: ", _response);
+            if (_response?.notification.request.content.data) {
+              navigate("Camera", _response?.notification.request.content.data);
+            }
           }
         }
-      });
+      );
 
     return () => {
       Notifications.removeNotificationSubscription(

@@ -27,8 +27,6 @@ const Leaderboard = () => {
         height: "100%",
         position: "relative",
         flex: 1,
-        justifyContent: "center",
-        alignItems: "center",
         paddingTop: 20,
       }}
     >
@@ -64,8 +62,6 @@ const Leaderboard = () => {
           return (
             <Row
               styles={{
-                justifyContent: "center",
-                alignItems: "center",
                 gap: 5,
               }}
             >
@@ -73,7 +69,7 @@ const Leaderboard = () => {
               <H2>{item.username}</H2>
               <Text
                 style={{
-                  fontSize: 24,
+                  fontSize: 20,
                 }}
               >
                 {item.points} points

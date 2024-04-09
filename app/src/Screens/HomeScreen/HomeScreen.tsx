@@ -46,7 +46,8 @@ const HomeScreen = ({ navigation }: any) => {
       <FlatList
         data={todaysPersonalThings}
         scrollEnabled={false}
-        contentContainerStyle={{ paddingBottom: 30 }}
+        style={{ marginTop: 18 }}
+        contentContainerStyle={{ gap: 14 }}
         keyExtractor={(_, index) => index.toString()}
         renderItem={({ item }) => (
           <ThingCard
@@ -76,8 +77,8 @@ const HomeScreen = ({ navigation }: any) => {
         data={todaysOtherThings}
         scrollEnabled={false}
         keyExtractor={(_, index) => index.toString()}
-        style={{ gap: 16 }}
-        contentContainerStyle={{ marginBottom: 50 }}
+        style={{ marginTop: 18, marginBottom: 50 }}
+        contentContainerStyle={{ gap: 14 }}
         renderItem={({ item }) => (
           <ImageViewer
             uri={item.photoUuid}

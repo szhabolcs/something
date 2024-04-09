@@ -131,6 +131,12 @@ const ThingDetailsScreen = ({ route, navigation }: any) => {
             scrollEnabled={false}
             data={thing.previousCheckpoints}
             keyExtractor={(item, index) => index.toString()}
+            style={{
+              marginTop: 20,
+            }}
+            contentContainerStyle = {{
+              gap: 16
+            }}
             renderItem={({ item, index }) => (
               <ImageViewer
                 key={index.toString()}
