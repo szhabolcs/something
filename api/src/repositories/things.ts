@@ -48,6 +48,8 @@ export async function getUserThingsToday(
 
   const sq = await union(userThings, sharedThins);
 
+  if (sq.length === 0) return [];
+
   const query = db
     .select({
       uuid: thing.uuid,
@@ -118,6 +120,8 @@ export async function getOthersThingsToday(user_uuid: string) {
 
   const sq = await union(userThings, sharedThins);
 
+  if (sq.length === 0) return [];
+
   const query = db
     .select({
       username: user.username,
@@ -167,6 +171,8 @@ export async function getUserThings(user_uuid: string) {
     .where(eq(sharing.userUuid, user_uuid));
 
   const sq = await union(userThings, sharedThins);
+
+  if (sq.length === 0) return [];
 
   const query = db
     .select({
