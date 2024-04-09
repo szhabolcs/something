@@ -36,6 +36,7 @@ export async function updateCheckpoint(
     });
 
     await updateStreak(user_uuid, thing_uuid);
+    await updatePoints(user_uuid, 5);
   }
   // If the user has not completed this checkpoint, we need to update the existing one
   else {
@@ -88,7 +89,7 @@ async function updateStreak(user_uuid: string, thing_uuid: string) {
   }
 }
 
-async function updatePoints(user_uuid: string) {
+async function updatePoints(user_uuid: string, by: number = 10) {
   const [currentPoints] = await db
     .select()
     .from(point)
@@ -98,7 +99,7 @@ async function updatePoints(user_uuid: string) {
     await db
       .update(point)
       .set({
-        point: currentPoints.point + 10,
+        point: currentPoints.point + by,
       })
       .where(eq(point.userUuid, user_uuid));
   }

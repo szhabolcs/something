@@ -69,6 +69,7 @@ export const login = createAsyncThunk(
     if (response) {
       await AsyncStorage.setItem("token", response.token);
       await AsyncStorage.setItem("username", response.user.username);
+      await AsyncStorage.setItem("allowNotifications", "true");
     }
 
     return response;

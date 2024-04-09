@@ -18,15 +18,65 @@ import { FlatList } from "react-native-gesture-handler";
 import * as Icons from "react-native-feather";
 import H3 from "../../components/atoms/H3";
 import ThingCard from "../../components/molecules/ThingCard";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import * as Notifications from "expo-notifications";
+import MyButton from "../../components/molecules/MyButton";
+import { scheduleAllNotifications } from "../../navigation/RootNavigation.logic";
+import H4 from "../../components/atoms/H4";
 
 const ProfileScreen = ({ navigation }: any) => {
   const { user, getData, data, refreshing } = useProfileScreenLogic();
 
   const [opened, setOpened] = useState(true);
+  const [notificationsScheduled, setNotificationsScheduled] = useState(false);
+  const [allowNotifications, setAllowNotifications] = useState(false);
 
   useEffect(() => {
     getData();
+
+    (async () => {
+      const keys = await AsyncStorage.getAllKeys();
+      const notificationKeys = keys.filter((key) =>
+        key.startsWith("notificationIds")
+      );
+      if (notificationKeys.length > 0) {
+        setNotificationsScheduled(true);
+      }
+
+      const consent = await AsyncStorage.getItem("allowNotifications");
+      if (consent === "true") {
+        setAllowNotifications(true);
+      }
+    })();
   }, []);
+
+  async function removeNotifications() {
+    const keys = await AsyncStorage.getAllKeys();
+    const notificationKeys = keys.filter((key) =>
+      key.startsWith("notificationIds")
+    );
+    // Clear all notifications
+    await Notifications.cancelAllScheduledNotificationsAsync();
+
+    for (const key of notificationKeys) {
+      await AsyncStorage.removeItem(key);
+    }
+
+    setNotificationsScheduled(false);
+  }
+
+  async function toggleNotifications() {
+    if (allowNotifications) {
+      await AsyncStorage.setItem("allowNotifications", "false");
+      setAllowNotifications(false);
+      await removeNotifications();
+    } else {
+      await AsyncStorage.setItem("allowNotifications", "true");
+      setAllowNotifications(true);
+      await scheduleAllNotifications();
+      setNotificationsScheduled(true);
+    }
+  }
 
   if (!data)
     return (
@@ -176,6 +226,43 @@ const ProfileScreen = ({ navigation }: any) => {
               navigation={navigation}
             />
           )}
+        />
+      </Column>
+      <Column
+        styles={{
+          marginTop: 100,
+        }}
+      >
+        <H3 accent>Debug/dev things</H3>
+        <Spacer space={10} />
+        <Label text="If there are any problems regarding notifications, please toggle notifications twice, to re-enable and reschedule them." />
+        <Spacer space={10} />
+        <Label text="If any other problems occur feel free to contact me about it :)" />
+        <Spacer space={20} />
+        <H3>
+          {notificationsScheduled
+            ? "Notifications are scheduled"
+            : "Notifications are not scheduled"}
+        </H3>
+        <Spacer space={10} />
+        <MyButton
+          accent
+          smalltext
+          text="Remove all scheduled notifications"
+          onPress={removeNotifications}
+        />
+        <Spacer space={20} />
+        <H3>
+          {allowNotifications
+            ? "Notifications are allowed"
+            : "Notifications are not allowed"}
+        </H3>
+        <Spacer space={10} />
+        <MyButton
+          accent
+          smalltext
+          text="Toggle notifications"
+          onPress={toggleNotifications}
         />
       </Column>
     </Column>

@@ -5,6 +5,7 @@ import {
   resetNewPersonalThing,
   thingSelector,
 } from "../../redux/thing/ThingStack";
+import { scheduleAllNotifications } from "../../navigation/RootNavigation.logic";
 
 export const useCreateThingScreenLogic = () => {
   const [thingName, setThingName] = useState("");
@@ -17,9 +18,9 @@ export const useCreateThingScreenLogic = () => {
 
   const newThing = thingState.personalThings.today.new;
 
-  const handleCreateThing = () => {
+  const handleCreateThing = async () => {
     if (thingName && newThing && newThing?.occurances) {
-      dispatch(
+      await dispatch(
         createThing({
           name: thingName,
           description: thingDescription ?? "",
@@ -27,6 +28,8 @@ export const useCreateThingScreenLogic = () => {
           sharedUsernames: sharedUsernames,
         })
       );
+
+      await scheduleAllNotifications();
 
       handleCanel();
     }

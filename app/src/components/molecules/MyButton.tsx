@@ -2,6 +2,7 @@ import { Pressable, StyleSheet, Text, View } from "react-native";
 import React from "react";
 import Column from "../atoms/Column";
 import H4 from "../atoms/H4";
+import H3 from "../atoms/H3";
 
 type MyButtonProps = {
   text: string;
@@ -9,9 +10,10 @@ type MyButtonProps = {
   accent?: boolean;
   small?: boolean;
   subLine?: string;
+  smalltext?: boolean;
 };
 
-const MyButton = ({ text, onPress, accent, small, subLine }: MyButtonProps) => {
+const MyButton = ({ text, onPress, accent, small, subLine, smalltext }: MyButtonProps) => {
   if (small) {
     return (
       <Pressable onPress={onPress}>
@@ -25,7 +27,7 @@ const MyButton = ({ text, onPress, accent, small, subLine }: MyButtonProps) => {
   return (
     <Pressable onPress={onPress}>
       <Column styles={[styles.button, accent ? styles.accent : styles.button]}>
-        <H4 accent={accent}>{text}</H4>
+        {!smalltext ? <H4 accent={accent}>{text}</H4> : <H3 accent={accent}>{text}</H3>}
       </Column>
     </Pressable>
   );
@@ -42,6 +44,7 @@ const styles = StyleSheet.create({
     justifyContent: "center",
   },
   accent: {
-    backgroundColor: "rgba(16, 185, 129, 0.5)",
+    borderWidth: 2,
+    borderColor: "#16a34a",
   },
 });

@@ -8,6 +8,7 @@ import { useEffect } from "react";
 import { getFocusedRouteNameFromRoute } from "@react-navigation/core";
 import { ProfileStackNavigation } from "../StackNavigation/ProfileStack";
 import SocialThings from "../../Screens/SocialThings/SocialThings";
+import * as Notifications from "expo-notifications";
 
 const Tab = createBottomTabNavigator();
 

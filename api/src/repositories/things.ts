@@ -177,7 +177,7 @@ export async function getUserThings(user_uuid: string) {
       endTime: schedule.endTime,
     })
     .from(thing)
-    .leftJoin(streak, eq(thing.uuid, streak.thingUuid))
+    .leftJoin(streak, and(eq(thing.uuid, streak.thingUuid), eq(streak.userUuid, user_uuid)))
     .leftJoin(schedule, eq(thing.uuid, schedule.thingUuid))
     .leftJoin(checkpoint, eq(thing.uuid, checkpoint.thingUuid))
     .where(
@@ -186,12 +186,14 @@ export async function getUserThings(user_uuid: string) {
           thing.uuid,
           sq.map((thing) => thing.uuid)
         ),
+        eq(checkpoint.completed, false),
         isNotNull(schedule.startTime),
-        isNotNull(schedule.endTime)
+        isNotNull(schedule.endTime),
+        eq(checkpoint.userUuid, user_uuid)
       )
     )
-    .orderBy(desc(thing.createdAt))
-    .groupBy(thing.uuid, streak.count, schedule.startTime, schedule.endTime);
+    .orderBy(desc(schedule.startTime))
+    .groupBy(thing.uuid, thing.name, streak.count, schedule.startTime, schedule.endTime);
 
   const result = await query;
 
