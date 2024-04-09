@@ -4,6 +4,7 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 
 export const useLeaderboardLogic = () => {
   const [visibility, setVisibility] = useState(false);
+  const [refreshing, setRefreshing] = useState(true);
   const [leaderBoard, setLeaderBoard] = useState<
     {
       username: string;
@@ -12,6 +13,7 @@ export const useLeaderboardLogic = () => {
   >([]);
 
   const getData = async () => {
+    setRefreshing(true);
     const repositoryService = new RespositoryService();
     const response =
       await repositoryService.leaderboardResository.getLeaderboard<{
@@ -24,6 +26,7 @@ export const useLeaderboardLogic = () => {
 
     setLeaderBoard(response.leaderboard);
     setVisibility(response.currentVisibility);
+    setRefreshing(false);
   };
 
   const toggleVisibility = async () => {
@@ -43,5 +46,6 @@ export const useLeaderboardLogic = () => {
     leaderBoard,
     getData,
     toggleVisibility,
+    refreshing
   };
 };

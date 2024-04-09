@@ -11,7 +11,7 @@ import Label from "../../components/atoms/Label";
 import H2 from "../../components/atoms/H2";
 
 const Leaderboard = () => {
-  const { leaderBoard, getData, visibility, toggleVisibility } =
+  const { leaderBoard, getData, visibility, toggleVisibility, refreshing } =
     useLeaderboardLogic();
 
   useEffect(() => {
@@ -20,19 +20,39 @@ const Leaderboard = () => {
 
   return (
     <Column
+      scrollable
+      refreshing={refreshing}
+      getData={getData}
       styles={{
         height: "100%",
         position: "relative",
         flex: 1,
         justifyContent: "center",
         alignItems: "center",
-        paddingTop: 100,
-        gap: 30,
+        paddingTop: 20,
       }}
     >
       <H1>
         Leaderboard <H1 accent>Thing</H1>
       </H1>
+      <Row
+        styles={{
+          alignItems: "center",
+          justifyContent: "center",
+          gap: 10,
+          marginTop: 10,
+          marginBottom: 30,
+        }}
+      >
+        <Label text="Toggle online visibility" />
+        <Switch
+          trackColor={{ false: "#767577", true: "#78e3a0" }}
+          thumbColor={visibility ? "#16a34a" : "#f4f3f4"}
+          ios_backgroundColor="#3e3e3e"
+          onValueChange={toggleVisibility}
+          value={visibility}
+        />
+      </Row>
       <FlatList
         contentContainerStyle={{
           justifyContent: "center",
@@ -68,19 +88,8 @@ const Leaderboard = () => {
           flex: 1,
           alignItems: "center",
           justifyContent: "center",
-          position: "absolute",
-          top: 30,
-          right: 30,
         }}
-      >
-        <Switch
-          trackColor={{ false: "#767577", true: "#81b0ff" }}
-          thumbColor={visibility ? "#f5dd4b" : "#f4f3f4"}
-          ios_backgroundColor="#3e3e3e"
-          onValueChange={toggleVisibility}
-          value={visibility}
-        />
-      </View>
+      ></View>
     </Column>
   );
 };
