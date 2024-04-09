@@ -77,7 +77,7 @@ export async function getUserThingsToday(
       )
     )
     .orderBy(desc(schedule.startTime))
-    // .groupBy(thing.uuid, thing.name, streak.count, schedule.startTime, schedule.endTime);
+    .groupBy(thing.uuid, thing.name, streak.count, schedule.startTime, schedule.endTime);
 
   let result;
   if (limit) {

@@ -22,7 +22,6 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import * as Notifications from "expo-notifications";
 import MyButton from "../../components/molecules/MyButton";
 import { scheduleAllNotifications } from "../../navigation/RootNavigation.logic";
-import H4 from "../../components/atoms/H4";
 
 const ProfileScreen = ({ navigation }: any) => {
   const { user, getData, data, refreshing } = useProfileScreenLogic();
@@ -37,7 +36,7 @@ const ProfileScreen = ({ navigation }: any) => {
     (async () => {
       const keys = await AsyncStorage.getAllKeys();
       const notificationKeys = keys.filter((key) =>
-        key.startsWith("notificationIds")
+        key.startsWith("notificationId")
       );
       if (notificationKeys.length > 0) {
         setNotificationsScheduled(true);
@@ -53,7 +52,7 @@ const ProfileScreen = ({ navigation }: any) => {
   async function removeNotifications() {
     const keys = await AsyncStorage.getAllKeys();
     const notificationKeys = keys.filter((key) =>
-      key.startsWith("notificationIds")
+      key.startsWith("notificationId")
     );
     // Clear all notifications
     await Notifications.cancelAllScheduledNotificationsAsync();

@@ -141,10 +141,10 @@ const SetTimeIntervals = ({ navigation }: any) => {
                 label: "Every",
                 value: "every",
               },
-              {
-                label: "Once",
-                value: "once",
-              },
+              // {
+              //   label: "Once",
+              //   value: "once",
+              // },
             ]}
             labelField="label"
             valueField="value"
@@ -164,14 +164,14 @@ const SetTimeIntervals = ({ navigation }: any) => {
                   label: "Day",
                   value: "daily",
                 },
-                {
-                  label: "Week",
-                  value: "weekly",
-                },
-                {
-                  label: "Month",
-                  value: "monthly",
-                },
+                // {
+                //   label: "Week",
+                //   value: "weekly",
+                // },
+                // {
+                //   label: "Month",
+                //   value: "monthly",
+                // },
               ]}
               labelField="label"
               valueField="value"

@@ -10,8 +10,8 @@ import H4 from "../../components/atoms/H4";
 import { ChevronLeft, ChevronsLeft } from "react-native-feather";
 import { FlatList, ScrollView } from "react-native-gesture-handler";
 import ImageViewer from "../../components/molecules/ImageViewer";
-import Label from "../../components/atoms/Label";
 import MyButton from "../../components/molecules/MyButton";
+
 const ThingDetailsScreen = ({ route, navigation }: any) => {
   const { getDetails, thing, refreshing } = useThingDetailsScreenLogic();
 
@@ -110,12 +110,11 @@ const ThingDetailsScreen = ({ route, navigation }: any) => {
         <Row
           styles={{
             justifyContent: "space-between",
-            alignContent: "center",
           }}
         >
           <H4>Memories</H4>
           <MyButton
-            small
+            smalltext
             accent
             text={"Create more"}
             onPress={() => {

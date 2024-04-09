@@ -36,8 +36,8 @@ export async function scheduleAllNotifications() {
 }
 
 async function scheduleNotificationForThing(thing: any) {
-  const existingNotificationIds = await AsyncStorage.getItem(`notificationIds-${thing.uuid}`);
-  if (existingNotificationIds) {
+  const existingNotificationId = await AsyncStorage.getItem(`notificationId-${thing.uuid}`);
+  if (existingNotificationId) {
     console.log(`Notification for thing: ${thing.name} already scheduled`);
     return;
   }
@@ -47,39 +47,34 @@ async function scheduleNotificationForThing(thing: any) {
   console.log(`Scheduling notification for thing: ${thing.name} at ${time[0]}:${time[1]}:${time[2]} for the next 7 days`);
   console.log(`Last notification for thing: ${thing.name} at ${lastNotificationTime[0]}:${lastNotificationTime[1]}:${lastNotificationTime[2]} for the next 7 days`);
 
-  const notificationIds = [];
-  for (let i = 0; i < 7; i++) {
-    const notificationId = await Notifications.scheduleNotificationAsync({
-      content: {
-        title: "You have a ✨thing✨ to do!",
-        body: `Don't forget to: ${thing.name}`,
-        data: { thing },
-      },
-      trigger: {
-        hour: time[0],
-        minute: time[1],
-        repeats: true,
-      },
-    });
+  const notificationId = await Notifications.scheduleNotificationAsync({
+    content: {
+      title: "You have a ✨thing✨ to do!",
+      body: `Don't forget to: ${thing.name}`,
+      data: { thing },
+    },
+    trigger: {
+      hour: time[0],
+      minute: time[1],
+      repeats: true,
+    },
+  });
 
-    notificationIds.push(notificationId);
+  // One last reminder each day
+  await Notifications.scheduleNotificationAsync({
+    content: {
+      title: "Last reminder to complete your ✨thing✨ today!",
+      body: `Don't forget to: ${thing.name}`,
+      data: { thing },
+    },
+    trigger: {
+      hour: lastNotificationTime[0],
+      minute: lastNotificationTime[1],
+      repeats: true,
+    },
+  });
 
-    // One last reminder each day
-    await Notifications.scheduleNotificationAsync({
-      content: {
-        title: "Last reminder to complete your ✨thing✨ today!",
-        body: `Don't forget to: ${thing.name}`,
-        data: { thing },
-      },
-      trigger: {
-        hour: lastNotificationTime[0],
-        minute: lastNotificationTime[1],
-        repeats: true,
-      },
-    });
-  }
-
-  await AsyncStorage.setItem(`notificationIds-${thing.uuid}`, JSON.stringify(notificationIds));
+  await AsyncStorage.setItem(`notificationId-${thing.uuid}`, notificationId);
 }
 
 function getRandomTime(startTime: string, endTime: string): string {
