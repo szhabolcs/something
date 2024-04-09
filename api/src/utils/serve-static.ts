@@ -57,7 +57,7 @@ export const serveStatic = (options: ServeStaticOptions = { root: '' }): Middlew
     }
 
     // MY FIX
-    if (!options.root) {
+    if (options.root) {
       path = `/${path}`
     } else {
       path = `./${path}`
