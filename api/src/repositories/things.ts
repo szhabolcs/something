@@ -14,12 +14,12 @@ import {
 } from "drizzle-orm";
 import { db } from "../db/db.js";
 import {
-  thing,
-  schedule,
-  checkpoint,
-  sharing,
-  streak,
-  user,
+  ThingTable,
+  ScheduleTable,
+  CheckpointTable,
+  SharingTable,
+  StreakTable,
+  UserTable,
 } from "../db/schema.js";
 import { union } from "drizzle-orm/pg-core";
 
@@ -34,17 +34,17 @@ export async function getUserThingsToday(
 
   const userThings = db
     .select({
-      uuid: thing.uuid,
+      uuid: ThingTable.uuid,
     })
-    .from(thing)
-    .where(eq(thing.userUuid, user_uuid));
+    .from(ThingTable)
+    .where(eq(ThingTable.userUuid, user_uuid));
 
   const sharedThins = db
     .select({
-      uuid: sharing.thingUuid,
+      uuid: SharingTable.thingUuid,
     })
-    .from(sharing)
-    .where(eq(sharing.userUuid, user_uuid));
+    .from(SharingTable)
+    .where(eq(SharingTable.userUuid, user_uuid));
 
   const sq = await union(userThings, sharedThins);
 
@@ -52,34 +52,34 @@ export async function getUserThingsToday(
 
   const query = db
     .select({
-      uuid: thing.uuid,
-      name: thing.name,
-      streakCount: streak.count,
-      startTime: schedule.startTime,
-      endTime: schedule.endTime,
+      uuid: ThingTable.uuid,
+      name: ThingTable.name,
+      streakCount: StreakTable.count,
+      startTime: ScheduleTable.startTime,
+      endTime: ScheduleTable.endTime,
     })
-    .from(thing)
-    .leftJoin(streak, and(eq(thing.uuid, streak.thingUuid), eq(streak.userUuid, user_uuid)))
-    .leftJoin(schedule, eq(thing.uuid, schedule.thingUuid))
-    .leftJoin(checkpoint, eq(thing.uuid, checkpoint.thingUuid))
+    .from(ThingTable)
+    .leftJoin(StreakTable, and(eq(ThingTable.uuid, StreakTable.thingUuid), eq(StreakTable.userUuid, user_uuid)))
+    .leftJoin(ScheduleTable, eq(ThingTable.uuid, ScheduleTable.thingUuid))
+    .leftJoin(CheckpointTable, eq(ThingTable.uuid, CheckpointTable.thingUuid))
     .where(
       and(
         inArray(
-          thing.uuid,
+          ThingTable.uuid,
           sq.map((thing) => thing.uuid)
         ),
         and(
-          gte(checkpoint.utcTimestamp, startOfToday),
-          lt(checkpoint.utcTimestamp, endOfToday)
+          gte(CheckpointTable.utcTimestamp, startOfToday),
+          lt(CheckpointTable.utcTimestamp, endOfToday)
         ),
-        eq(checkpoint.completed, false),
-        isNotNull(schedule.startTime),
-        isNotNull(schedule.endTime),
-        eq(checkpoint.userUuid, user_uuid)
+        eq(CheckpointTable.completed, false),
+        isNotNull(ScheduleTable.startTime),
+        isNotNull(ScheduleTable.endTime),
+        eq(CheckpointTable.userUuid, user_uuid)
       )
     )
-    .orderBy(desc(schedule.startTime))
-    .groupBy(thing.uuid, thing.name, streak.count, schedule.startTime, schedule.endTime);
+    .orderBy(desc(ScheduleTable.startTime))
+    .groupBy(ThingTable.uuid, ThingTable.name, StreakTable.count, ScheduleTable.startTime, ScheduleTable.endTime);
 
   let result;
   if (limit) {
@@ -106,17 +106,17 @@ export async function getOthersThingsToday(user_uuid: string) {
 
   const userThings = db
     .select({
-      uuid: thing.uuid,
+      uuid: ThingTable.uuid,
     })
-    .from(thing)
-    .where(eq(thing.userUuid, user_uuid));
+    .from(ThingTable)
+    .where(eq(ThingTable.userUuid, user_uuid));
 
   const sharedThins = db
     .select({
-      uuid: sharing.thingUuid,
+      uuid: SharingTable.thingUuid,
     })
-    .from(sharing)
-    .where(eq(sharing.userUuid, user_uuid));
+    .from(SharingTable)
+    .where(eq(SharingTable.userUuid, user_uuid));
 
   const sq = await union(userThings, sharedThins);
 
@@ -124,27 +124,27 @@ export async function getOthersThingsToday(user_uuid: string) {
 
   const query = db
     .select({
-      username: user.username,
-      thingName: thing.name,
-      thingUuid: thing.uuid,
-      photoUuid: checkpoint.photoUuid,
+      username: UserTable.username,
+      thingName: ThingTable.name,
+      thingUuid: ThingTable.uuid,
+      photoUuid: CheckpointTable.photoUuid,
     })
-    .from(checkpoint)
-    .leftJoin(thing, eq(thing.uuid, checkpoint.thingUuid))
-    .leftJoin(user, eq(checkpoint.userUuid, user.uuid))
+    .from(CheckpointTable)
+    .leftJoin(ThingTable, eq(ThingTable.uuid, CheckpointTable.thingUuid))
+    .leftJoin(UserTable, eq(CheckpointTable.userUuid, UserTable.uuid))
     .where(
       and(
         inArray(
-          checkpoint.thingUuid,
+          CheckpointTable.thingUuid,
           sq.map((thing) => thing.uuid)
         ),
-        ne(checkpoint.userUuid, user_uuid),
-        gte(checkpoint.utcTimestamp, startOfDay),
-        lt(checkpoint.utcTimestamp, endOfDay),
-        eq(checkpoint.completed, true)
+        ne(CheckpointTable.userUuid, user_uuid),
+        gte(CheckpointTable.utcTimestamp, startOfDay),
+        lt(CheckpointTable.utcTimestamp, endOfDay),
+        eq(CheckpointTable.completed, true)
       )
     )
-    .orderBy(desc(checkpoint.createdAt));
+    .orderBy(desc(CheckpointTable.createdAt));
 
   const result = await query;
 
@@ -158,17 +158,17 @@ export async function getOthersThingsToday(user_uuid: string) {
 export async function getUserThings(user_uuid: string) {
   const userThings = db
     .select({
-      uuid: thing.uuid,
+      uuid: ThingTable.uuid,
     })
-    .from(thing)
-    .where(eq(thing.userUuid, user_uuid));
+    .from(ThingTable)
+    .where(eq(ThingTable.userUuid, user_uuid));
 
   const sharedThins = db
     .select({
-      uuid: sharing.thingUuid,
+      uuid: SharingTable.thingUuid,
     })
-    .from(sharing)
-    .where(eq(sharing.userUuid, user_uuid));
+    .from(SharingTable)
+    .where(eq(SharingTable.userUuid, user_uuid));
 
   const sq = await union(userThings, sharedThins);
 
@@ -176,30 +176,30 @@ export async function getUserThings(user_uuid: string) {
 
   const query = db
     .select({
-      uuid: thing.uuid,
-      name: thing.name,
-      streakCount: streak.count,
-      startTime: schedule.startTime,
-      endTime: schedule.endTime,
+      uuid: ThingTable.uuid,
+      name: ThingTable.name,
+      streakCount: StreakTable.count,
+      startTime: ScheduleTable.startTime,
+      endTime: ScheduleTable.endTime,
     })
-    .from(thing)
-    .leftJoin(streak, and(eq(thing.uuid, streak.thingUuid), eq(streak.userUuid, user_uuid)))
-    .leftJoin(schedule, eq(thing.uuid, schedule.thingUuid))
-    .leftJoin(checkpoint, eq(thing.uuid, checkpoint.thingUuid))
+    .from(ThingTable)
+    .leftJoin(StreakTable, and(eq(ThingTable.uuid, StreakTable.thingUuid), eq(StreakTable.userUuid, user_uuid)))
+    .leftJoin(ScheduleTable, eq(ThingTable.uuid, ScheduleTable.thingUuid))
+    .leftJoin(CheckpointTable, eq(ThingTable.uuid, CheckpointTable.thingUuid))
     .where(
       and(
         inArray(
-          thing.uuid,
+          ThingTable.uuid,
           sq.map((thing) => thing.uuid)
         ),
-        eq(checkpoint.completed, false),
-        isNotNull(schedule.startTime),
-        isNotNull(schedule.endTime),
-        eq(checkpoint.userUuid, user_uuid)
+        eq(CheckpointTable.completed, false),
+        isNotNull(ScheduleTable.startTime),
+        isNotNull(ScheduleTable.endTime),
+        eq(CheckpointTable.userUuid, user_uuid)
       )
     )
-    .orderBy(desc(schedule.startTime))
-    .groupBy(thing.uuid, thing.name, streak.count, schedule.startTime, schedule.endTime);
+    .orderBy(desc(ScheduleTable.startTime))
+    .groupBy(ThingTable.uuid, ThingTable.name, StreakTable.count, ScheduleTable.startTime, ScheduleTable.endTime);
 
   const result = await query;
 
@@ -210,12 +210,12 @@ export async function getThingDetails(user_uuid: string, thing_uuid: string) {
   // Step1: Get thing type
   const thingTypeQuery = await db
     .select({
-      name: thing.name,
-      description: thing.description,
-      type: thing.type,
+      name: ThingTable.name,
+      description: ThingTable.description,
+      type: ThingTable.type,
     })
-    .from(thing)
-    .where(eq(thing.uuid, thing_uuid));
+    .from(ThingTable)
+    .where(eq(ThingTable.uuid, thing_uuid));
 
   // Step2: Get next occurrence
   const today = new Date();
@@ -236,54 +236,54 @@ export async function getThingDetails(user_uuid: string, thing_uuid: string) {
     // We will need to join chekpoints and schedules
     nextOccurrenceQuery = await db
       .select({
-        startTime: schedule.startTime,
-        endTime: schedule.endTime,
+        startTime: ScheduleTable.startTime,
+        endTime: ScheduleTable.endTime,
       })
-      .from(schedule)
+      .from(ScheduleTable)
       .leftJoin(
-        checkpoint,
+        CheckpointTable,
         and(
-          eq(checkpoint.thingUuid, thing_uuid),
-          gte(checkpoint.utcTimestamp, startOfDay),
-          lt(checkpoint.utcTimestamp, endOfDay)
+          eq(CheckpointTable.thingUuid, thing_uuid),
+          gte(CheckpointTable.utcTimestamp, startOfDay),
+          lt(CheckpointTable.utcTimestamp, endOfDay)
         )
       )
-      .where(eq(schedule.thingUuid, thing_uuid))
+      .where(eq(ScheduleTable.thingUuid, thing_uuid))
       .groupBy(
-        schedule.thingUuid,
-        schedule.startTime,
-        schedule.endTime,
-        checkpoint.utcTimestamp
+        ScheduleTable.thingUuid,
+        ScheduleTable.startTime,
+        ScheduleTable.endTime,
+        CheckpointTable.utcTimestamp
       )
-      .orderBy(asc(checkpoint.utcTimestamp));
+      .orderBy(asc(CheckpointTable.utcTimestamp));
   }
 
   // Step3: Get list of people shared with
   const sharedWithQuery = await db
     .select({
-      userUuid: sharing.userUuid,
-      username: user.username,
+      userUuid: SharingTable.userUuid,
+      username: UserTable.username,
     })
-    .from(sharing)
-    .leftJoin(user, eq(sharing.userUuid, user.uuid))
-    .where(eq(sharing.thingUuid, thing_uuid));
+    .from(SharingTable)
+    .leftJoin(UserTable, eq(SharingTable.userUuid, UserTable.uuid))
+    .where(eq(SharingTable.thingUuid, thing_uuid));
 
   // Step4: Previous checkpoints (username, thing name, image url)
   // we will need to join chekpoints and schedules and things
   const previousCheckpointsQuery = await db
     .select({
-      username: user.username,
-      thingName: thing.name,
-      photoUuid: checkpoint.photoUuid,
+      username: UserTable.username,
+      thingName: ThingTable.name,
+      photoUuid: CheckpointTable.photoUuid,
     })
-    .from(checkpoint)
-    .leftJoin(user, eq(checkpoint.userUuid, user.uuid))
-    .leftJoin(thing, eq(checkpoint.thingUuid, thing.uuid))
-    .leftJoin(schedule, eq(thing.uuid, schedule.thingUuid))
+    .from(CheckpointTable)
+    .leftJoin(UserTable, eq(CheckpointTable.userUuid, UserTable.uuid))
+    .leftJoin(ThingTable, eq(CheckpointTable.thingUuid, ThingTable.uuid))
+    .leftJoin(ScheduleTable, eq(ThingTable.uuid, ScheduleTable.thingUuid))
     .where(
-      and(eq(schedule.thingUuid, thing_uuid), eq(checkpoint.completed, true))
+      and(eq(ScheduleTable.thingUuid, thing_uuid), eq(CheckpointTable.completed, true))
     )
-    .orderBy(desc(checkpoint.createdAt));
+    .orderBy(desc(CheckpointTable.createdAt));
 
   // Alter the previous checkpoints query (add domain)
   previousCheckpointsQuery.map((checkpoint) => {
@@ -310,7 +310,7 @@ export async function createThing(
 ) {
   // Step1: Create thing
   const newThing = await db
-    .insert(thing)
+    .insert(ThingTable)
     .values({
       name: name,
       userUuid: user_uuid,
@@ -323,12 +323,12 @@ export async function createThing(
   for (const username of sharedUsernames) {
     const sharedUserId = (
       await db
-        .select({ uuid: user.uuid })
-        .from(user)
-        .where(eq(user.username, username))
+        .select({ uuid: UserTable.uuid })
+        .from(UserTable)
+        .where(eq(UserTable.username, username))
     )[0].uuid;
     await db
-      .insert(sharing)
+      .insert(SharingTable)
       .values({
         userUuid: sharedUserId,
         thingUuid: newThing[0].uuid,
@@ -338,11 +338,11 @@ export async function createThing(
 
   // Get all users that the thing is shared with and the current user
   const usersWithThing = await db
-    .select({ uuid: user.uuid })
-    .from(sharing)
-    .innerJoin(user, eq(sharing.userUuid, user.uuid))
-    .innerJoin(thing, eq(thing.uuid, sharing.thingUuid))
-    .where(eq(sharing.thingUuid, newThing[0].uuid));
+    .select({ uuid: UserTable.uuid })
+    .from(SharingTable)
+    .innerJoin(UserTable, eq(SharingTable.userUuid, UserTable.uuid))
+    .innerJoin(ThingTable, eq(ThingTable.uuid, SharingTable.thingUuid))
+    .where(eq(SharingTable.thingUuid, newThing[0].uuid));
 
   // Add the current user to the list
   usersWithThing.push({ uuid: user_uuid });
@@ -356,7 +356,7 @@ export async function createThing(
 
       for (const day of occurrence.dayOfWeek) {
         await db
-          .insert(schedule)
+          .insert(ScheduleTable)
           .values({
             thingUuid: newThing[0].uuid,
             startTime: occurrence.startTime,
@@ -373,7 +373,7 @@ export async function createThing(
   for (const userWithThing of usersWithThing) {
     // Create streak
     await db
-      .insert(streak)
+      .insert(StreakTable)
       .values({
         userUuid: userWithThing.uuid,
         thingUuid: newThing[0].uuid,
@@ -437,7 +437,7 @@ export async function createThing(
       // TEMPORARY: Add checkpoints for the next 7 days
       for (let i = 0; i < 7; i++) {
         await db
-          .insert(checkpoint)
+          .insert(CheckpointTable)
           .values({
             userUuid: userWithThing.uuid,
             thingUuid: newThing[0].uuid,

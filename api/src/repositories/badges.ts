@@ -1,23 +1,23 @@
 import { eq, desc } from "drizzle-orm";
 import { db } from "../db/db.js";
-import { user, badgeDefinition, badge } from "../db/schema.js";
+import { UserTable, BadgeDefinitionTable, BadgeTable } from "../db/schema.js";
 import { union } from "drizzle-orm/pg-core";
 
 export async function getTopBadges(user_uuid: string, limit: number = 3) {
   //   Get latest limit badges by creation time desc
   const topBadges = await db
     .select({
-      icon: badgeDefinition.icon,
-      name: badgeDefinition.name,
-      description: badgeDefinition.description,
+      icon: BadgeDefinitionTable.icon,
+      name: BadgeDefinitionTable.name,
+      description: BadgeDefinitionTable.description,
     })
-    .from(badge)
+    .from(BadgeTable)
     .leftJoin(
-      badgeDefinition,
-      eq(badgeDefinition.uuid, badge.badgeDefinitionUuid)
+      BadgeDefinitionTable,
+      eq(BadgeDefinitionTable.uuid, BadgeTable.badgeDefinitionUuid)
     )
-    .leftJoin(user, eq(user.uuid, user_uuid))
-    .orderBy(desc(badge.createdAt))
+    .leftJoin(UserTable, eq(UserTable.uuid, user_uuid))
+    .orderBy(desc(BadgeTable.createdAt))
     .limit(limit);
 
   return topBadges;
@@ -26,17 +26,17 @@ export async function getTopBadges(user_uuid: string, limit: number = 3) {
 export async function getAllBadges(user_uuid: string) {
   const topBadges = await db
     .select({
-      icon: badgeDefinition.icon,
-      name: badgeDefinition.name,
-      description: badgeDefinition.description,
+      icon: BadgeDefinitionTable.icon,
+      name: BadgeDefinitionTable.name,
+      description: BadgeDefinitionTable.description,
     })
-    .from(badge)
+    .from(BadgeTable)
     .leftJoin(
-      badgeDefinition,
-      eq(badgeDefinition.uuid, badge.badgeDefinitionUuid)
+      BadgeDefinitionTable,
+      eq(BadgeDefinitionTable.uuid, BadgeTable.badgeDefinitionUuid)
     )
-    .leftJoin(user, eq(user.uuid, user_uuid))
-    .orderBy(desc(badge.createdAt));
+    .leftJoin(UserTable, eq(UserTable.uuid, user_uuid))
+    .orderBy(desc(BadgeTable.createdAt));
 
   return topBadges;
 }

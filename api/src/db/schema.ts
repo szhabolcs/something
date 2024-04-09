@@ -9,7 +9,7 @@ import {
   unique,
 } from "drizzle-orm/pg-core";
 
-export const user = pgTable("user", {
+export const UserTable = pgTable("user", {
   uuid: uuid("uuid").defaultRandom().notNull().primaryKey(),
   username: text("username").unique().notNull(),
   password: text("password").notNull(),
@@ -18,13 +18,13 @@ export const user = pgTable("user", {
   updatedAt: timestamp("updated_at").notNull().defaultNow(),
 });
 
-export const thing = pgTable("thing", {
+export const ThingTable = pgTable("thing", {
   uuid: uuid("uuid").defaultRandom().notNull().primaryKey(),
   name: text("name").notNull(),
   description: text("description").notNull(),
   userUuid: uuid("user_uuid")
     .notNull()
-    .references(() => user.uuid),
+    .references(() => UserTable.uuid),
   type: text("type")
     .default("personal")
     .$type<"personal" | "social">()
@@ -32,10 +32,10 @@ export const thing = pgTable("thing", {
   createdAt: timestamp("created_at").notNull().defaultNow(),
 });
 
-export const schedule = pgTable("schedule", {
+export const ScheduleTable = pgTable("schedule", {
   thingUuid: uuid("thing_uuid")
     .notNull()
-    .references(() => thing.uuid),
+    .references(() => ThingTable.uuid),
   startTime: time("start_time").notNull(),
   endTime: time("end_time").notNull(),
   repeat: text("repeat").$type<"once" | "daily" | "weekly">().notNull(),
@@ -45,44 +45,44 @@ export const schedule = pgTable("schedule", {
   createdAt: timestamp("created_at").notNull().defaultNow(),
 });
 
-export const checkpoint = pgTable("checkpoint", {
+export const CheckpointTable = pgTable("checkpoint", {
   userUuid: uuid("user_uuid")
     .notNull()
-    .references(() => user.uuid),
+    .references(() => UserTable.uuid),
   thingUuid: uuid("thing_uuid")
     .notNull()
-    .references(() => thing.uuid),
+    .references(() => ThingTable.uuid),
   completed: boolean("completed").notNull().default(false),
   photoUuid: text("photoUuid"),
   utcTimestamp: timestamp("utc_timestamp").notNull(),
   createdAt: timestamp("created_at").notNull().defaultNow(),
 });
 
-export const sharing = pgTable("sharing", {
+export const SharingTable = pgTable("sharing", {
   thingUuid: uuid("thing_uuid")
     .notNull()
-    .references(() => thing.uuid),
+    .references(() => ThingTable.uuid),
   userUuid: uuid("user_uuid")
     .notNull()
-    .references(() => user.uuid),
+    .references(() => UserTable.uuid),
   createdAt: timestamp("created_at").notNull().defaultNow(),
 });
 
-export const point = pgTable("point", {
+export const PointTable = pgTable("point", {
   userUuid: uuid("user_uuid")
     .notNull()
-    .references(() => user.uuid),
+    .references(() => UserTable.uuid),
   point: integer("point").notNull(),
   public: boolean("public").notNull().default(true),
   createdAt: timestamp("created_at").notNull().defaultNow(),
 });
 
-export const levelDefinition = pgTable("level_definition", {
+export const LevelDefinitionTable = pgTable("level_definition", {
   name: text("name").notNull().unique(),
   minThreshold: integer("min_threshold").notNull(),
 });
 
-export const badgeDefinition = pgTable("badge_definition", {
+export const BadgeDefinitionTable = pgTable("badge_definition", {
   uuid: uuid("uuid").defaultRandom().notNull().primaryKey(),
   icon: text("icon").notNull(),
   name: text("name").notNull().unique(),
@@ -91,15 +91,15 @@ export const badgeDefinition = pgTable("badge_definition", {
   action_count: integer("action_count").notNull(),
 });
 
-export const badge = pgTable(
+export const BadgeTable = pgTable(
   "badge",
   {
     userUuid: uuid("user_uuid")
       .notNull()
-      .references(() => user.uuid),
+      .references(() => UserTable.uuid),
     badgeDefinitionUuid: uuid("badge_definition_uuid")
       .notNull()
-      .references(() => badgeDefinition.uuid),
+      .references(() => BadgeDefinitionTable.uuid),
     createdAt: timestamp("created_at").notNull().defaultNow(),
   },
   (table) => ({
@@ -107,15 +107,15 @@ export const badge = pgTable(
   })
 );
 
-export const streak = pgTable(
+export const StreakTable = pgTable(
   "streak",
   {
     userUuid: uuid("user_uuid")
       .notNull()
-      .references(() => user.uuid),
+      .references(() => UserTable.uuid),
     thingUuid: uuid("thing_uuid")
       .notNull()
-      .references(() => thing.uuid),
+      .references(() => ThingTable.uuid),
     count: integer("count").default(0).notNull(),
   },
   (table) => ({

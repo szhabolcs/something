@@ -1,12 +1,12 @@
 import { eq, and, isNotNull, gte, lt } from "drizzle-orm";
 import { db } from "../db/db.js";
 import {
-  user,
-  checkpoint,
-  thing,
-  streak,
-  point,
-  sharing,
+  UserTable,
+  CheckpointTable,
+  ThingTable,
+  StreakTable,
+  PointTable,
+  SharingTable,
 } from "../db/schema.js";
 
 export async function updateCheckpoint(
@@ -16,18 +16,18 @@ export async function updateCheckpoint(
 ) {
   const [previousCheckpoint] = await db
     .select()
-    .from(checkpoint)
+    .from(CheckpointTable)
     .where(
       and(
-        eq(checkpoint.userUuid, user_uuid),
-        eq(checkpoint.thingUuid, thing_uuid),
-        isNotNull(checkpoint.photoUuid)
+        eq(CheckpointTable.userUuid, user_uuid),
+        eq(CheckpointTable.thingUuid, thing_uuid),
+        isNotNull(CheckpointTable.photoUuid)
       )
     );
 
   if (previousCheckpoint) {
     // If the user has already completed this checkpoint, we need to create a new one
-    await db.insert(checkpoint).values({
+    await db.insert(CheckpointTable).values({
       userUuid: user_uuid,
       thingUuid: previousCheckpoint.thingUuid,
       utcTimestamp: previousCheckpoint.utcTimestamp,
@@ -46,19 +46,19 @@ export async function updateCheckpoint(
     endOfToday.setHours(23, 59, 59, 999);
 
     await db
-      .update(checkpoint)
+      .update(CheckpointTable)
       .set({
         completed: true,
         photoUuid: photoUuid,
       })
       .where(
         and(
-          eq(checkpoint.userUuid, user_uuid),
-          eq(checkpoint.thingUuid, thing_uuid),
+          eq(CheckpointTable.userUuid, user_uuid),
+          eq(CheckpointTable.thingUuid, thing_uuid),
           // on the same day as today
           and(
-            gte(checkpoint.utcTimestamp, startOfToday),
-            lt(checkpoint.utcTimestamp, endOfToday)
+            gte(CheckpointTable.utcTimestamp, startOfToday),
+            lt(CheckpointTable.utcTimestamp, endOfToday)
           )
         )
       );
@@ -72,19 +72,19 @@ async function updateStreak(user_uuid: string, thing_uuid: string) {
   // update streak
   const [currentStreak] = await db
     .select()
-    .from(streak)
+    .from(StreakTable)
     .where(
-      and(eq(streak.userUuid, user_uuid), eq(streak.thingUuid, thing_uuid))
+      and(eq(StreakTable.userUuid, user_uuid), eq(StreakTable.thingUuid, thing_uuid))
     );
 
   if (currentStreak) {
     await db
-      .update(streak)
+      .update(StreakTable)
       .set({
         count: currentStreak.count + 1,
       })
       .where(
-        and(eq(streak.userUuid, user_uuid), eq(streak.thingUuid, thing_uuid))
+        and(eq(StreakTable.userUuid, user_uuid), eq(StreakTable.thingUuid, thing_uuid))
       );
   }
 }
@@ -92,15 +92,15 @@ async function updateStreak(user_uuid: string, thing_uuid: string) {
 async function updatePoints(user_uuid: string, by: number = 10) {
   const [currentPoints] = await db
     .select()
-    .from(point)
-    .where(eq(point.userUuid, user_uuid));
+    .from(PointTable)
+    .where(eq(PointTable.userUuid, user_uuid));
 
   if (currentPoints) {
     await db
-      .update(point)
+      .update(PointTable)
       .set({
         point: currentPoints.point + by,
       })
-      .where(eq(point.userUuid, user_uuid));
+      .where(eq(PointTable.userUuid, user_uuid));
   }
 }

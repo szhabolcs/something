@@ -1,6 +1,6 @@
 import bcrypt from "bcrypt";
 import { Jwt } from "hono/utils/jwt";
-import { user } from "../db/schema.js"; // Update the import path based on your project structure
+import { PointTable, UserTable } from "../db/schema.js"; // Update the import path based on your project structure
 import { eq } from "drizzle-orm";
 import { db } from "../db/db.js";
 import { StatusCodes } from "http-status-codes";
@@ -9,19 +9,22 @@ const jwt_secret_key = process.env.JWT_SECRET || "your-secret-key";
 async function getUserByUsername(username: string) {
   const users = await db
     .select()
-    .from(user)
-    .where(eq(user.username, username))
+    .from(UserTable)
+    .where(eq(UserTable.username, username))
     .limit(1);
   return users[0] || null;
 }
 
 async function saveUser(username: string, hashedPassword: string) {
-  await db.insert(user).values({
-    username,
-    password: hashedPassword,
-    createdAt: new Date(),
-    updatedAt: new Date(),
-  });
+  return db
+    .insert(UserTable)
+    .values({
+      username,
+      password: hashedPassword,
+      createdAt: new Date(),
+      updatedAt: new Date(),
+    })
+    .returning();
 }
 
 export async function registerUser(username: string, password: string) {
@@ -31,7 +34,12 @@ export async function registerUser(username: string, password: string) {
   }
 
   const hashedPassword = await bcrypt.hash(password, 10);
-  await saveUser(username, hashedPassword);
+  const [user] = await saveUser(username, hashedPassword);
+
+  await db.insert(PointTable).values({
+    point: 0,
+    userUuid: user.uuid,
+  });
 }
 
 export async function loginUser(username: string, password: string) {
