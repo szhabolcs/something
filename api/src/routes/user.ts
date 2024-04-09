@@ -34,6 +34,7 @@ userRouter.get("/me/profile", jwt({ secret: jwtSecret }), async (c) => {
     };
     return c.json(result, StatusCodes.OK);
   } catch (error: any) {
+    console.error(error);
     return c.json({ error: error.message }, StatusCodes.INTERNAL_SERVER_ERROR);
   }
 });
@@ -44,6 +45,7 @@ userRouter.get("me/badges", jwt({ secret: jwtSecret }), async (c) => {
     const badges = await getAllBadges(user_uuid);
     return c.json(badges, StatusCodes.OK);
   } catch (error: any) {
+    console.error(error);
     return c.json({ error: error.message }, StatusCodes.INTERNAL_SERVER_ERROR);
   }
 });
@@ -58,6 +60,7 @@ userRouter.get("/leaderboard/all", jwt({ secret: jwtSecret }), async (c) => {
       StatusCodes.OK
     );
   } catch (error: any) {
+    console.error(error);
     return c.json({ error: error.message }, StatusCodes.INTERNAL_SERVER_ERROR);
   }
 });

@@ -51,6 +51,7 @@ imageRouter.post("/", jwt({ secret: jwtSecret }), async (c) => {
   try {
     await updateCheckpoint(user_uuid, thing_uuid, fileName);
   } catch (error: any) {
+    console.error(error);
     return c.json({ error: error.message }, StatusCodes.INTERNAL_SERVER_ERROR);
   }
   return c.json({ photoUuid: fileName }, StatusCodes.OK);

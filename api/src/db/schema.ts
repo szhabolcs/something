@@ -3,7 +3,6 @@ import {
   timestamp,
   pgTable,
   uuid,
-  customType,
   time,
   boolean,
   integer,
@@ -74,7 +73,7 @@ export const point = pgTable("point", {
     .notNull()
     .references(() => user.uuid),
   point: integer("point").notNull(),
-  public: boolean("public").notNull().default(false),
+  public: boolean("public").notNull().default(true),
   createdAt: timestamp("created_at").notNull().defaultNow(),
 });
 

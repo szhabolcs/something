@@ -20,6 +20,7 @@ thingRouter.get("/mine/today", jwt({ secret: jwtSecret }), async (c) => {
     const things = await getUserThingsToday(user_uuid, 3);
     return c.json(things, StatusCodes.OK);
   } catch (error: any) {
+    console.error(error);
     return c.json({ error: error.message }, StatusCodes.INTERNAL_SERVER_ERROR);
   }
 });
@@ -30,6 +31,7 @@ thingRouter.get("/mine/today/all", jwt({ secret: jwtSecret }), async (c) => {
     const things = await getUserThingsToday(user_uuid);
     return c.json(things, StatusCodes.OK);
   } catch (error: any) {
+    console.error(error);
     return c.json({ error: error.message }, StatusCodes.INTERNAL_SERVER_ERROR);
   }
 });
@@ -40,6 +42,7 @@ thingRouter.get("/others/today", jwt({ secret: jwtSecret }), async (c) => {
     const things = await getOthersThingsToday(user_uuid);
     return c.json(things, StatusCodes.OK);
   } catch (error: any) {
+    console.error(error);
     return c.json({ error: error.message }, StatusCodes.INTERNAL_SERVER_ERROR);
   }
 });
@@ -50,6 +53,7 @@ thingRouter.get("/mine/all", jwt({ secret: jwtSecret }), async (c) => {
     const things = await getUserThings(user_uuid);
     return c.json(things, StatusCodes.OK);
   } catch (error: any) {
+    console.error(error);
     return c.json({ error: error.message }, StatusCodes.INTERNAL_SERVER_ERROR);
   }
 });
@@ -61,6 +65,7 @@ thingRouter.get("/:uuid/details", jwt({ secret: jwtSecret }), async (c) => {
     const thingsDetails = await getThingDetails(user_uuid, thing_uuid);
     return c.json(thingsDetails, StatusCodes.OK);
   } catch (error: any) {
+    console.error(error);
     return c.json({ error: error.message }, StatusCodes.INTERNAL_SERVER_ERROR);
   }
 });
@@ -80,6 +85,7 @@ thingRouter.post("/create", jwt({ secret: jwtSecret }), async (c) => {
     );
     return c.json({ message: "Successfully added thing!" }, StatusCodes.OK);
   } catch (error: any) {
+    console.error(error);
     return c.json({ error: error.message }, StatusCodes.INTERNAL_SERVER_ERROR);
   }
 });

@@ -1,3 +1,5 @@
+import "dotenv/config";
+
 import { drizzle } from "drizzle-orm/postgres-js";
 import { migrate } from "drizzle-orm/postgres-js/migrator";
 import postgres from "postgres";
@@ -12,4 +14,7 @@ async function initializeDatabase() {
   await sql.end();
 }
 
-export { initializeDatabase };
+initializeDatabase().catch((error) => {
+  console.error("Failed to initialize database", error);
+  process.exit(1);
+});
