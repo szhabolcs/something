@@ -4,7 +4,7 @@ import { authSelector } from "../../redux/auth/AuthSlice";
 import RespositoryService from "../../services/RespositoryService";
 import { useState } from "react";
 
-type UserDetails = {
+export type UserDetails = {
   badges: {
     icon: string;
     name: string;
@@ -26,6 +26,7 @@ type UserDetails = {
       level: string;
       minThreshold: number;
     };
+    currentPoints: number;
   };
 };
 

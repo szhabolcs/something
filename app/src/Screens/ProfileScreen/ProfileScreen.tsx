@@ -11,7 +11,7 @@ import Column from "../../components/atoms/Column";
 import H1 from "../../components/atoms/H1";
 import Row from "../../components/atoms/Row";
 import H2 from "../../components/atoms/H2";
-import { useProfileScreenLogic } from "./ProfileScreen.logic";
+import { UserDetails, useProfileScreenLogic } from "./ProfileScreen.logic";
 import Label from "../../components/atoms/Label";
 import Spacer from "../../components/atoms/Spacer";
 import { FlatList } from "react-native-gesture-handler";
@@ -22,9 +22,12 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import * as Notifications from "expo-notifications";
 import MyButton from "../../components/molecules/MyButton";
 import { scheduleAllNotifications } from "../../navigation/RootNavigation.logic";
+import { useAppDispatch } from "../../hooks/hooks";
+import { logout } from "../../redux/auth/AuthSlice";
 
 const ProfileScreen = ({ navigation }: any) => {
   const { user, getData, data, refreshing } = useProfileScreenLogic();
+  const dispatch = useAppDispatch();
 
   const [opened, setOpened] = useState(true);
   const [notificationsScheduled, setNotificationsScheduled] = useState(false);
@@ -77,6 +80,20 @@ const ProfileScreen = ({ navigation }: any) => {
     }
   }
 
+  async function handleLogout() {
+    dispatch(logout());
+  }
+
+  function calculatePointPercentage(data: UserDetails) {
+    const percentage =
+      ((data.levels.currentPoints - data.levels.currentLevel.minThreshold) /
+        (data.levels.nextLevel.minThreshold -
+          data.levels.currentLevel.minThreshold)) *
+      100;
+    console.log("Calculating point percentage", percentage);
+    return percentage + 1;
+  }
+
   if (!data)
     return (
       <Column
@@ -113,14 +130,32 @@ const ProfileScreen = ({ navigation }: any) => {
           width: "100%",
         }}
       >
+        <Row styles={{ justifyContent: "space-between", alignItems: "center" }}>
+          <H2>{user?.username}</H2>
+          <Text>{data.levels.currentPoints} points</Text>
+        </Row>
+        <Spacer space={10} />
         <Row
           styles={{
             alignItems: "center",
             gap: 5,
+            justifyContent: "space-between",
           }}
         >
-          <H2>{user?.username}</H2>
-          <Text>({data.levels.currentLevel.level})</Text>
+          <Row
+            styles={{
+              alignItems: "center",
+              gap: 5,
+            }}
+          >
+            <Text>
+              {data.levels.currentLevel.level} (
+              {data.levels.currentLevel.minThreshold})
+            </Text>
+          </Row>
+          <Text>
+            {data.levels.nextLevel.level} ({data.levels.nextLevel.minThreshold})
+          </Text>
         </Row>
         <Column
           styles={{
@@ -135,19 +170,15 @@ const ProfileScreen = ({ navigation }: any) => {
           <Column
             styles={{
               height: "100%",
-              width: `${
-                (data?.levels?.currentLevel?.minThreshold /
-                  data?.levels?.nextLevel?.minThreshold) *
-                100
-              }%`,
+              width: `${calculatePointPercentage(data)}%`,
               backgroundColor: "#16a34a",
               borderRadius: 20,
             }}
           />
         </Column>
         <Spacer space={15} />
-        <Text>Badges</Text>
-        <Spacer space={10} />
+        {/* <Text>Badges</Text> */}
+        {/* <Spacer space={10} /> */}
         <FlatList
           data={data.badges}
           horizontal
@@ -255,6 +286,8 @@ const ProfileScreen = ({ navigation }: any) => {
           text="Toggle notifications"
           onPress={toggleNotifications}
         />
+        <Spacer space={10} />
+        <MyButton accent smalltext text="Log out" onPress={handleLogout} />
       </Column>
     </Column>
   );

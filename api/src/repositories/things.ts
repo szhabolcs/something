@@ -78,7 +78,7 @@ export async function getUserThingsToday(
         eq(CheckpointTable.userUuid, user_uuid)
       )
     )
-    .orderBy(desc(ScheduleTable.startTime))
+    .orderBy(asc(ScheduleTable.startTime))
     .groupBy(ThingTable.uuid, ThingTable.name, StreakTable.count, ScheduleTable.startTime, ScheduleTable.endTime);
 
   let result;

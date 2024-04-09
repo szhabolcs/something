@@ -32,5 +32,6 @@ export async function getLevels(user_uuid: string) {
   return {
     currentLevel: currentLevel[0],
     nextLevel: nextLevel[0],
+    currentPoints: userPoints[0].points,
   };
 }
