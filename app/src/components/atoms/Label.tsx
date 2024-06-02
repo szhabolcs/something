@@ -1,5 +1,5 @@
-import { Text, StyleSheet } from "react-native";
-import React from "react";
+import { Text, StyleSheet } from 'react-native';
+import React from 'react';
 
 type LabelProps = {
   text: string;
@@ -13,8 +13,8 @@ export default Label;
 
 const styles = StyleSheet.create({
   label: {
-    color: "#404040",
-    fontWeight: "500",
-    fontSize: 12,
-  },
+    color: '#404040',
+    fontWeight: '500',
+    fontSize: 12
+  }
 });

@@ -1,5 +1,5 @@
-import { StyleSheet, Text, View } from "react-native";
-import React from "react";
+import { StyleSheet, Text, View } from 'react-native';
+import React from 'react';
 
 type BigTextProps = {
   children: React.ReactNode;
@@ -13,7 +13,7 @@ const BigText = ({ children, accent, underLine }: BigTextProps) => {
       style={[
         styles.bigText,
         accent && styles.accent,
-        underLine && styles.underLine,
+        underLine && styles.underLine
       ]}
     >
       {children}
@@ -26,13 +26,13 @@ export default BigText;
 const styles = StyleSheet.create({
   bigText: {
     fontSize: 32,
-    fontWeight: "bold",
-    color: "#404040",
+    fontWeight: 'bold',
+    color: '#404040'
   },
   accent: {
-    color: "#16a34a",
+    color: '#16a34a'
   },
   underLine: {
-    textDecorationLine: "underline",
-  },
+    textDecorationLine: 'underline'
+  }
 });

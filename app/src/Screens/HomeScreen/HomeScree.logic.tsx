@@ -1,12 +1,12 @@
-import { useState } from "react";
-import { useAppDispatch, useAppSelector } from "../../hooks/hooks";
-import { logout } from "../../redux/auth/AuthSlice";
+import { useState } from 'react';
+import { useAppDispatch, useAppSelector } from '../../hooks/hooks';
+import { logout } from '../../redux/auth/AuthSlice';
 import {
   getAllTodaysPersonalThings,
   getOtherThingsToday,
   getTodaysPersonalThingsPreview,
-  thingSelector,
-} from "../../redux/thing/ThingStack";
+  thingSelector
+} from '../../redux/thing/ThingStack';
 
 export const useHomeScreenLogic = () => {
   const [refreshing, setRefreshing] = useState(true);
@@ -26,7 +26,7 @@ export const useHomeScreenLogic = () => {
     try {
       await dispatch(getTodaysPersonalThingsPreview());
     } catch (error) {
-      console.log("Dispatch error: ", error);
+      console.log('Dispatch error: ', error);
       dispatch(logout());
     }
   };

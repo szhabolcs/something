@@ -1,7 +1,7 @@
-import { error } from "console";
-import React from "react";
-import { StyleSheet } from "react-native";
-import { TextInput } from "react-native-gesture-handler";
+import { error } from 'console';
+import React from 'react';
+import { StyleSheet } from 'react-native';
+import { TextInput } from 'react-native-gesture-handler';
 
 type MyInputProps = {
   text: string;
@@ -18,7 +18,7 @@ const MyInput = ({
   placeholder,
   secure,
   error,
-  multiline,
+  multiline
 }: MyInputProps) => {
   return (
     <TextInput
@@ -38,11 +38,11 @@ const styles = StyleSheet.create({
   input: {
     borderRadius: 5,
     borderWidth: 1,
-    borderColor: "grey",
+    borderColor: 'grey',
     paddingVertical: 15,
-    paddingHorizontal: 5,
+    paddingHorizontal: 5
   },
   error: {
-    borderColor: "red",
-  },
+    borderColor: 'red'
+  }
 });

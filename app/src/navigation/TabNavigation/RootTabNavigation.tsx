@@ -1,14 +1,14 @@
-import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
-import { HomeStackNavigation } from "../StackNavigation/HomeStack";
-import { useRootNavigationLogic } from "../RootNavigation.logic";
-import SplashScreen from "../../Screens/SplashScreen/SplashScreen";
-import { AuthStackNavigation } from "../StackNavigation/AuthStack";
-import { Home, User, Users } from "react-native-feather";
-import { useEffect } from "react";
-import { getFocusedRouteNameFromRoute } from "@react-navigation/core";
-import { ProfileStackNavigation } from "../StackNavigation/ProfileStack";
-import SocialThings from "../../Screens/SocialThings/SocialThings";
-import * as Notifications from "expo-notifications";
+import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
+import { HomeStackNavigation } from '../StackNavigation/HomeStack';
+import { useRootNavigationLogic } from '../RootNavigation.logic';
+import SplashScreen from '../../Screens/SplashScreen/SplashScreen';
+import { AuthStackNavigation } from '../StackNavigation/AuthStack';
+import { Home, User, Users } from 'react-native-feather';
+import { useEffect } from 'react';
+import { getFocusedRouteNameFromRoute } from '@react-navigation/core';
+import { ProfileStackNavigation } from '../StackNavigation/ProfileStack';
+import SocialThings from '../../Screens/SocialThings/SocialThings';
+import * as Notifications from 'expo-notifications';
 
 const Tab = createBottomTabNavigator();
 
@@ -17,7 +17,7 @@ export const RootTabNavigation = () => {
 
   useEffect(() => {
     signInSilently();
-  }, []);
+  }, [signInSilently]);
 
   if (loading) {
     return <SplashScreen />;
@@ -34,31 +34,31 @@ export const RootTabNavigation = () => {
         component={HomeStackNavigation}
         options={({ route }) => ({
           tabBarStyle: ((route) => {
-            const routeName = getFocusedRouteNameFromRoute(route) ?? "";
+            const routeName = getFocusedRouteNameFromRoute(route) ?? '';
             console.log(routeName);
-            if (routeName === "Camera") {
-              return { display: "none" };
+            if (routeName === 'Camera') {
+              return { display: 'none' };
             }
             return;
           })(route),
-          title: "Home",
-          tabBarIcon: ({ color, size }) => <Home color={color} />,
+          title: 'Home',
+          tabBarIcon: ({ color, size }) => <Home color={color} />
         })}
       />
       <Tab.Screen
         name="SocialThings"
         component={SocialThings}
         options={{
-          title: "Social",
-          tabBarIcon: ({ color, size }) => <Users color={color} />,
+          title: 'Social',
+          tabBarIcon: ({ color, size }) => <Users color={color} />
         }}
       />
       <Tab.Screen
         name="ProfileStack"
         component={ProfileStackNavigation}
         options={{
-          title: "Profile",
-          tabBarIcon: ({ color, size }) => <User color={color} />,
+          title: 'Profile',
+          tabBarIcon: ({ color, size }) => <User color={color} />
         }}
       />
     </Tab.Navigator>

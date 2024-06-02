@@ -1,18 +1,18 @@
-import { useState } from "react";
-import { useAppDispatch, useAppSelector } from "../../hooks/hooks";
+import { useState } from 'react';
+import { useAppDispatch, useAppSelector } from '../../hooks/hooks';
 import {
   createThing,
   resetNewPersonalThing,
-  thingSelector,
-} from "../../redux/thing/ThingStack";
-import { scheduleAllNotifications } from "../../navigation/RootNavigation.logic";
+  thingSelector
+} from '../../redux/thing/ThingStack';
+import { scheduleAllNotifications } from '../../navigation/RootNavigation.logic';
 
 export const useCreateThingScreenLogic = () => {
-  const [thingName, setThingName] = useState("");
-  const [thingDescription, setThingDescription] = useState("");
+  const [thingName, setThingName] = useState('');
+  const [thingDescription, setThingDescription] = useState('');
   const [sharedUsernames, setSharedUsernames] = useState<string[]>([]);
   const [currentSharedUsername, setCurrentSharedUsername] =
-    useState<string>("");
+    useState<string>('');
   const thingState = useAppSelector(thingSelector);
   const dispatch = useAppDispatch();
 
@@ -23,9 +23,9 @@ export const useCreateThingScreenLogic = () => {
       await dispatch(
         createThing({
           name: thingName,
-          description: thingDescription ?? "",
+          description: thingDescription ?? '',
           occurances: newThing.occurances,
-          sharedUsernames: sharedUsernames,
+          sharedUsernames: sharedUsernames
         })
       );
 
@@ -36,10 +36,10 @@ export const useCreateThingScreenLogic = () => {
   };
 
   const handleCanel = () => {
-    setThingName("");
-    setThingDescription("");
+    setThingName('');
+    setThingDescription('');
     setSharedUsernames([]);
-    setCurrentSharedUsername("");
+    setCurrentSharedUsername('');
     dispatch(resetNewPersonalThing());
   };
 
@@ -54,6 +54,6 @@ export const useCreateThingScreenLogic = () => {
     setSharedUsernames,
     currentSharedUsername,
     setCurrentSharedUsername,
-    handleCanel,
+    handleCanel
   };
 };

@@ -1,5 +1,5 @@
-import { ViewStyle, StyleSheet, View } from "react-native";
-import React from "react";
+import { ViewStyle, StyleSheet, View } from 'react-native';
+import React from 'react';
 
 type RowProps = {
   children?: React.ReactNode;
@@ -14,6 +14,6 @@ export default Row;
 
 const RowStyles = StyleSheet.create({
   row: {
-    flexDirection: "row",
-  },
+    flexDirection: 'row'
+  }
 });

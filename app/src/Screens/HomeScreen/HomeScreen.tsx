@@ -5,20 +5,20 @@ import {
   ScrollView,
   StyleSheet,
   Text,
-  View,
-} from "react-native";
-import React, { useEffect } from "react";
-import Column from "../../components/atoms/Column";
-import H2 from "../../components/atoms/H2";
-import { FlatList } from "react-native-gesture-handler";
-import ThingCard from "../../components/molecules/ThingCard";
-import Spacer from "../../components/atoms/Spacer";
-import OtherThingCard from "../../components/molecules/OtherThingCard";
-import { useHomeScreenLogic } from "./HomeScree.logic";
-import { Plus } from "react-native-feather";
-import MyButton from "../../components/molecules/MyButton";
-import AsyncStorage from "@react-native-async-storage/async-storage";
-import ImageViewer from "../../components/molecules/ImageViewer";
+  View
+} from 'react-native';
+import React, { useEffect } from 'react';
+import Column from '../../components/atoms/Column';
+import H2 from '../../components/atoms/H2';
+import { FlatList } from 'react-native-gesture-handler';
+import ThingCard from '../../components/molecules/ThingCard';
+import Spacer from '../../components/atoms/Spacer';
+import OtherThingCard from '../../components/molecules/OtherThingCard';
+import { useHomeScreenLogic } from './HomeScree.logic';
+import { Plus } from 'react-native-feather';
+import MyButton from '../../components/molecules/MyButton';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import ImageViewer from '../../components/molecules/ImageViewer';
 
 const HomeScreen = ({ navigation }: any) => {
   const {
@@ -26,12 +26,12 @@ const HomeScreen = ({ navigation }: any) => {
     todaysOtherThings,
     getHomeThings,
     refreshing,
-    loading,
+    loading
   } = useHomeScreenLogic();
 
   useEffect(() => {
     getHomeThings();
-  }, []);
+  }, [getHomeThings]);
 
   const renderTodayThings = () => {
     if (loading) {
@@ -94,20 +94,20 @@ const HomeScreen = ({ navigation }: any) => {
     return (
       <Column
         styles={{
-          justifyContent: "center",
-          alignItems: "center",
+          justifyContent: 'center',
+          alignItems: 'center',
           padding: 15,
-          backgroundColor: "#16a34a",
+          backgroundColor: '#16a34a',
           borderRadius: 15,
-          position: "absolute",
+          position: 'absolute',
           right: 16,
-          bottom: 20,
+          bottom: 20
         }}
       >
         <Plus
-          color={"white"}
+          color={'white'}
           onPress={() => {
-            navigation.push("CreateThing");
+            navigation.push('CreateThing');
           }}
         />
       </Column>
@@ -143,6 +143,6 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     padding: 16,
-    paddingTop: 32,
-  },
+    paddingTop: 32
+  }
 });

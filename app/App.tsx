@@ -1,18 +1,19 @@
-import { NavigationContainer } from "@react-navigation/native";
-import { SafeAreaView, StyleSheet } from "react-native";
-import { RootNavigation } from "./src/navigation/RootNavigation";
-import { Provider } from "react-redux";
-import { store } from "./src/redux/store";
-import { navigationRef } from "./src/navigation/RootNavigation";
-import { useFonts } from "expo-font";
-import { usePushNotifications } from "./src/hooks/notifications";
+import { NavigationContainer } from '@react-navigation/native';
+import { SafeAreaView, StyleSheet } from 'react-native';
+import { RootNavigation } from './src/navigation/RootNavigation';
+import { Provider } from 'react-redux';
+import { store } from './src/redux/store';
+import { navigationRef } from './src/navigation/RootNavigation';
+import { useFonts } from 'expo-font';
+import { usePushNotifications } from './src/hooks/notifications';
 
 export default function App() {
-  const { expoPushToken, notification, lastNotificationResponse } = usePushNotifications();
+  const { expoPushToken, notification, lastNotificationResponse } =
+    usePushNotifications();
 
   const [fontsLoaded] = useFonts({
-    "Cursive-Regular": require("./assets/fonts/CedarvilleCursive-Regular.ttf"),
-    Caveat: require("./assets/fonts/Caveat-VariableFont_wght.ttf"),
+    'Cursive-Regular': require('./assets/fonts/CedarvilleCursive-Regular.ttf'),
+    Caveat: require('./assets/fonts/Caveat-VariableFont_wght.ttf')
   });
 
   return (
@@ -28,6 +29,6 @@ export default function App() {
 
 const styles = StyleSheet.create({
   container: {
-    flex: 1,
-  },
+    flex: 1
+  }
 });

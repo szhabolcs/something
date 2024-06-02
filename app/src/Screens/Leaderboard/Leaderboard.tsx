@@ -1,14 +1,14 @@
-import { StyleSheet, Switch, Text, View } from "react-native";
-import React, { useEffect } from "react";
-import Column from "../../components/atoms/Column";
-import { useLeaderboardLogic } from "./Leaderboard.logic";
-import { FlatList } from "react-native-gesture-handler";
-import Row from "../../components/atoms/Row";
-import H1 from "../../components/atoms/H1";
-import H4 from "../../components/atoms/H4";
-import H3 from "../../components/atoms/H3";
-import Label from "../../components/atoms/Label";
-import H2 from "../../components/atoms/H2";
+import { StyleSheet, Switch, Text, View } from 'react-native';
+import React, { useEffect } from 'react';
+import Column from '../../components/atoms/Column';
+import { useLeaderboardLogic } from './Leaderboard.logic';
+import { FlatList } from 'react-native-gesture-handler';
+import Row from '../../components/atoms/Row';
+import H1 from '../../components/atoms/H1';
+import H4 from '../../components/atoms/H4';
+import H3 from '../../components/atoms/H3';
+import Label from '../../components/atoms/Label';
+import H2 from '../../components/atoms/H2';
 
 const Leaderboard = () => {
   const { leaderBoard, getData, visibility, toggleVisibility, refreshing } =
@@ -16,7 +16,7 @@ const Leaderboard = () => {
 
   useEffect(() => {
     getData();
-  }, []);
+  }, [getData]);
 
   return (
     <Column
@@ -24,10 +24,10 @@ const Leaderboard = () => {
       refreshing={refreshing}
       getData={getData}
       styles={{
-        height: "100%",
-        position: "relative",
+        height: '100%',
+        position: 'relative',
         flex: 1,
-        paddingTop: 20,
+        paddingTop: 20
       }}
     >
       <H1>
@@ -35,17 +35,17 @@ const Leaderboard = () => {
       </H1>
       <Row
         styles={{
-          alignItems: "center",
-          justifyContent: "center",
+          alignItems: 'center',
+          justifyContent: 'center',
           gap: 10,
           marginTop: 10,
-          marginBottom: 30,
+          marginBottom: 30
         }}
       >
         <Label text="Toggle online visibility" />
         <Switch
-          trackColor={{ false: "#767577", true: "#78e3a0" }}
-          thumbColor={visibility ? "#16a34a" : "#f4f3f4"}
+          trackColor={{ false: '#767577', true: '#78e3a0' }}
+          thumbColor={visibility ? '#16a34a' : '#f4f3f4'}
           ios_backgroundColor="#3e3e3e"
           onValueChange={toggleVisibility}
           value={visibility}
@@ -53,23 +53,23 @@ const Leaderboard = () => {
       </Row>
       <FlatList
         contentContainerStyle={{
-          justifyContent: "center",
-          alignItems: "center",
-          width: "100%",
+          justifyContent: 'center',
+          alignItems: 'center',
+          width: '100%'
         }}
         data={leaderBoard}
         renderItem={({ item, index }) => {
           return (
             <Row
               styles={{
-                gap: 5,
+                gap: 5
               }}
             >
               <H2 accent>#{index + 1} </H2>
               <H2>{item.username}</H2>
               <Text
                 style={{
-                  fontSize: 20,
+                  fontSize: 20
                 }}
               >
                 {item.points} points
@@ -82,10 +82,10 @@ const Leaderboard = () => {
       <View
         style={{
           flex: 1,
-          alignItems: "center",
-          justifyContent: "center",
+          alignItems: 'center',
+          justifyContent: 'center'
         }}
-      ></View>
+      />
     </Column>
   );
 };

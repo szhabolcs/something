@@ -1,8 +1,8 @@
-import AsyncStorage from "@react-native-async-storage/async-storage";
-import { useAppSelector } from "../../hooks/hooks";
-import { authSelector } from "../../redux/auth/AuthSlice";
-import RespositoryService from "../../services/RespositoryService";
-import { useState } from "react";
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { useAppSelector } from '../../hooks/hooks';
+import { authSelector } from '../../redux/auth/AuthSlice';
+import RespositoryService from '../../services/RespositoryService';
+import { useState } from 'react';
 
 export type UserDetails = {
   badges: {
@@ -40,8 +40,11 @@ export const useProfileScreenLogic = () => {
   const getData = async () => {
     setrefreshing(true);
     const repositoryService = new RespositoryService();
-    const token = await AsyncStorage.getItem("token") ?? '';
-    const response = await repositoryService.authRespoitory.getUserDetails<UserDetails | null>(token);
+    const token = (await AsyncStorage.getItem('token')) ?? '';
+    const response =
+      await repositoryService.authRespoitory.getUserDetails<UserDetails | null>(
+        token
+      );
     setData(response);
     setrefreshing(false);
   };

@@ -1,18 +1,18 @@
-import { Camera, CameraType, FaceDetectionResult } from "expo-camera";
-import React, { useEffect, useState, useRef } from "react";
+import { Camera, CameraType, FaceDetectionResult } from 'expo-camera';
+import React, { useEffect, useState, useRef } from 'react';
 import {
   StyleSheet,
   Text,
   Dimensions,
   View,
   TouchableOpacity,
-  ActivityIndicator,
-} from "react-native";
-import H1 from "../../components/atoms/H1";
-import H3 from "../../components/atoms/H3";
-import Row from "../../components/atoms/Row";
-import { RefreshCcw, Send } from "react-native-feather";
-import CameraRepository from "../../repositories/camera/CameraRepository";
+  ActivityIndicator
+} from 'react-native';
+import H1 from '../../components/atoms/H1';
+import H3 from '../../components/atoms/H3';
+import Row from '../../components/atoms/Row';
+import { RefreshCcw, Send } from 'react-native-feather';
+import CameraRepository from '../../repositories/camera/CameraRepository';
 import { manipulateAsync, FlipType, SaveFormat } from 'expo-image-manipulator';
 
 export default function CameraScreen({ route, navigation }: any) {
@@ -22,7 +22,7 @@ export default function CameraScreen({ route, navigation }: any) {
   const [pauseImageCapture, setPauseImageCapture] = useState(false);
   const [uri, setUri] = useState<string | null>(null);
 
-  const { height, width } = Dimensions.get("window");
+  const { height, width } = Dimensions.get('window');
   const cameraWidth = 300;
   const cameraHeight = 400;
   const widthOffset = width / 2 - cameraWidth / 2;
@@ -33,7 +33,7 @@ export default function CameraScreen({ route, navigation }: any) {
   useEffect(() => {
     (async () => {
       const { status } = await Camera.requestCameraPermissionsAsync();
-      setHasPermission(status === "granted");
+      setHasPermission(status === 'granted');
     })();
   }, []);
 
@@ -44,21 +44,20 @@ export default function CameraScreen({ route, navigation }: any) {
   };
 
   const captureImage = async () => {
-    if (!cameraRef?.current) return;
+    if (!cameraRef?.current) {
+      return;
+    }
 
     let photo = await cameraRef.current.takePictureAsync({
       base64: true,
-      exif: true,
+      exif: true
     });
     if (type === CameraType.back) {
-      photo = await manipulateAsync(
-          photo.uri,
-          [
-              { rotate: 90 },
-              { flip: FlipType.Vertical },
-          ]
-      );
-  }
+      photo = await manipulateAsync(photo.uri, [
+        { rotate: 90 },
+        { flip: FlipType.Vertical }
+      ]);
+    }
 
     await cameraRef.current?.pausePreview();
     setPauseImageCapture(true);
@@ -69,10 +68,12 @@ export default function CameraScreen({ route, navigation }: any) {
   const retakeImage = () => {
     setPauseImageCapture(false);
     cameraRef.current?.resumePreview();
-  }
+  };
 
   const sendImage = async () => {
-    if (capturingImage) return;
+    if (capturingImage) {
+      return;
+    }
 
     if (cameraRef.current) {
       setCapturingImage(true);
@@ -83,9 +84,9 @@ export default function CameraScreen({ route, navigation }: any) {
         await repo.uploadImage(uri!, route.params.uuid);
         setCapturingImage(false);
 
-        navigation.navigate("Home");
+        navigation.navigate('Home');
       } catch (error) {
-        console.error("Error capturing image:", error);
+        console.error('Error capturing image:', error);
       }
     }
   };
@@ -112,33 +113,30 @@ export default function CameraScreen({ route, navigation }: any) {
             right: widthOffset,
             top: cameraTopOffset,
             width: cameraWidth,
-            height: cameraHeight,
-          },
+            height: cameraHeight
+          }
         ]}
-      ></Camera>
+      />
       <Row>
         {!capturingImage && !pauseImageCapture && (
-          <TouchableOpacity
-            style={styles.shutter}
-            onPress={captureImage}
-          ></TouchableOpacity>
+          <TouchableOpacity style={styles.shutter} onPress={captureImage} />
         )}
         {capturingImage && <ActivityIndicator size="large" />}
         {!capturingImage && !pauseImageCapture && (
           <TouchableOpacity style={styles.change} onPress={toggleCameraType}>
-            <RefreshCcw color={"black"} />
+            <RefreshCcw color={'black'} />
           </TouchableOpacity>
         )}
         {pauseImageCapture && !capturingImage && (
           <TouchableOpacity style={styles.retake} onPress={retakeImage}>
             <Text>Retake</Text>
-            <RefreshCcw color={"black"} />
+            <RefreshCcw color={'black'} />
           </TouchableOpacity>
         )}
         {pauseImageCapture && !capturingImage && (
           <TouchableOpacity style={styles.send} onPress={sendImage}>
             <Text>Send</Text>
-            <Send color={"black"} />
+            <Send color={'black'} />
           </TouchableOpacity>
         )}
       </Row>
@@ -155,66 +153,66 @@ export default function CameraScreen({ route, navigation }: any) {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#fff",
-    alignItems: "center",
-    justifyContent: "flex-end",
+    backgroundColor: '#fff',
+    alignItems: 'center',
+    justifyContent: 'flex-end'
   },
   camera: {
-    position: "absolute",
+    position: 'absolute',
     top: 0,
     bottom: 0,
     right: 0,
     left: 0,
     zIndex: 2,
     flex: 1,
-    alignItems: "center",
-    justifyContent: "flex-end",
-    padding: 50,
+    alignItems: 'center',
+    justifyContent: 'flex-end',
+    padding: 50
   },
   button: {
-    marginTop: 20,
+    marginTop: 20
   },
   shutter: {
     width: 70,
     height: 70,
     borderRadius: 100,
     borderWidth: 5,
-    justifyContent: "center",
-    alignItems: "center",
+    justifyContent: 'center',
+    alignItems: 'center',
     marginBottom: 50,
     marginRight: 20,
-    marginLeft: 50,
+    marginLeft: 50
   },
   send: {
     width: 100,
     height: 50,
-    flexDirection: "row",
+    flexDirection: 'row',
     gap: 10,
     borderWidth: 2,
     borderRadius: 10,
-    justifyContent: "center",
-    alignItems: "center",
+    justifyContent: 'center',
+    alignItems: 'center',
     marginBottom: 50,
-    marginRight: 20,
+    marginRight: 20
   },
   retake: {
     width: 100,
     height: 50,
-    flexDirection: "row",
+    flexDirection: 'row',
     gap: 10,
     borderWidth: 2,
     borderRadius: 10,
-    justifyContent: "center",
-    alignItems: "center",
+    justifyContent: 'center',
+    alignItems: 'center',
     marginBottom: 50,
     marginRight: 20,
-    marginLeft: 20,
+    marginLeft: 20
   },
   change: {
     width: 50,
     height: 50,
-    justifyContent: "center",
-    alignItems: "center",
-    marginTop: 10,
-  },
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginTop: 10
+  }
 });

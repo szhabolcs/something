@@ -1,9 +1,9 @@
-import { StyleSheet, Text, TextStyle, View } from "react-native";
-import React from "react";
+import { StyleSheet, Text, TextStyle, View } from 'react-native';
+import React from 'react';
 
 type H1Props = {
   children: React.ReactNode;
-  customColor?: TextStyle["color"];
+  customColor?: TextStyle['color'];
   accent?: boolean;
 };
 
@@ -20,11 +20,11 @@ export default H1;
 const styles = StyleSheet.create({
   h1: {
     fontSize: 32,
-    fontWeight: "bold",
-    color: "#404040",
-    textAlign: "center",
+    fontWeight: 'bold',
+    color: '#404040',
+    textAlign: 'center'
   },
   accent: {
-    color: "#16a34a",
-  },
+    color: '#16a34a'
+  }
 });

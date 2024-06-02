@@ -1,27 +1,27 @@
-import { Pressable, StyleSheet, Text } from "react-native";
-import React, { useState } from "react";
-import Column from "../../components/atoms/Column";
-import Row from "../../components/atoms/Row";
-import MyButton from "../../components/molecules/MyButton";
-import H2 from "../../components/atoms/H2";
+import { Pressable, StyleSheet, Text } from 'react-native';
+import React, { useState } from 'react';
+import Column from '../../components/atoms/Column';
+import Row from '../../components/atoms/Row';
+import MyButton from '../../components/molecules/MyButton';
+import H2 from '../../components/atoms/H2';
 import {
   DateTimePickerAndroid,
-  DateTimePickerEvent,
-} from "@react-native-community/datetimepicker";
-import { Dropdown } from "react-native-element-dropdown";
-import BigText from "../../components/atoms/BigText";
-import { useAppDispatch } from "../../hooks/hooks";
-import { setOccuranceForNewPersonalThing } from "../../redux/thing/ThingStack";
+  DateTimePickerEvent
+} from '@react-native-community/datetimepicker';
+import { Dropdown } from 'react-native-element-dropdown';
+import BigText from '../../components/atoms/BigText';
+import { useAppDispatch } from '../../hooks/hooks';
+import { setOccuranceForNewPersonalThing } from '../../redux/thing/ThingStack';
 
 const SetTimeIntervals = ({ navigation }: any) => {
   const [startDate, setStartDate] = useState(new Date(Date.now()));
-  const daysOfWeek = ["mon", "tue", "wed", "thu", "fri", "sat", "sun"];
+  const daysOfWeek = ['mon', 'tue', 'wed', 'thu', 'fri', 'sat', 'sun'];
   const [endDate, setEndDate] = useState(
     new Date(new Date(Date.now()).setHours(startDate.getHours() + 1))
   );
   const dispatch = useAppDispatch();
-  const [value, setValue] = useState("every");
-  const [period, setPeriod] = useState("daily");
+  const [value, setValue] = useState('every');
+  const [period, setPeriod] = useState('daily');
   const [day, setDay] = useState(daysOfWeek[new Date(Date.now()).getDay()]);
 
   const onSave = () => {
@@ -29,13 +29,13 @@ const SetTimeIntervals = ({ navigation }: any) => {
       return;
     }
 
-    if (value === "once") {
+    if (value === 'once') {
       dispatch(
         setOccuranceForNewPersonalThing({
           startTime: `${formatDate(startDate)}:00`,
           endTime: `${formatDate(endDate)}:00`,
-          repeat: "once",
-          daysOfWeek: [],
+          repeat: 'once',
+          daysOfWeek: []
         })
       );
       return;
@@ -46,7 +46,7 @@ const SetTimeIntervals = ({ navigation }: any) => {
         startTime: `${formatDate(startDate)}:00`,
         endTime: `${formatDate(endDate)}:00`,
         repeat: period,
-        dayOfWeek: period !== "daily" ? [day] : [],
+        dayOfWeek: period !== 'daily' ? [day] : []
       })
     );
   };
@@ -72,12 +72,12 @@ const SetTimeIntervals = ({ navigation }: any) => {
       value: startDate,
       onChange,
       mode: currentMode,
-      is24Hour: true,
+      is24Hour: true
     });
   };
 
   const showTimepicker = (onChange: (item: any) => void) => {
-    showMode("time", onChange);
+    showMode('time', onChange);
   };
 
   const formatDate = (date: Date, additionalHours?: number) => {
@@ -94,16 +94,16 @@ const SetTimeIntervals = ({ navigation }: any) => {
       styles={{
         flex: 1,
         padding: 16,
-        justifyContent: "space-between",
+        justifyContent: 'space-between'
       }}
     >
       <Column>
         <BigText>
-          I want to do this <BigText accent>Thing</BigText> from{" "}
+          I want to do this <BigText accent>Thing</BigText> from{' '}
         </BigText>
         <Row
           styles={{
-            alignItems: "center",
+            alignItems: 'center'
           }}
         >
           <Pressable
@@ -112,7 +112,7 @@ const SetTimeIntervals = ({ navigation }: any) => {
             }}
           >
             <BigText accent underLine>
-              {formatDate(startDate)}{" "}
+              {formatDate(startDate)}{' '}
             </BigText>
           </Pressable>
           <BigText> to </BigText>
@@ -122,13 +122,13 @@ const SetTimeIntervals = ({ navigation }: any) => {
             }}
           >
             <BigText accent underLine>
-              {formatDate(endDate)}{" "}
+              {formatDate(endDate)}{' '}
             </BigText>
           </Pressable>
         </Row>
         <Row
           styles={{
-            gap: 20,
+            gap: 20
           }}
         >
           <Dropdown
@@ -138,9 +138,9 @@ const SetTimeIntervals = ({ navigation }: any) => {
             itemContainerStyle={{ width: 90 }}
             data={[
               {
-                label: "Every",
-                value: "every",
-              },
+                label: 'Every',
+                value: 'every'
+              }
               // {
               //   label: "Once",
               //   value: "once",
@@ -153,7 +153,7 @@ const SetTimeIntervals = ({ navigation }: any) => {
               setValue(item.value);
             }}
           />
-          {value === "every" && (
+          {value === 'every' && (
             <Dropdown
               style={styles.dropdown}
               selectedTextStyle={styles.selectedTextStyle}
@@ -161,9 +161,9 @@ const SetTimeIntervals = ({ navigation }: any) => {
               itemContainerStyle={{ width: 90 }}
               data={[
                 {
-                  label: "Day",
-                  value: "daily",
-                },
+                  label: 'Day',
+                  value: 'daily'
+                }
                 // {
                 //   label: "Week",
                 //   value: "weekly",
@@ -182,18 +182,18 @@ const SetTimeIntervals = ({ navigation }: any) => {
             />
           )}
         </Row>
-        {period !== "daily" && value === "every" && (
+        {period !== 'daily' && value === 'every' && (
           <Dropdown
             style={[styles.dropdown, { width: 140 }]}
             selectedTextStyle={styles.selectedTextStyle}
             itemTextStyle={{
-              fontSize: 15,
+              fontSize: 15
             }}
             renderItem={(item) => {
               return (
                 <Text
                   style={{
-                    fontSize: 15,
+                    fontSize: 15
                   }}
                 >
                   {item.label}
@@ -204,33 +204,33 @@ const SetTimeIntervals = ({ navigation }: any) => {
             itemContainerStyle={{ width: 90 }}
             data={[
               {
-                label: "Monday",
-                value: "mon",
+                label: 'Monday',
+                value: 'mon'
               },
               {
-                label: "Tuesday",
-                value: "tue",
+                label: 'Tuesday',
+                value: 'tue'
               },
               {
-                label: "Wednesday",
-                value: "wed",
+                label: 'Wednesday',
+                value: 'wed'
               },
               {
-                label: "Thursday",
-                value: "thu",
+                label: 'Thursday',
+                value: 'thu'
               },
               {
-                label: "Friday",
-                value: "fri",
+                label: 'Friday',
+                value: 'fri'
               },
               {
-                label: "Saturday",
-                value: "sat",
+                label: 'Saturday',
+                value: 'sat'
               },
               {
-                label: "Sunday",
-                value: "sun",
-              },
+                label: 'Sunday',
+                value: 'sun'
+              }
             ]}
             labelField="label"
             valueField="value"
@@ -243,18 +243,18 @@ const SetTimeIntervals = ({ navigation }: any) => {
       </Column>
       <Row
         styles={{
-          alignItems: "center",
-          justifyContent: "space-evenly",
+          alignItems: 'center',
+          justifyContent: 'space-evenly'
         }}
       >
         <MyButton
-          text={"Cancel"}
+          text={'Cancel'}
           onPress={() => {
             navigation.pop();
           }}
         />
         <MyButton
-          text={"Save"}
+          text={'Save'}
           accent
           onPress={() => {
             onSave();
@@ -271,16 +271,16 @@ export default SetTimeIntervals;
 const styles = StyleSheet.create({
   dropdown: {
     width: 90,
-    justifyContent: "center",
-    alignItems: "center",
+    justifyContent: 'center',
+    alignItems: 'center'
   },
   selectedTextStyle: {
     fontSize: 26,
-    fontWeight: "bold",
-    color: "#16a34a",
-    textDecorationLine: "underline",
+    fontWeight: 'bold',
+    color: '#16a34a',
+    textDecorationLine: 'underline'
   },
   iconStyle: {
-    display: "none",
-  },
+    display: 'none'
+  }
 });

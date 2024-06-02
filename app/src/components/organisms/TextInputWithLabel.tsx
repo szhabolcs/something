@@ -1,8 +1,8 @@
-import { View, Text } from "react-native";
-import React from "react";
-import Label from "../atoms/Label";
-import Column from "../atoms/Column";
-import MyInput from "../molecules/MyInput";
+import { View, Text } from 'react-native';
+import React from 'react';
+import Label from '../atoms/Label';
+import Column from '../atoms/Column';
+import MyInput from '../molecules/MyInput';
 
 type TextInputWithLabelProps = {
   label: string;
@@ -21,7 +21,7 @@ const TextInputWithLabel = ({
   onChangeText,
   secure,
   error,
-  multiline,
+  multiline
 }: TextInputWithLabelProps) => {
   return (
     <Column styles={{ gap: 5 }}>

@@ -1,6 +1,6 @@
-import { useState } from "react";
-import RespositoryService from "../../services/RespositoryService";
-import AsyncStorage from "@react-native-async-storage/async-storage";
+import { useState } from 'react';
+import RespositoryService from '../../services/RespositoryService';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 export const useThingDetailsScreenLogic = () => {
   const [thing, setThing] = useState<{
@@ -44,7 +44,7 @@ export const useThingDetailsScreenLogic = () => {
         thingName: string;
         photoUuid: string;
       }[];
-    }>(id, (await AsyncStorage.getItem("token")) || "");
+    }>(id, (await AsyncStorage.getItem('token')) || '');
 
     setThing(response);
     setRefreshing(false);
@@ -52,6 +52,6 @@ export const useThingDetailsScreenLogic = () => {
   return {
     thing,
     getDetails,
-    refreshing,
+    refreshing
   };
 };

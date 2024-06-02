@@ -1,15 +1,15 @@
-import { ScrollView, StyleSheet, Text } from "react-native";
-import React from "react";
-import Column from "../../components/atoms/Column";
-import H1 from "../../components/atoms/H1";
-import MyButton from "../../components/molecules/MyButton";
-import Row from "../../components/atoms/Row";
-import TextInputWithLabel from "../../components/organisms/TextInputWithLabel";
-import ActionRow from "../../components/molecules/ActionRow";
-import { useCreateThingScreenLogic } from "./CreateThingsScreen.logic";
-import H3 from "../../components/atoms/H3";
-import MyInput from "../../components/molecules/MyInput";
-import { X } from "react-native-feather";
+import { ScrollView, StyleSheet, Text } from 'react-native';
+import React from 'react';
+import Column from '../../components/atoms/Column';
+import H1 from '../../components/atoms/H1';
+import MyButton from '../../components/molecules/MyButton';
+import Row from '../../components/atoms/Row';
+import TextInputWithLabel from '../../components/organisms/TextInputWithLabel';
+import ActionRow from '../../components/molecules/ActionRow';
+import { useCreateThingScreenLogic } from './CreateThingsScreen.logic';
+import H3 from '../../components/atoms/H3';
+import MyInput from '../../components/molecules/MyInput';
+import { X } from 'react-native-feather';
 
 const CreateThingScreen = ({ navigation }: any) => {
   const {
@@ -23,7 +23,7 @@ const CreateThingScreen = ({ navigation }: any) => {
     currentSharedUsername,
     setCurrentSharedUsername,
     handleCreateThing,
-    handleCanel,
+    handleCanel
   } = useCreateThingScreenLogic();
 
   return (
@@ -31,7 +31,7 @@ const CreateThingScreen = ({ navigation }: any) => {
       <Column
         styles={{
           paddingVertical: 16,
-          gap: 30,
+          gap: 30
         }}
       >
         <H1>
@@ -40,13 +40,13 @@ const CreateThingScreen = ({ navigation }: any) => {
 
         <Column
           styles={{
-            justifyContent: "flex-start",
+            justifyContent: 'flex-start'
           }}
         >
           <Column
             styles={{
               padding: 16,
-              gap: 16,
+              gap: 16
             }}
           >
             <Text>
@@ -54,43 +54,43 @@ const CreateThingScreen = ({ navigation }: any) => {
               created. But if you want to, feel free to contact me :)
             </Text>
             <TextInputWithLabel
-              label={"Name"}
-              placeholder={"Thing name"}
+              label={'Name'}
+              placeholder={'Thing name'}
               value={thingName}
               onChangeText={setThingName}
             />
             <TextInputWithLabel
               multiline
-              label={"Description"}
-              placeholder={"Thing description"}
+              label={'Description'}
+              placeholder={'Thing description'}
               value={thingDescription}
               onChangeText={setThingDescription}
             />
           </Column>
           <Column
             styles={{
-              justifyContent: "center",
-              alignItems: "center",
+              justifyContent: 'center',
+              alignItems: 'center',
               padding: 16,
-              gap: 16,
+              gap: 16
             }}
           >
             {newThing &&
               newThing.occurances.map((occurance: any, idx) => {
                 return (
                   <H3 key={idx}>
-                    {occurance.startTime} - {occurance.endTime} repeats:{" "}
-                    {occurance.repeat} {occurance.dayOfWeek.length ? "on" : ""}{" "}
-                    {occurance.dayOfWeek?.join(", ")}
+                    {occurance.startTime} - {occurance.endTime} repeats:{' '}
+                    {occurance.repeat} {occurance.dayOfWeek.length ? 'on' : ''}{' '}
+                    {occurance.dayOfWeek?.join(', ')}
                   </H3>
                 );
               })}
           </Column>
           {(!newThing || !newThing?.occurances) && (
             <ActionRow
-              label={"Set time"}
+              label={'Set time'}
               action={() => {
-                navigation.push("SetTime");
+                navigation.push('SetTime');
               }}
             />
           )}
@@ -98,14 +98,14 @@ const CreateThingScreen = ({ navigation }: any) => {
         <Column>
           <Row
             styles={{
-              alignItems: "center",
-              justifyContent: "flex-end",
-              padding: 16,
+              alignItems: 'center',
+              justifyContent: 'flex-end',
+              padding: 16
             }}
           >
             <Column
               styles={{
-                flex: 1,
+                flex: 1
               }}
             >
               <MyInput
@@ -115,16 +115,16 @@ const CreateThingScreen = ({ navigation }: any) => {
               />
             </Column>
             <MyButton
-              text={"Add"}
+              text={'Add'}
               onPress={() => {
                 setSharedUsernames([...sharedUsernames, currentSharedUsername]);
-                setCurrentSharedUsername("");
+                setCurrentSharedUsername('');
               }}
             />
           </Row>
           <Column
             styles={{
-              gap: 10,
+              gap: 10
             }}
           >
             {sharedUsernames.map((username, index) => {
@@ -133,15 +133,15 @@ const CreateThingScreen = ({ navigation }: any) => {
                   key={index}
                   styles={{
                     gap: 8,
-                    alignItems: "center",
+                    alignItems: 'center',
                     marginHorizontal: 16,
                     padding: 8,
                     borderRadius: 5,
-                    backgroundColor: "rgba(16, 185, 129, 0.5)",
+                    backgroundColor: 'rgba(16, 185, 129, 0.5)'
                   }}
                 >
                   <X
-                    color={"#fff"}
+                    color={'#fff'}
                     onPress={() => {
                       setSharedUsernames(
                         sharedUsernames.filter((name) => name !== username)
@@ -156,19 +156,19 @@ const CreateThingScreen = ({ navigation }: any) => {
         </Column>
         <Row
           styles={{
-            alignItems: "center",
-            justifyContent: "space-evenly",
+            alignItems: 'center',
+            justifyContent: 'space-evenly'
           }}
         >
           <MyButton
-            text={"Cancel"}
+            text={'Cancel'}
             onPress={() => {
               handleCanel();
               navigation.pop();
             }}
           />
           <MyButton
-            text={"Save"}
+            text={'Save'}
             onPress={() => {
               handleCreateThing();
               navigation.pop();

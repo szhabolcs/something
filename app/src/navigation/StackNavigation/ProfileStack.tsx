@@ -1,7 +1,7 @@
-import { createStackNavigator } from "@react-navigation/stack";
-import ProfileScreen from "../../Screens/ProfileScreen/ProfileScreen";
-import Leaderboard from "../../Screens/Leaderboard/Leaderboard";
-import ThingDetailsScreen from "../../Screens/ThingDetailsScreen/ThingDetailsScreen";
+import { createStackNavigator } from '@react-navigation/stack';
+import ProfileScreen from '../../Screens/ProfileScreen/ProfileScreen';
+import Leaderboard from '../../Screens/Leaderboard/Leaderboard';
+import ThingDetailsScreen from '../../Screens/ThingDetailsScreen/ThingDetailsScreen';
 
 const ProfileStack = createStackNavigator();
 
@@ -9,8 +9,8 @@ export const ProfileStackNavigation = () => {
   return (
     <ProfileStack.Navigator
       screenOptions={{
-        cardStyle: { backgroundColor: "white" },
-        headerShown: false,
+        cardStyle: { backgroundColor: 'white' },
+        headerShown: false
       }}
     >
       <ProfileStack.Screen name="Profile" component={ProfileScreen} />

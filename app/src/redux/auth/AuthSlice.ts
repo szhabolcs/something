@@ -1,7 +1,7 @@
-import { PayloadAction, createAsyncThunk, createSlice } from "@reduxjs/toolkit";
-import RespositoryService from "../../services/RespositoryService";
-import { RootState } from "../store";
-import AsyncStorage from "@react-native-async-storage/async-storage";
+import { PayloadAction, createAsyncThunk, createSlice } from '@reduxjs/toolkit';
+import RespositoryService from '../../services/RespositoryService';
+import { RootState } from '../store';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 type User = {
   token: string;
@@ -10,17 +10,17 @@ type User = {
     icon: string;
     name: string;
     description: string;
-  }[],
+  }[];
   levels?: {
     currentLevel: {
       level: string;
       minThreshold: number;
-    },
+    };
     nextLevel: {
       level: string;
       minThreshold: number;
-    }
-  }
+    };
+  };
 };
 
 interface AuthState {
@@ -32,24 +32,24 @@ interface AuthState {
 const initialState: AuthState = {
   user: null,
   loading: false,
-  error: undefined,
+  error: undefined
 };
 
-export const logout = createAsyncThunk("auth/logout", async () => {
-  await AsyncStorage.removeItem("token");
-  await AsyncStorage.removeItem("username");
+export const logout = createAsyncThunk('auth/logout', async () => {
+  await AsyncStorage.removeItem('token');
+  await AsyncStorage.removeItem('username');
   return;
 });
 
 export const loginSilently = createAsyncThunk(
-  "auth/loginSilently",
+  'auth/loginSilently',
   async () => {
-    const testToken = await AsyncStorage.getItem("token");
+    const testToken = await AsyncStorage.getItem('token');
 
     if (testToken) {
       return {
         token: testToken,
-        username: await AsyncStorage.getItem("username") || "",
+        username: (await AsyncStorage.getItem('username')) || ''
       };
     }
 
@@ -58,7 +58,7 @@ export const loginSilently = createAsyncThunk(
 );
 
 export const login = createAsyncThunk(
-  "auth/login",
+  'auth/login',
   async (data: { username: string; password: string }) => {
     const repositoryService = new RespositoryService();
     const response = await repositoryService.authRespoitory.login<{
@@ -67,9 +67,9 @@ export const login = createAsyncThunk(
     }>(data);
 
     if (response) {
-      await AsyncStorage.setItem("token", response.token);
-      await AsyncStorage.setItem("username", response.user.username);
-      await AsyncStorage.setItem("allowNotifications", "true");
+      await AsyncStorage.setItem('token', response.token);
+      await AsyncStorage.setItem('username', response.user.username);
+      await AsyncStorage.setItem('allowNotifications', 'true');
     }
 
     return response;
@@ -77,7 +77,7 @@ export const login = createAsyncThunk(
 );
 
 export const register = createAsyncThunk(
-  "auth/register",
+  'auth/register',
   async (data: { username: string; password: string }) => {
     const repositoryService = new RespositoryService();
     const response = await repositoryService.authRespoitory.register(data);
@@ -91,7 +91,7 @@ export const register = createAsyncThunk(
 );
 
 export const authSlice = createSlice({
-  name: "auth",
+  name: 'auth',
   initialState,
   reducers: {},
   extraReducers: (builder) => {
@@ -113,7 +113,7 @@ export const authSlice = createSlice({
         }
         state.user = {
           token: action.payload.token,
-          username: action.payload.username,
+          username: action.payload.username
         };
       }
     );
@@ -133,7 +133,7 @@ export const authSlice = createSlice({
         state.loading = false;
         state.user = {
           token: action.payload.token,
-          username: action.payload.user.username,
+          username: action.payload.user.username
         };
       }
     );
@@ -157,7 +157,7 @@ export const authSlice = createSlice({
       state.loading = false;
       state.user = null;
     });
-  },
+  }
 });
 
 export default authSlice.reducer;

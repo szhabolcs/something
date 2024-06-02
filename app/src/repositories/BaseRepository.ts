@@ -1,5 +1,5 @@
-import ApiService from "../services/ApiService";
+import ApiService from '../services/ApiService';
 
 export default class BaseRepository {
-    public readonly api = new ApiService();
+  public readonly api = new ApiService();
 }
