@@ -1,13 +1,13 @@
-import { eq, and, isNotNull, gte, lt } from "drizzle-orm";
-import { db } from "../db/db.js";
+import { eq, and, isNotNull, gte, lt } from 'drizzle-orm';
+import { db } from '../db/db.js';
 import {
   UserTable,
   CheckpointTable,
   ThingTable,
   StreakTable,
   PointTable,
-  SharingTable,
-} from "../db/schema.js";
+  SharingTable
+} from '../db/schema.js';
 
 export async function updateCheckpoint(
   user_uuid: string,
@@ -32,7 +32,7 @@ export async function updateCheckpoint(
       thingUuid: previousCheckpoint.thingUuid,
       utcTimestamp: previousCheckpoint.utcTimestamp,
       photoUuid: photoUuid,
-      completed: true,
+      completed: true
     });
 
     await updateStreak(user_uuid, thing_uuid);
@@ -49,7 +49,7 @@ export async function updateCheckpoint(
       .update(CheckpointTable)
       .set({
         completed: true,
-        photoUuid: photoUuid,
+        photoUuid: photoUuid
       })
       .where(
         and(
@@ -74,17 +74,23 @@ async function updateStreak(user_uuid: string, thing_uuid: string) {
     .select()
     .from(StreakTable)
     .where(
-      and(eq(StreakTable.userUuid, user_uuid), eq(StreakTable.thingUuid, thing_uuid))
+      and(
+        eq(StreakTable.userUuid, user_uuid),
+        eq(StreakTable.thingUuid, thing_uuid)
+      )
     );
 
   if (currentStreak) {
     await db
       .update(StreakTable)
       .set({
-        count: currentStreak.count + 1,
+        count: currentStreak.count + 1
       })
       .where(
-        and(eq(StreakTable.userUuid, user_uuid), eq(StreakTable.thingUuid, thing_uuid))
+        and(
+          eq(StreakTable.userUuid, user_uuid),
+          eq(StreakTable.thingUuid, thing_uuid)
+        )
       );
   }
 }
@@ -99,7 +105,7 @@ async function updatePoints(user_uuid: string, by: number = 10) {
     await db
       .update(PointTable)
       .set({
-        point: currentPoints.point + by,
+        point: currentPoints.point + by
       })
       .where(eq(PointTable.userUuid, user_uuid));
   }
