@@ -1,25 +1,25 @@
-import { Hono } from "hono";
-import { jwt } from "hono/jwt";
-import { registerUser, loginUser } from "../repositories/auth.js";
-import { StatusCodes } from "http-status-codes";
+import { Hono } from 'hono';
+import { jwt } from 'hono/jwt';
+import { registerUser, loginUser } from '../repositories/auth.js';
+import { StatusCodes } from 'http-status-codes';
 
 export const authRoutes = new Hono();
 
 // JWT secret key
-const jwtSecret = process.env.JWT_SECRET || "your-secret-key";
+const jwtSecret = process.env.JWT_SECRET || 'your-secret-key';
 
 // User registration endpoint
-authRoutes.post("/register", async (c) => {
+authRoutes.post('/register', async (c) => {
   const { username, password } = await c.req.json();
 
   try {
     await registerUser(username, password);
     return c.json(
-      { message: "User registered successfully" },
+      { message: 'User registered successfully' },
       StatusCodes.CREATED
     );
   } catch (error: any) {
-    if (error.message === "User already exists") {
+    if (error.message === 'User already exists') {
       return c.json({ error: error.message }, StatusCodes.CONFLICT);
     }
     return c.json({ error: error.message }, StatusCodes.BAD_REQUEST);
@@ -27,7 +27,7 @@ authRoutes.post("/register", async (c) => {
 });
 
 // User login endpoint
-authRoutes.post("/login", async (c) => {
+authRoutes.post('/login', async (c) => {
   const { username, password } = await c.req.json();
 
   try {
@@ -39,7 +39,7 @@ authRoutes.post("/login", async (c) => {
 });
 
 // Protected route
-authRoutes.get("/protected", jwt({ secret: jwtSecret }), (c) => {
-  const username = c.get("jwtPayload").username;
+authRoutes.get('/protected', jwt({ secret: jwtSecret }), (c) => {
+  const username = c.get('jwtPayload').username;
   return c.text(`Hello, ${username}! You are authorized.`);
 });

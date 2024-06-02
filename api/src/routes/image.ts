@@ -1,46 +1,46 @@
-import { Hono } from "hono";
-import { StatusCodes } from "http-status-codes";
-import { jwt } from "hono/jwt";
-import { cwd } from "process";
-import { randomUUID } from "crypto";
-import path from "path";
-import { writeFile } from "fs/promises";
-import { updateCheckpoint } from "../repositories/checkpoint.js";
-import sharp from "sharp";
+import { Hono } from 'hono';
+import { StatusCodes } from 'http-status-codes';
+import { jwt } from 'hono/jwt';
+import { cwd } from 'process';
+import { randomUUID } from 'crypto';
+import path from 'path';
+import { writeFile } from 'fs/promises';
+import { updateCheckpoint } from '../repositories/checkpoint.js';
+import sharp from 'sharp';
 
 export const imageRouter = new Hono();
 
 // JWT secret key
-export const jwtSecret = process.env.JWT_SECRET || "your-secret-key";
+export const jwtSecret = process.env.JWT_SECRET || 'your-secret-key';
 
-imageRouter.post("/", jwt({ secret: jwtSecret }), async (c) => {
-  const user_uuid = c.get("jwtPayload").uuid;
+imageRouter.post('/', jwt({ secret: jwtSecret }), async (c) => {
+  const user_uuid = c.get('jwtPayload').uuid;
 
   const body: any = await c.req.parseBody();
-  const file = await body["image"];
-  const thing_uuid = body["thing_uuid"];
+  const file = await body['image'];
+  const thing_uuid = body['thing_uuid'];
   if (!thing_uuid) {
-    return c.json({ error: "thing_uuid is required" }, StatusCodes.BAD_REQUEST);
+    return c.json({ error: 'thing_uuid is required' }, StatusCodes.BAD_REQUEST);
   }
 
   if (!file) {
-    return c.json({ error: "image is required" }, StatusCodes.BAD_REQUEST);
+    return c.json({ error: 'image is required' }, StatusCodes.BAD_REQUEST);
   }
 
   const fileData = await file.arrayBuffer();
-  const fileExt = ".jpg";
+  const fileExt = '.jpg';
   const fileName = `${randomUUID()}${fileExt}`;
 
   // On production, we have a mounted volume
   if (process.env.API_VOLUME_PATH) {
-    const filePath = path.join(process.env.API_VOLUME_PATH, "images", fileName);
+    const filePath = path.join(process.env.API_VOLUME_PATH, 'images', fileName);
     await sharp(Buffer.from(fileData))
       .jpeg({ quality: 50, mozjpeg: true })
       .flop() // Because the image is mirrored
       .toFile(filePath);
     console.log(`Image saved to ${filePath}`);
   } else {
-    const filePath = path.join(cwd(), "/images", fileName);
+    const filePath = path.join(cwd(), '/images', fileName);
     await sharp(Buffer.from(fileData))
       .jpeg({ quality: 50, mozjpeg: true })
       .flop() // Because the image is mirrored

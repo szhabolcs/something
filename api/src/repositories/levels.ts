@@ -1,7 +1,7 @@
-import { eq, desc, lte, gte } from "drizzle-orm";
-import { db } from "../db/db.js";
-import { UserTable, LevelDefinitionTable, PointTable } from "../db/schema.js";
-import { union } from "drizzle-orm/pg-core";
+import { eq, desc, lte, gte } from 'drizzle-orm';
+import { db } from '../db/db.js';
+import { UserTable, LevelDefinitionTable, PointTable } from '../db/schema.js';
+import { union } from 'drizzle-orm/pg-core';
 
 export async function getLevels(user_uuid: string) {
   const userPoints = await db
@@ -12,7 +12,7 @@ export async function getLevels(user_uuid: string) {
   const currentLevel = await db
     .select({
       level: LevelDefinitionTable.name,
-      minThreshold: LevelDefinitionTable.minThreshold,
+      minThreshold: LevelDefinitionTable.minThreshold
     })
     .from(LevelDefinitionTable)
     .where(lte(LevelDefinitionTable.minThreshold, userPoints[0].points))
@@ -22,7 +22,7 @@ export async function getLevels(user_uuid: string) {
   const nextLevel = await db
     .select({
       level: LevelDefinitionTable.name,
-      minThreshold: LevelDefinitionTable.minThreshold,
+      minThreshold: LevelDefinitionTable.minThreshold
     })
     .from(LevelDefinitionTable)
     .where(gte(LevelDefinitionTable.minThreshold, userPoints[0].points + 1))
@@ -32,6 +32,6 @@ export async function getLevels(user_uuid: string) {
   return {
     currentLevel: currentLevel[0],
     nextLevel: nextLevel[0],
-    currentPoints: userPoints[0].points,
+    currentPoints: userPoints[0].points
   };
 }

@@ -1,7 +1,7 @@
-import { eq, desc } from "drizzle-orm";
-import { db } from "../db/db.js";
-import { UserTable, BadgeDefinitionTable, BadgeTable } from "../db/schema.js";
-import { union } from "drizzle-orm/pg-core";
+import { eq, desc } from 'drizzle-orm';
+import { db } from '../db/db.js';
+import { UserTable, BadgeDefinitionTable, BadgeTable } from '../db/schema.js';
+import { union } from 'drizzle-orm/pg-core';
 
 export async function getTopBadges(user_uuid: string, limit: number = 3) {
   //   Get latest limit badges by creation time desc
@@ -9,7 +9,7 @@ export async function getTopBadges(user_uuid: string, limit: number = 3) {
     .select({
       icon: BadgeDefinitionTable.icon,
       name: BadgeDefinitionTable.name,
-      description: BadgeDefinitionTable.description,
+      description: BadgeDefinitionTable.description
     })
     .from(BadgeTable)
     .leftJoin(
@@ -28,7 +28,7 @@ export async function getAllBadges(user_uuid: string) {
     .select({
       icon: BadgeDefinitionTable.icon,
       name: BadgeDefinitionTable.name,
-      description: BadgeDefinitionTable.description,
+      description: BadgeDefinitionTable.description
     })
     .from(BadgeTable)
     .leftJoin(

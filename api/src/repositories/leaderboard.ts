@@ -1,13 +1,13 @@
-import { eq, desc } from "drizzle-orm";
-import { db } from "../db/db.js";
-import { UserTable, LevelDefinitionTable, PointTable } from "../db/schema.js";
-import { union } from "drizzle-orm/pg-core";
+import { eq, desc } from 'drizzle-orm';
+import { db } from '../db/db.js';
+import { UserTable, LevelDefinitionTable, PointTable } from '../db/schema.js';
+import { union } from 'drizzle-orm/pg-core';
 
 export async function getLeaderBoard(limit: number = 100) {
   return await db
     .select({
       username: UserTable.username,
-      points: PointTable.point,
+      points: PointTable.point
     })
     .from(PointTable)
     .leftJoin(UserTable, eq(UserTable.uuid, PointTable.userUuid))
