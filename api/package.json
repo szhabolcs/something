@@ -21,7 +21,6 @@
     "jsonwebtoken": "^9.0.2",
     "pg": "^8.11.3",
     "postgres": "^3.4.4",
-    "prettier": "^3.3.0",
     "sharp": "^0.33.3"
   },
   "devDependencies": {
@@ -36,7 +35,9 @@
     "eslint-config-prettier": "^9.1.0",
     "eslint-plugin-deprecation": "^3.0.0",
     "eslint-plugin-prettier": "^5.1.3",
+    "prettier": "^3.3.0",
     "tsx": "^3.12.2",
     "typescript": "^5.4.5"
-  }
+  },
+  "private": true
 }
