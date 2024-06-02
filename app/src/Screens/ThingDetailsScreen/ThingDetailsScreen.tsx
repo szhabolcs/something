@@ -1,16 +1,16 @@
-import { ActivityIndicator, StyleSheet, Text, View } from "react-native";
-import React, { useEffect } from "react";
-import Column from "../../components/atoms/Column";
-import { useThingDetailsScreenLogic } from "./ThingDetailsScreen.logic";
-import Row from "../../components/atoms/Row";
-import H1 from "../../components/atoms/H1";
-import StreakChip from "../../components/atoms/StreakChip";
-import H3 from "../../components/atoms/H3";
-import H4 from "../../components/atoms/H4";
-import { ChevronLeft, ChevronsLeft } from "react-native-feather";
-import { FlatList, ScrollView } from "react-native-gesture-handler";
-import ImageViewer from "../../components/molecules/ImageViewer";
-import MyButton from "../../components/molecules/MyButton";
+import { ActivityIndicator, StyleSheet, Text, View } from 'react-native';
+import React, { useEffect } from 'react';
+import Column from '../../components/atoms/Column';
+import { useThingDetailsScreenLogic } from './ThingDetailsScreen.logic';
+import Row from '../../components/atoms/Row';
+import H1 from '../../components/atoms/H1';
+import StreakChip from '../../components/atoms/StreakChip';
+import H3 from '../../components/atoms/H3';
+import H4 from '../../components/atoms/H4';
+import { ChevronLeft, ChevronsLeft } from 'react-native-feather';
+import { FlatList, ScrollView } from 'react-native-gesture-handler';
+import ImageViewer from '../../components/molecules/ImageViewer';
+import MyButton from '../../components/molecules/MyButton';
 
 const ThingDetailsScreen = ({ route, navigation }: any) => {
   const { getDetails, thing, refreshing } = useThingDetailsScreenLogic();
@@ -19,22 +19,23 @@ const ThingDetailsScreen = ({ route, navigation }: any) => {
 
   useEffect(() => {
     getDetails(thingId);
-  }, []);
+  }, [getDetails, thingId]);
 
   console.log(JSON.stringify(thing));
 
-  if (!thing)
+  if (!thing) {
     return (
       <Column
         styles={{
           flex: 1,
-          justifyContent: "center",
-          alignItems: "center",
+          justifyContent: 'center',
+          alignItems: 'center'
         }}
       >
-        <ActivityIndicator size={"large"} />
+        <ActivityIndicator size={'large'} />
       </Column>
     );
+  }
 
   return (
     <Column
@@ -44,19 +45,19 @@ const ThingDetailsScreen = ({ route, navigation }: any) => {
       styles={{
         flex: 1,
         gap: 32,
-        padding: 16,
+        padding: 16
       }}
     >
       <Row
         styles={{
-          justifyContent: "space-between",
-          alignItems: "center",
+          justifyContent: 'space-between',
+          alignItems: 'center'
         }}
       >
         <ChevronLeft
           width={32}
           height={32}
-          color={"black"}
+          color={'black'}
           onPress={() => {
             navigation.pop();
           }}
@@ -66,7 +67,7 @@ const ThingDetailsScreen = ({ route, navigation }: any) => {
       </Row>
       <Column
         styles={{
-          gap: 16,
+          gap: 16
         }}
       >
         <H3>Next occurance</H3>
@@ -76,7 +77,7 @@ const ThingDetailsScreen = ({ route, navigation }: any) => {
       </Column>
       <Column
         styles={{
-          gap: 16,
+          gap: 16
         }}
       >
         <H4>Description</H4>
@@ -84,7 +85,7 @@ const ThingDetailsScreen = ({ route, navigation }: any) => {
       </Column>
       <Column
         styles={{
-          gap: 16,
+          gap: 16
         }}
       >
         <H4>Shared with</H4>
@@ -94,10 +95,10 @@ const ThingDetailsScreen = ({ route, navigation }: any) => {
             styles={{
               paddingHorizontal: 10,
               paddingVertical: 8,
-              backgroundColor: "#16a34a",
+              backgroundColor: '#16a34a',
               borderRadius: 10,
-              width: "auto",
-              alignSelf: "flex-start",
+              width: 'auto',
+              alignSelf: 'flex-start'
             }}
           >
             <H3 key={shared.userUuid} white>
@@ -109,18 +110,18 @@ const ThingDetailsScreen = ({ route, navigation }: any) => {
       <Column>
         <Row
           styles={{
-            justifyContent: "space-between",
+            justifyContent: 'space-between'
           }}
         >
           <H4>Memories</H4>
           <MyButton
             smalltext
             accent
-            text={"Create more"}
+            text={'Create more'}
             onPress={() => {
-              navigation.navigate("Camera", {
+              navigation.navigate('Camera', {
                 name: thing.name,
-                uuid: thingId,
+                uuid: thingId
               });
             }}
           />
@@ -131,9 +132,9 @@ const ThingDetailsScreen = ({ route, navigation }: any) => {
             data={thing.previousCheckpoints}
             keyExtractor={(item, index) => index.toString()}
             style={{
-              marginTop: 20,
+              marginTop: 20
             }}
-            contentContainerStyle = {{
+            contentContainerStyle={{
               gap: 16
             }}
             renderItem={({ item, index }) => (

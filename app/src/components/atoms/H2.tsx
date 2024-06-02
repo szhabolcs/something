@@ -1,5 +1,5 @@
-import { StyleSheet, Text, View } from "react-native";
-import React from "react";
+import { StyleSheet, Text, View } from 'react-native';
+import React from 'react';
 
 type H2Props = {
   children?: React.ReactNode;
@@ -22,15 +22,15 @@ export default H2;
 const styles = StyleSheet.create({
   H2: {
     fontSize: 20,
-    fontWeight: "bold",
-    color: "#404040",
+    fontWeight: 'bold',
+    color: '#404040'
   },
   accent: {
-    color: "#16a34a",
+    color: '#16a34a'
   },
   cursive: {
-    fontFamily: "Caveat",
-    fontWeight: "normal",
-    fontSize: 26,
-  },
+    fontFamily: 'Caveat',
+    fontWeight: 'normal',
+    fontSize: 26
+  }
 });

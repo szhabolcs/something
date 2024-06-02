@@ -4,26 +4,26 @@ import {
   RefreshControl,
   StyleSheet,
   Text,
-  View,
-} from "react-native";
-import React, { useEffect, useState } from "react";
-import Column from "../../components/atoms/Column";
-import H1 from "../../components/atoms/H1";
-import Row from "../../components/atoms/Row";
-import H2 from "../../components/atoms/H2";
-import { UserDetails, useProfileScreenLogic } from "./ProfileScreen.logic";
-import Label from "../../components/atoms/Label";
-import Spacer from "../../components/atoms/Spacer";
-import { FlatList } from "react-native-gesture-handler";
-import * as Icons from "react-native-feather";
-import H3 from "../../components/atoms/H3";
-import ThingCard from "../../components/molecules/ThingCard";
-import AsyncStorage from "@react-native-async-storage/async-storage";
-import * as Notifications from "expo-notifications";
-import MyButton from "../../components/molecules/MyButton";
-import { scheduleAllNotifications } from "../../navigation/RootNavigation.logic";
-import { useAppDispatch } from "../../hooks/hooks";
-import { logout } from "../../redux/auth/AuthSlice";
+  View
+} from 'react-native';
+import React, { useEffect, useState } from 'react';
+import Column from '../../components/atoms/Column';
+import H1 from '../../components/atoms/H1';
+import Row from '../../components/atoms/Row';
+import H2 from '../../components/atoms/H2';
+import { UserDetails, useProfileScreenLogic } from './ProfileScreen.logic';
+import Label from '../../components/atoms/Label';
+import Spacer from '../../components/atoms/Spacer';
+import { FlatList } from 'react-native-gesture-handler';
+import * as Icons from 'react-native-feather';
+import H3 from '../../components/atoms/H3';
+import ThingCard from '../../components/molecules/ThingCard';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import * as Notifications from 'expo-notifications';
+import MyButton from '../../components/molecules/MyButton';
+import { scheduleAllNotifications } from '../../navigation/RootNavigation.logic';
+import { useAppDispatch } from '../../hooks/hooks';
+import { logout } from '../../redux/auth/AuthSlice';
 
 const ProfileScreen = ({ navigation }: any) => {
   const { user, getData, data, refreshing } = useProfileScreenLogic();
@@ -39,23 +39,23 @@ const ProfileScreen = ({ navigation }: any) => {
     (async () => {
       const keys = await AsyncStorage.getAllKeys();
       const notificationKeys = keys.filter((key) =>
-        key.startsWith("notificationId")
+        key.startsWith('notificationId')
       );
       if (notificationKeys.length > 0) {
         setNotificationsScheduled(true);
       }
 
-      const consent = await AsyncStorage.getItem("allowNotifications");
-      if (consent === "true") {
+      const consent = await AsyncStorage.getItem('allowNotifications');
+      if (consent === 'true') {
         setAllowNotifications(true);
       }
     })();
-  }, []);
+  }, [getData]);
 
   async function removeNotifications() {
     const keys = await AsyncStorage.getAllKeys();
     const notificationKeys = keys.filter((key) =>
-      key.startsWith("notificationId")
+      key.startsWith('notificationId')
     );
     // Clear all notifications
     await Notifications.cancelAllScheduledNotificationsAsync();
@@ -69,11 +69,11 @@ const ProfileScreen = ({ navigation }: any) => {
 
   async function toggleNotifications() {
     if (allowNotifications) {
-      await AsyncStorage.setItem("allowNotifications", "false");
+      await AsyncStorage.setItem('allowNotifications', 'false');
       setAllowNotifications(false);
       await removeNotifications();
     } else {
-      await AsyncStorage.setItem("allowNotifications", "true");
+      await AsyncStorage.setItem('allowNotifications', 'true');
       setAllowNotifications(true);
       await scheduleAllNotifications();
       setNotificationsScheduled(true);
@@ -90,22 +90,23 @@ const ProfileScreen = ({ navigation }: any) => {
         (data.levels.nextLevel.minThreshold -
           data.levels.currentLevel.minThreshold)) *
       100;
-    console.log("Calculating point percentage", percentage);
+    console.log('Calculating point percentage', percentage);
     return percentage + 1;
   }
 
-  if (!data)
+  if (!data) {
     return (
       <Column
         styles={{
           flex: 1,
-          justifyContent: "center",
-          alignItems: "center",
+          justifyContent: 'center',
+          alignItems: 'center'
         }}
       >
-        <ActivityIndicator size={"large"} />
+        <ActivityIndicator size={'large'} />
       </Column>
     );
+  }
 
   return (
     <Column
@@ -114,7 +115,7 @@ const ProfileScreen = ({ navigation }: any) => {
       getData={getData}
       styles={{
         flex: 1,
-        padding: 16,
+        padding: 16
       }}
     >
       <H1>
@@ -122,30 +123,30 @@ const ProfileScreen = ({ navigation }: any) => {
       </H1>
       <Column
         styles={{
-          borderColor: "#f0f0f0",
+          borderColor: '#f0f0f0',
           borderWidth: 1,
           borderRadius: 8,
           padding: 16,
           marginTop: 16,
-          width: "100%",
+          width: '100%'
         }}
       >
-        <Row styles={{ justifyContent: "space-between", alignItems: "center" }}>
+        <Row styles={{ justifyContent: 'space-between', alignItems: 'center' }}>
           <H2>{user?.username}</H2>
           <Text>{data.levels.currentPoints} points</Text>
         </Row>
         <Spacer space={10} />
         <Row
           styles={{
-            alignItems: "center",
+            alignItems: 'center',
             gap: 5,
-            justifyContent: "space-between",
+            justifyContent: 'space-between'
           }}
         >
           <Row
             styles={{
-              alignItems: "center",
-              gap: 5,
+              alignItems: 'center',
+              gap: 5
             }}
           >
             <Text>
@@ -159,20 +160,20 @@ const ProfileScreen = ({ navigation }: any) => {
         </Row>
         <Column
           styles={{
-            width: "100%",
+            width: '100%',
             height: 5,
-            backgroundColor: "#f0f0f0",
+            backgroundColor: '#f0f0f0',
             borderRadius: 20,
-            alignItems: "flex-start",
-            justifyContent: "center",
+            alignItems: 'flex-start',
+            justifyContent: 'center'
           }}
         >
           <Column
             styles={{
-              height: "100%",
+              height: '100%',
               width: `${calculatePointPercentage(data)}%`,
-              backgroundColor: "#16a34a",
-              borderRadius: 20,
+              backgroundColor: '#16a34a',
+              borderRadius: 20
             }}
           />
         </Column>
@@ -190,16 +191,16 @@ const ProfileScreen = ({ navigation }: any) => {
               <Column
                 styles={{
                   gap: 5,
-                  alignItems: "center",
-                  justifyContent: "center",
-                  backgroundColor: "#f0f0f0",
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  backgroundColor: '#f0f0f0',
                   padding: 10,
                   borderRadius: 10,
-                  borderColor: "#f0f0f0",
-                  borderWidth: 1,
+                  borderColor: '#f0f0f0',
+                  borderWidth: 1
                 }}
               >
-                <Icon color={"black"} />
+                <Icon color={'black'} />
                 <Label text={item.name} />
               </Column>
             );
@@ -208,19 +209,19 @@ const ProfileScreen = ({ navigation }: any) => {
       </Column>
       <Pressable
         onPress={() => {
-          navigation.push("Leaderboard");
+          navigation.push('Leaderboard');
         }}
       >
         <Column
           styles={{
-            borderColor: "#f0f0f0",
+            borderColor: '#f0f0f0',
             borderWidth: 1,
             borderRadius: 8,
             paddingHorizontal: 16,
             paddingTop: 16,
             paddingBottom: opened ? 16 : 5,
             marginTop: 16,
-            width: "100%",
+            width: '100%'
           }}
         >
           <H3>
@@ -230,14 +231,14 @@ const ProfileScreen = ({ navigation }: any) => {
       </Pressable>
       <Column
         styles={{
-          borderColor: "#f0f0f0",
+          borderColor: '#f0f0f0',
           borderWidth: 1,
           borderRadius: 8,
           paddingHorizontal: 16,
           paddingTop: 16,
           paddingBottom: opened ? 16 : 5,
           marginTop: 16,
-          width: "100%",
+          width: '100%'
         }}
       >
         <H3 accent>My Things</H3>
@@ -260,7 +261,7 @@ const ProfileScreen = ({ navigation }: any) => {
       </Column>
       <Column
         styles={{
-          marginTop: 100,
+          marginTop: 100
         }}
       >
         <H3 accent>Debug/dev things</H3>
@@ -271,13 +272,13 @@ const ProfileScreen = ({ navigation }: any) => {
         <Spacer space={20} />
         <H3>
           {notificationsScheduled
-            ? "Notifications are scheduled"
-            : "Notifications are not scheduled"}
+            ? 'Notifications are scheduled'
+            : 'Notifications are not scheduled'}
         </H3>
         <H3>
           {allowNotifications
-            ? "Notifications are allowed"
-            : "Notifications are not allowed"}
+            ? 'Notifications are allowed'
+            : 'Notifications are not allowed'}
         </H3>
         <Spacer space={10} />
         <MyButton

@@ -1,6 +1,6 @@
-import { RootTabNavigation } from "./TabNavigation/RootTabNavigation";
+import { RootTabNavigation } from './TabNavigation/RootTabNavigation';
 
-import { createNavigationContainerRef } from "@react-navigation/native";
+import { createNavigationContainerRef } from '@react-navigation/native';
 
 export const navigationRef = createNavigationContainerRef();
 

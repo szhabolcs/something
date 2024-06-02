@@ -1,6 +1,6 @@
-import { useState } from "react";
-import RespositoryService from "../../services/RespositoryService";
-import AsyncStorage from "@react-native-async-storage/async-storage";
+import { useState } from 'react';
+import RespositoryService from '../../services/RespositoryService';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 export const useLeaderboardLogic = () => {
   const [visibility, setVisibility] = useState(false);
@@ -22,7 +22,7 @@ export const useLeaderboardLogic = () => {
           points: number;
         }[];
         currentVisibility: boolean;
-      }>((await AsyncStorage.getItem("token")) || "");
+      }>((await AsyncStorage.getItem('token')) || '');
 
     setLeaderBoard(response.leaderboard);
     setVisibility(response.currentVisibility);
@@ -34,7 +34,7 @@ export const useLeaderboardLogic = () => {
     const response =
       await repositoryService.leaderboardResository.toggleVisibility<{
         currentVisibility: boolean;
-      }>((await AsyncStorage.getItem("token")) || "");
+      }>((await AsyncStorage.getItem('token')) || '');
 
     getData();
 

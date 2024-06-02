@@ -1,8 +1,8 @@
-import { Pressable, StyleSheet, Text, View } from "react-native";
-import React from "react";
-import Column from "../atoms/Column";
-import H4 from "../atoms/H4";
-import H3 from "../atoms/H3";
+import { Pressable, StyleSheet, Text, View } from 'react-native';
+import React from 'react';
+import Column from '../atoms/Column';
+import H4 from '../atoms/H4';
+import H3 from '../atoms/H3';
 
 type MyButtonProps = {
   text: string;
@@ -13,7 +13,14 @@ type MyButtonProps = {
   smalltext?: boolean;
 };
 
-const MyButton = ({ text, onPress, accent, small, subLine, smalltext }: MyButtonProps) => {
+const MyButton = ({
+  text,
+  onPress,
+  accent,
+  small,
+  subLine,
+  smalltext
+}: MyButtonProps) => {
   if (small) {
     return (
       <Pressable onPress={onPress}>
@@ -27,7 +34,11 @@ const MyButton = ({ text, onPress, accent, small, subLine, smalltext }: MyButton
   return (
     <Pressable onPress={onPress}>
       <Column styles={[styles.button, accent ? styles.accent : styles.button]}>
-        {!smalltext ? <H4 accent={accent}>{text}</H4> : <H3 accent={accent}>{text}</H3>}
+        {!smalltext ? (
+          <H4 accent={accent}>{text}</H4>
+        ) : (
+          <H3 accent={accent}>{text}</H3>
+        )}
       </Column>
     </Pressable>
   );
@@ -40,11 +51,11 @@ const styles = StyleSheet.create({
     paddingVertical: 10,
     paddingHorizontal: 30,
     borderRadius: 5,
-    alignItems: "center",
-    justifyContent: "center",
+    alignItems: 'center',
+    justifyContent: 'center'
   },
   accent: {
     borderWidth: 2,
-    borderColor: "#16a34a",
-  },
+    borderColor: '#16a34a'
+  }
 });

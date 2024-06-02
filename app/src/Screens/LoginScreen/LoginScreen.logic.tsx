@@ -1,20 +1,20 @@
-import { useState } from "react";
-import { useAppDispatch } from "../../hooks/hooks";
-import { login } from "../../redux/auth/AuthSlice";
+import { useState } from 'react';
+import { useAppDispatch } from '../../hooks/hooks';
+import { login } from '../../redux/auth/AuthSlice';
 
 export const useLoginScreenLogic = () => {
-  const [username, setUsername] = useState("");
-  const [password, setPassword] = useState("");
+  const [username, setUsername] = useState('');
+  const [password, setPassword] = useState('');
   const dispatch = useAppDispatch();
 
   const handleLogin = () => {
-    if (username === "" || password === "") {
+    if (username === '' || password === '') {
       return;
     }
     dispatch(
       login({
         username,
-        password,
+        password
       })
     );
   };
@@ -24,6 +24,6 @@ export const useLoginScreenLogic = () => {
     setUsername,
     password,
     setPassword,
-    handleLogin,
+    handleLogin
   };
 };

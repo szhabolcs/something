@@ -1,5 +1,5 @@
-import { StyleSheet, Text, View } from "react-native";
-import React from "react";
+import { StyleSheet, Text, View } from 'react-native';
+import React from 'react';
 
 type H3Props = {
   children?: React.ReactNode;
@@ -20,13 +20,13 @@ export default H3;
 const styles = StyleSheet.create({
   H3: {
     fontSize: 18,
-    fontWeight: "bold",
-    color: "#404040",
+    fontWeight: 'bold',
+    color: '#404040'
   },
   accent: {
-    color: "#16a34a",
+    color: '#16a34a'
   },
   white: {
-    color: "white",
-  },
+    color: 'white'
+  }
 });
