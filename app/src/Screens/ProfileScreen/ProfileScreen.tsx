@@ -50,7 +50,7 @@ const ProfileScreen = ({ navigation }: any) => {
         setAllowNotifications(true);
       }
     })();
-  }, [getData]);
+  }, []);
 
   async function removeNotifications() {
     const keys = await AsyncStorage.getAllKeys();

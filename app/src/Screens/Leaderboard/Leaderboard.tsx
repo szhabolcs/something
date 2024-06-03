@@ -16,7 +16,7 @@ const Leaderboard = () => {
 
   useEffect(() => {
     getData();
-  }, [getData]);
+  }, []);
 
   return (
     <Column

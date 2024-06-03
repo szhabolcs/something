@@ -31,7 +31,7 @@ const HomeScreen = ({ navigation }: any) => {
 
   useEffect(() => {
     getHomeThings();
-  }, [getHomeThings]);
+  }, []);
 
   const renderTodayThings = () => {
     if (loading) {
