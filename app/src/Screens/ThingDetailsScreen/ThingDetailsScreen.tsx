@@ -19,7 +19,7 @@ const ThingDetailsScreen = ({ route, navigation }: any) => {
 
   useEffect(() => {
     getDetails(thingId);
-  }, [getDetails, thingId]);
+  }, [thingId]);
 
   console.log(JSON.stringify(thing));
 

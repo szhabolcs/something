@@ -17,7 +17,7 @@ export const RootTabNavigation = () => {
 
   useEffect(() => {
     signInSilently();
-  }, [signInSilently]);
+  }, []);
 
   if (loading) {
     return <SplashScreen />;
