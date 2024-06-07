@@ -1,45 +1,24 @@
-import { Hono } from 'hono';
-import { jwt } from 'hono/jwt';
 import { registerUser, loginUser } from '../repositories/auth.js';
-import { StatusCodes } from 'http-status-codes';
-
-export const authRoutes = new Hono();
-
-// JWT secret key
-const jwtSecret = process.env.JWT_SECRET || 'your-secret-key';
+import { OpenAPIHono } from '@hono/zod-openapi';
+import { StatusCodes } from '../types/status-codes.js';
+import { login, register, testProtected } from './auth.definition.js';
 
 // User registration endpoint
-authRoutes.post('/register', async (c) => {
-  const { username, password } = await c.req.json();
-
-  try {
+export const authRouter = new OpenAPIHono()
+  .openapi(register, async (c) => {
+    const { username, password } = c.req.valid('json');
     await registerUser(username, password);
-    return c.json(
-      { message: 'User registered successfully' },
-      StatusCodes.CREATED
-    );
-  } catch (error: any) {
-    if (error.message === 'User already exists') {
-      return c.json({ error: error.message }, StatusCodes.CONFLICT);
-    }
-    return c.json({ error: error.message }, StatusCodes.BAD_REQUEST);
-  }
-});
+    const token = await loginUser(username, password);
+    return c.text(token, StatusCodes.CREATED);
+  })
 
-// User login endpoint
-authRoutes.post('/login', async (c) => {
-  const { username, password } = await c.req.json();
+  .openapi(login, async (c) => {
+    const { username, password } = c.req.valid('json');
+    const token = await loginUser(username, password);
+    return c.text(token, StatusCodes.CREATED);
+  })
 
-  try {
-    const response = await loginUser(username, password);
-    return c.json(response);
-  } catch (error: any) {
-    return c.json({ error: error.message }, StatusCodes.UNAUTHORIZED);
-  }
-});
-
-// Protected route
-authRoutes.get('/protected', jwt({ secret: jwtSecret }), (c) => {
-  const username = c.get('jwtPayload').username;
-  return c.text(`Hello, ${username}! You are authorized.`);
-});
+  .openapi(testProtected, async (c) => {
+    const username = c.get('jwtPayload').username;
+    return c.text(`Hello, "${username}"! You are authorized.`, StatusCodes.OK);
+  });

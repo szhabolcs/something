@@ -3,14 +3,11 @@ import {
   eq,
   gte,
   lt,
-  or,
-  isNull,
   inArray,
   isNotNull,
   ne,
   asc,
-  desc,
-  sql
+  desc
 } from 'drizzle-orm';
 import { db } from '../db/db.js';
 import {

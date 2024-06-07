@@ -3,9 +3,7 @@ import { Jwt } from 'hono/utils/jwt';
 import { PointTable, UserTable } from '../db/schema.js'; // Update the import path based on your project structure
 import { eq } from 'drizzle-orm';
 import { db } from '../db/db.js';
-import { StatusCodes } from 'http-status-codes';
 
-const jwt_secret_key = process.env.JWT_SECRET || 'your-secret-key';
 async function getUserByUsername(username: string) {
   const users = await db
     .select()
@@ -48,20 +46,15 @@ export async function loginUser(username: string, password: string) {
     throw new Error('User not found');
   }
 
-  const userPassword = user.password || '';
-  if (!userPassword) {
-    throw new Error('User password not found');
-  }
-
-  const isPasswordValid = await bcrypt.compare(password, userPassword);
+  const isPasswordValid = await bcrypt.compare(password, user.password);
   if (!isPasswordValid) {
     throw new Error('Invalid password');
   }
 
   const token = await Jwt.sign(
     { username: user.username, uuid: user.uuid },
-    jwt_secret_key
+    process.env.JWT_SECRET!
   );
 
-  return { token: token, user: { username: user.username } };
+  return token;
 }
