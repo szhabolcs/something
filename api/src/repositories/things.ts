@@ -72,10 +72,9 @@ export async function getUserThingsToday(
           sq.map((thing) => thing.uuid)
         ),
         and(
-          gte(CheckpointTable.utcTimestamp, startOfToday),
-          lt(CheckpointTable.utcTimestamp, endOfToday)
+          gte(CheckpointTable.createdAt, startOfToday),
+          lt(CheckpointTable.createdAt, endOfToday)
         ),
-        eq(CheckpointTable.completed, false),
         isNotNull(ScheduleTable.startTime),
         isNotNull(ScheduleTable.endTime),
         eq(CheckpointTable.userUuid, user_uuid)
@@ -136,7 +135,7 @@ export async function getOthersThingsToday(user_uuid: string) {
       username: UserTable.username,
       thingName: ThingTable.name,
       thingUuid: ThingTable.uuid,
-      photoUuid: CheckpointTable.photoUuid
+      filename: CheckpointTable.filename
     })
     .from(CheckpointTable)
     .leftJoin(ThingTable, eq(ThingTable.uuid, CheckpointTable.thingUuid))
@@ -148,9 +147,8 @@ export async function getOthersThingsToday(user_uuid: string) {
           sq.map((thing) => thing.uuid)
         ),
         ne(CheckpointTable.userUuid, user_uuid),
-        gte(CheckpointTable.utcTimestamp, startOfDay),
-        lt(CheckpointTable.utcTimestamp, endOfDay),
-        eq(CheckpointTable.completed, true)
+        gte(CheckpointTable.createdAt, startOfDay),
+        lt(CheckpointTable.createdAt, endOfDay)
       )
     )
     .orderBy(desc(CheckpointTable.createdAt));
@@ -160,7 +158,7 @@ export async function getOthersThingsToday(user_uuid: string) {
   // add domain to photoUuid
   return result.map((thing) => ({
     ...thing,
-    photoUuid: `${process.env.API_HOST}/images/${thing.photoUuid}`
+    photoUuid: `${process.env.API_HOST}/images/${thing.filename}`
   }));
 }
 
@@ -207,7 +205,6 @@ export async function getUserThings(user_uuid: string) {
           ThingTable.uuid,
           sq.map((thing) => thing.uuid)
         ),
-        eq(CheckpointTable.completed, false),
         isNotNull(ScheduleTable.startTime),
         isNotNull(ScheduleTable.endTime),
         eq(CheckpointTable.userUuid, user_uuid)
@@ -265,8 +262,8 @@ export async function getThingDetails(user_uuid: string, thing_uuid: string) {
         CheckpointTable,
         and(
           eq(CheckpointTable.thingUuid, thing_uuid),
-          gte(CheckpointTable.utcTimestamp, startOfDay),
-          lt(CheckpointTable.utcTimestamp, endOfDay)
+          gte(CheckpointTable.createdAt, startOfDay),
+          lt(CheckpointTable.createdAt, endOfDay)
         )
       )
       .where(eq(ScheduleTable.thingUuid, thing_uuid))
@@ -274,9 +271,9 @@ export async function getThingDetails(user_uuid: string, thing_uuid: string) {
         ScheduleTable.thingUuid,
         ScheduleTable.startTime,
         ScheduleTable.endTime,
-        CheckpointTable.utcTimestamp
+        CheckpointTable.createdAt
       )
-      .orderBy(asc(CheckpointTable.utcTimestamp));
+      .orderBy(asc(CheckpointTable.createdAt));
   }
 
   // Step3: Get list of people shared with
@@ -295,23 +292,18 @@ export async function getThingDetails(user_uuid: string, thing_uuid: string) {
     .select({
       username: UserTable.username,
       thingName: ThingTable.name,
-      photoUuid: CheckpointTable.photoUuid
+      filename: CheckpointTable.filename
     })
     .from(CheckpointTable)
     .leftJoin(UserTable, eq(CheckpointTable.userUuid, UserTable.uuid))
     .leftJoin(ThingTable, eq(CheckpointTable.thingUuid, ThingTable.uuid))
     .leftJoin(ScheduleTable, eq(ThingTable.uuid, ScheduleTable.thingUuid))
-    .where(
-      and(
-        eq(ScheduleTable.thingUuid, thing_uuid),
-        eq(CheckpointTable.completed, true)
-      )
-    )
+    .where(and(eq(ScheduleTable.thingUuid, thing_uuid)))
     .orderBy(desc(CheckpointTable.createdAt));
 
   // Alter the previous checkpoints query (add domain)
   previousCheckpointsQuery.map((checkpoint) => {
-    checkpoint.photoUuid = `${process.env.API_HOST}/images/${checkpoint.photoUuid}`;
+    checkpoint.filename = `${process.env.API_HOST}/images/${checkpoint.filename}`;
   });
 
   // Combine the above queries
@@ -463,9 +455,8 @@ export async function createThing(
         await db.insert(CheckpointTable).values({
           userUuid: userWithThing.uuid,
           thingUuid: newThing[0].uuid,
-          utcTimestamp: timestamp,
-          photoUuid: null,
-          completed: false
+          createdAt: timestamp,
+          filename: null
         });
         timestamp.setDate(timestamp.getDate() + 1);
       }

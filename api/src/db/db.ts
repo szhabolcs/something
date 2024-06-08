@@ -1,12 +1,12 @@
-import { drizzle as drizzleNode } from 'drizzle-orm/node-postgres';
-import pkg from 'pg';
-const { Pool } = pkg; // Weird CJS/ESM import issue
+import { drizzle } from 'drizzle-orm/node-postgres';
+import { Pool } from 'pg';
 
 // Create database pool
 const pool = new Pool({
-  connectionString: process.env.DB_CONNECTION_STRING
+  connectionString: process.env.DB_CONNECTION_STRING,
+  max: Number(process.env.DB_MAX_CONNECTIONS) ?? 10
 });
 
-const db = drizzleNode(pool);
+const db = drizzle(pool);
 
 export { db };

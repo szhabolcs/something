@@ -1,6 +1,6 @@
 import bcrypt from 'bcrypt';
 import { Jwt } from 'hono/utils/jwt';
-import { PointTable, UserTable } from '../db/schema.js'; // Update the import path based on your project structure
+import { ScoreTable, UserTable } from '../db/schema.js'; // Update the import path based on your project structure
 import { eq } from 'drizzle-orm';
 import { db } from '../db/db.js';
 
@@ -34,8 +34,8 @@ export async function registerUser(username: string, password: string) {
   const hashedPassword = await bcrypt.hash(password, 10);
   const [user] = await saveUser(username, hashedPassword);
 
-  await db.insert(PointTable).values({
-    point: 0,
+  await db.insert(ScoreTable).values({
+    value: 0,
     userUuid: user.uuid
   });
 }

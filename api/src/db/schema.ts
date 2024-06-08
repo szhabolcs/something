@@ -1,3 +1,4 @@
+import { sql } from 'drizzle-orm';
 import {
   text,
   timestamp,
@@ -6,16 +7,29 @@ import {
   time,
   boolean,
   integer,
-  unique
+  unique,
+  date
 } from 'drizzle-orm/pg-core';
+
+const timechangeColumns = {
+  createdAt: timestamp('created_at').notNull().defaultNow(),
+  updatedAt: timestamp('updated_at')
+    .notNull()
+    .defaultNow()
+    .$onUpdate(() => sql`NOW()`)
+};
+
+// quck hack to be able to have check support
+// (https://github.com/drizzle-team/drizzle-orm/issues/880#issuecomment-1814869720)
+const check = (defaultval: string, checkexpr: string) =>
+  sql`${sql.raw(defaultval)} CHECK (${sql.raw(checkexpr)})`;
 
 export const UserTable = pgTable('user', {
   uuid: uuid('uuid').defaultRandom().notNull().primaryKey(),
   username: text('username').unique().notNull(),
   password: text('password').notNull(),
   type: text('type').default('user').$type<'user' | 'organization'>().notNull(),
-  createdAt: timestamp('created_at').notNull().defaultNow(),
-  updatedAt: timestamp('updated_at').notNull().defaultNow()
+  ...timechangeColumns
 });
 
 export const ThingTable = pgTable('thing', {
@@ -29,7 +43,7 @@ export const ThingTable = pgTable('thing', {
     .default('personal')
     .$type<'personal' | 'social'>()
     .notNull(),
-  createdAt: timestamp('created_at').notNull().defaultNow()
+  ...timechangeColumns
 });
 
 export const ScheduleTable = pgTable('schedule', {
@@ -38,11 +52,41 @@ export const ScheduleTable = pgTable('schedule', {
     .references(() => ThingTable.uuid),
   startTime: time('start_time').notNull(),
   endTime: time('end_time').notNull(),
-  repeat: text('repeat').$type<'once' | 'daily' | 'weekly'>().notNull(),
-  dayOfWeek: text('day_of_week')
-    .$type<'mon' | 'tue' | 'wed' | 'thu' | 'fri' | 'sat' | 'sun'>()
-    .notNull(),
-  createdAt: timestamp('created_at').notNull().defaultNow()
+  repeat: text('repeat', { enum: ['once', 'daily', 'weekly'] })
+    .notNull()
+    .default(check(`'once'`, `repeat IN ('once', 'daily', 'weekly')`)),
+  specificDate: date('specific_date') // used for repeat 'once'
+    .default(
+      check(
+        'NULL',
+        `    (specific_date IS NULL     AND repeat IN ('daily', 'weekly'))
+          OR (specific_date IS NOT NULL AND repeat = 'once')`
+      )
+    ),
+  dayOfWeek: text(
+    'day_of_week', // used for repeat 'weekly'
+    {
+      enum: [
+        'monday',
+        'tuesday',
+        'wednesday',
+        'thursday',
+        'friday',
+        'saturday',
+        'sunday'
+      ]
+    }
+  ).default(
+    check(
+      'NULL',
+      `(day_of_week IN ('monday', 'tuesday', 'wednesday', 'thursday', 'friday','saturday', 'sunday'))
+        AND (
+              (day_of_week IS NULL     AND repeat IN ('once', 'daily'))
+          OR  (day_of_week IS NOT NULL AND repeat = 'weekly')
+        )`
+    )
+  ),
+  ...timechangeColumns
 });
 
 export const CheckpointTable = pgTable('checkpoint', {
@@ -52,10 +96,8 @@ export const CheckpointTable = pgTable('checkpoint', {
   thingUuid: uuid('thing_uuid')
     .notNull()
     .references(() => ThingTable.uuid),
-  completed: boolean('completed').notNull().default(false),
-  photoUuid: text('photoUuid'),
-  utcTimestamp: timestamp('utc_timestamp').notNull(),
-  createdAt: timestamp('created_at').notNull().defaultNow()
+  filename: text('filename'),
+  ...timechangeColumns
 });
 
 export const SharingTable = pgTable('sharing', {
@@ -65,30 +107,34 @@ export const SharingTable = pgTable('sharing', {
   userUuid: uuid('user_uuid')
     .notNull()
     .references(() => UserTable.uuid),
-  createdAt: timestamp('created_at').notNull().defaultNow()
+  ...timechangeColumns
 });
 
-export const PointTable = pgTable('point', {
+export const ScoreTable = pgTable('score', {
   userUuid: uuid('user_uuid')
     .notNull()
     .references(() => UserTable.uuid),
-  point: integer('point').notNull(),
+  value: integer('value').notNull(),
   public: boolean('public').notNull().default(true),
-  createdAt: timestamp('created_at').notNull().defaultNow()
+  ...timechangeColumns
 });
 
 export const LevelDefinitionTable = pgTable('level_definition', {
   name: text('name').notNull().unique(),
-  minThreshold: integer('min_threshold').notNull()
+  minThreshold: integer('min_threshold').notNull(),
+  ...timechangeColumns
 });
 
 export const BadgeDefinitionTable = pgTable('badge_definition', {
   uuid: uuid('uuid').defaultRandom().notNull().primaryKey(),
-  icon: text('icon').notNull(),
+  icon: text('icon').notNull(), // PascalCase name from https://iconoir.com
   name: text('name').notNull().unique(),
-  description: text('description').default('').notNull(),
-  action: text('action').$type<'create' | 'complete'>().notNull(),
-  action_count: integer('action_count').notNull()
+  description: text('description').notNull(),
+  action: text('action', { enum: ['create', 'complete'] })
+    .notNull()
+    .default(check(`'create'`, `action IN ('create', 'complete')`)),
+  action_count: integer('action_count').notNull(),
+  ...timechangeColumns
 });
 
 export const BadgeTable = pgTable(
@@ -100,7 +146,7 @@ export const BadgeTable = pgTable(
     badgeDefinitionUuid: uuid('badge_definition_uuid')
       .notNull()
       .references(() => BadgeDefinitionTable.uuid),
-    createdAt: timestamp('created_at').notNull().defaultNow()
+    ...timechangeColumns
   },
   (table) => ({
     unq: unique().on(table.userUuid, table.badgeDefinitionUuid)
