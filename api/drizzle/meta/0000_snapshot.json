@@ -1,10 +1,80 @@
 {
-  "id": "7b632287-543a-43d9-8e93-03fec122890b",
+  "id": "fb8631de-5c0a-410f-8d64-09542640ca69",
   "prevId": "00000000-0000-0000-0000-000000000000",
-  "version": "5",
-  "dialect": "pg",
+  "version": "7",
+  "dialect": "postgresql",
   "tables": {
-    "badge": {
+    "public.badge_definition": {
+      "name": "badge_definition",
+      "schema": "",
+      "columns": {
+        "uuid": {
+          "name": "uuid",
+          "type": "uuid",
+          "primaryKey": true,
+          "notNull": true,
+          "default": "gen_random_uuid()"
+        },
+        "icon": {
+          "name": "icon",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "name": {
+          "name": "name",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "description": {
+          "name": "description",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "action": {
+          "name": "action",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "'create' CHECK (action IN ('create', 'complete'))"
+        },
+        "action_count": {
+          "name": "action_count",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        },
+        "updated_at": {
+          "name": "updated_at",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {},
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {
+        "badge_definition_name_unique": {
+          "name": "badge_definition_name_unique",
+          "nullsNotDistinct": false,
+          "columns": [
+            "name"
+          ]
+        }
+      }
+    },
+    "public.badge": {
       "name": "badge",
       "schema": "",
       "columns": {
@@ -22,6 +92,13 @@
         },
         "created_at": {
           "name": "created_at",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        },
+        "updated_at": {
+          "name": "updated_at",
           "type": "timestamp",
           "primaryKey": false,
           "notNull": true,
@@ -69,63 +146,7 @@
         }
       }
     },
-    "badge_definition": {
-      "name": "badge_definition",
-      "schema": "",
-      "columns": {
-        "uuid": {
-          "name": "uuid",
-          "type": "uuid",
-          "primaryKey": true,
-          "notNull": true,
-          "default": "gen_random_uuid()"
-        },
-        "icon": {
-          "name": "icon",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "name": {
-          "name": "name",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "description": {
-          "name": "description",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true,
-          "default": "''"
-        },
-        "action": {
-          "name": "action",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "action_count": {
-          "name": "action_count",
-          "type": "integer",
-          "primaryKey": false,
-          "notNull": true
-        }
-      },
-      "indexes": {},
-      "foreignKeys": {},
-      "compositePrimaryKeys": {},
-      "uniqueConstraints": {
-        "badge_definition_name_unique": {
-          "name": "badge_definition_name_unique",
-          "nullsNotDistinct": false,
-          "columns": [
-            "name"
-          ]
-        }
-      }
-    },
-    "checkpoint": {
+    "public.checkpoint": {
       "name": "checkpoint",
       "schema": "",
       "columns": {
@@ -141,27 +162,21 @@
           "primaryKey": false,
           "notNull": true
         },
-        "completed": {
-          "name": "completed",
-          "type": "boolean",
-          "primaryKey": false,
-          "notNull": true,
-          "default": false
-        },
-        "photoUuid": {
-          "name": "photoUuid",
+        "filename": {
+          "name": "filename",
           "type": "text",
           "primaryKey": false,
           "notNull": false
         },
-        "utc_timestamp": {
-          "name": "utc_timestamp",
-          "type": "timestamp",
-          "primaryKey": false,
-          "notNull": true
-        },
         "created_at": {
           "name": "created_at",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        },
+        "updated_at": {
+          "name": "updated_at",
           "type": "timestamp",
           "primaryKey": false,
           "notNull": true,
@@ -200,7 +215,7 @@
       "compositePrimaryKeys": {},
       "uniqueConstraints": {}
     },
-    "level_definition": {
+    "public.level_definition": {
       "name": "level_definition",
       "schema": "",
       "columns": {
@@ -215,6 +230,20 @@
           "type": "integer",
           "primaryKey": false,
           "notNull": true
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        },
+        "updated_at": {
+          "name": "updated_at",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
         }
       },
       "indexes": {},
@@ -230,57 +259,7 @@
         }
       }
     },
-    "point": {
-      "name": "point",
-      "schema": "",
-      "columns": {
-        "user_uuid": {
-          "name": "user_uuid",
-          "type": "uuid",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "point": {
-          "name": "point",
-          "type": "integer",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "public": {
-          "name": "public",
-          "type": "boolean",
-          "primaryKey": false,
-          "notNull": true,
-          "default": true
-        },
-        "created_at": {
-          "name": "created_at",
-          "type": "timestamp",
-          "primaryKey": false,
-          "notNull": true,
-          "default": "now()"
-        }
-      },
-      "indexes": {},
-      "foreignKeys": {
-        "point_user_uuid_user_uuid_fk": {
-          "name": "point_user_uuid_user_uuid_fk",
-          "tableFrom": "point",
-          "tableTo": "user",
-          "columnsFrom": [
-            "user_uuid"
-          ],
-          "columnsTo": [
-            "uuid"
-          ],
-          "onDelete": "no action",
-          "onUpdate": "no action"
-        }
-      },
-      "compositePrimaryKeys": {},
-      "uniqueConstraints": {}
-    },
-    "schedule": {
+    "public.schedule": {
       "name": "schedule",
       "schema": "",
       "columns": {
@@ -306,16 +285,32 @@
           "name": "repeat",
           "type": "text",
           "primaryKey": false,
-          "notNull": true
+          "notNull": true,
+          "default": "'once' CHECK (repeat IN ('once', 'daily', 'weekly'))"
+        },
+        "specific_date": {
+          "name": "specific_date",
+          "type": "date",
+          "primaryKey": false,
+          "notNull": false,
+          "default": "NULL CHECK (    (specific_date IS NULL     AND repeat IN ('daily', 'weekly'))\n          OR (specific_date IS NOT NULL AND repeat = 'once'))"
         },
         "day_of_week": {
           "name": "day_of_week",
           "type": "text",
           "primaryKey": false,
-          "notNull": true
+          "notNull": false,
+          "default": "NULL CHECK ((day_of_week IN ('monday', 'tuesday', 'wednesday', 'thursday', 'friday','saturday', 'sunday'))\n        AND (\n              (day_of_week IS NULL     AND repeat IN ('once', 'daily'))\n          OR  (day_of_week IS NOT NULL AND repeat = 'weekly')\n        ))"
         },
         "created_at": {
           "name": "created_at",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        },
+        "updated_at": {
+          "name": "updated_at",
           "type": "timestamp",
           "primaryKey": false,
           "notNull": true,
@@ -341,7 +336,64 @@
       "compositePrimaryKeys": {},
       "uniqueConstraints": {}
     },
-    "sharing": {
+    "public.score": {
+      "name": "score",
+      "schema": "",
+      "columns": {
+        "user_uuid": {
+          "name": "user_uuid",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "value": {
+          "name": "value",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "public": {
+          "name": "public",
+          "type": "boolean",
+          "primaryKey": false,
+          "notNull": true,
+          "default": true
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        },
+        "updated_at": {
+          "name": "updated_at",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "score_user_uuid_user_uuid_fk": {
+          "name": "score_user_uuid_user_uuid_fk",
+          "tableFrom": "score",
+          "tableTo": "user",
+          "columnsFrom": [
+            "user_uuid"
+          ],
+          "columnsTo": [
+            "uuid"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {}
+    },
+    "public.sharing": {
       "name": "sharing",
       "schema": "",
       "columns": {
@@ -359,6 +411,13 @@
         },
         "created_at": {
           "name": "created_at",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        },
+        "updated_at": {
+          "name": "updated_at",
           "type": "timestamp",
           "primaryKey": false,
           "notNull": true,
@@ -397,7 +456,7 @@
       "compositePrimaryKeys": {},
       "uniqueConstraints": {}
     },
-    "streak": {
+    "public.streak": {
       "name": "streak",
       "schema": "",
       "columns": {
@@ -462,7 +521,7 @@
         }
       }
     },
-    "thing": {
+    "public.thing": {
       "name": "thing",
       "schema": "",
       "columns": {
@@ -504,6 +563,13 @@
           "primaryKey": false,
           "notNull": true,
           "default": "now()"
+        },
+        "updated_at": {
+          "name": "updated_at",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
         }
       },
       "indexes": {},
@@ -525,7 +591,7 @@
       "compositePrimaryKeys": {},
       "uniqueConstraints": {}
     },
-    "user": {
+    "public.user": {
       "name": "user",
       "schema": "",
       "columns": {

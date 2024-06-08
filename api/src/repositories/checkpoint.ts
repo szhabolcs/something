@@ -5,14 +5,14 @@ import {
   CheckpointTable,
   ThingTable,
   StreakTable,
-  PointTable,
+  ScoreTable,
   SharingTable
 } from '../db/schema.js';
 
 export async function updateCheckpoint(
   user_uuid: string,
   thing_uuid: string,
-  photoUuid: string
+  filename: string
 ) {
   const [previousCheckpoint] = await db
     .select()
@@ -21,7 +21,7 @@ export async function updateCheckpoint(
       and(
         eq(CheckpointTable.userUuid, user_uuid),
         eq(CheckpointTable.thingUuid, thing_uuid),
-        isNotNull(CheckpointTable.photoUuid)
+        isNotNull(CheckpointTable.filename)
       )
     );
 
@@ -30,9 +30,7 @@ export async function updateCheckpoint(
     await db.insert(CheckpointTable).values({
       userUuid: user_uuid,
       thingUuid: previousCheckpoint.thingUuid,
-      utcTimestamp: previousCheckpoint.utcTimestamp,
-      photoUuid: photoUuid,
-      completed: true
+      filename
     });
 
     await updateStreak(user_uuid, thing_uuid);
@@ -47,18 +45,15 @@ export async function updateCheckpoint(
 
     await db
       .update(CheckpointTable)
-      .set({
-        completed: true,
-        photoUuid: photoUuid
-      })
+      .set({ filename })
       .where(
         and(
           eq(CheckpointTable.userUuid, user_uuid),
           eq(CheckpointTable.thingUuid, thing_uuid),
           // on the same day as today
           and(
-            gte(CheckpointTable.utcTimestamp, startOfToday),
-            lt(CheckpointTable.utcTimestamp, endOfToday)
+            gte(CheckpointTable.createdAt, startOfToday),
+            lt(CheckpointTable.createdAt, endOfToday)
           )
         )
       );
@@ -98,15 +93,15 @@ async function updateStreak(user_uuid: string, thing_uuid: string) {
 async function updatePoints(user_uuid: string, by: number = 10) {
   const [currentPoints] = await db
     .select()
-    .from(PointTable)
-    .where(eq(PointTable.userUuid, user_uuid));
+    .from(ScoreTable)
+    .where(eq(ScoreTable.userUuid, user_uuid));
 
   if (currentPoints) {
     await db
-      .update(PointTable)
+      .update(ScoreTable)
       .set({
-        point: currentPoints.point + by
+        value: currentPoints.value + by
       })
-      .where(eq(PointTable.userUuid, user_uuid));
+      .where(eq(ScoreTable.userUuid, user_uuid));
   }
 }
