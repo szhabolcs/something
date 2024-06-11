@@ -1,5 +1,6 @@
 import { drizzle } from 'drizzle-orm/node-postgres';
-import { Pool } from 'pg';
+import pkg from 'pg';
+const { Pool } = pkg;
 
 // Create database pool
 const pool = new Pool({
