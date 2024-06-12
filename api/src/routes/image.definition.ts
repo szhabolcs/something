@@ -1,12 +1,12 @@
 import { createRoute } from '@hono/zod-openapi';
 import { z } from 'zod';
-import { bearerAuth, formc, textc, useJWT } from '../utils/openapi.js';
+import { bearerAuth, formc, textc, useAccessToken } from '../utils/openapi.js';
 import { StatusCodes } from '../types/status-codes.js';
 
 export const uploadImage = createRoute({
   method: 'post',
   path: '/upload',
-  middleware: useJWT(),
+  middleware: useAccessToken(),
   security: bearerAuth,
   description:
     'Send an image as a checkpoint for a thing. <br> (Scalar UI does not support formdata yet)',

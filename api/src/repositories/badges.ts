@@ -14,9 +14,9 @@ export async function getTopBadges(user_uuid: string, limit: number = 3) {
     .from(BadgeTable)
     .leftJoin(
       BadgeDefinitionTable,
-      eq(BadgeDefinitionTable.uuid, BadgeTable.badgeDefinitionUuid)
+      eq(BadgeDefinitionTable.id, BadgeTable.badgeDefinitionId)
     )
-    .leftJoin(UserTable, eq(UserTable.uuid, user_uuid))
+    .leftJoin(UserTable, eq(UserTable.id, user_uuid))
     .orderBy(desc(BadgeTable.createdAt))
     .limit(limit);
 
@@ -33,9 +33,9 @@ export async function getAllBadges(user_uuid: string) {
     .from(BadgeTable)
     .leftJoin(
       BadgeDefinitionTable,
-      eq(BadgeDefinitionTable.uuid, BadgeTable.badgeDefinitionUuid)
+      eq(BadgeDefinitionTable.id, BadgeTable.badgeDefinitionId)
     )
-    .leftJoin(UserTable, eq(UserTable.uuid, user_uuid))
+    .leftJoin(UserTable, eq(UserTable.id, user_uuid))
     .orderBy(desc(BadgeTable.createdAt));
 
   return topBadges;

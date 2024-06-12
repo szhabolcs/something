@@ -7,7 +7,7 @@ export async function getLevels(user_uuid: string) {
   const userPoints = await db
     .select({ points: ScoreTable.value })
     .from(ScoreTable)
-    .where(eq(ScoreTable.userUuid, user_uuid));
+    .where(eq(ScoreTable.userId, user_uuid));
 
   const currentLevel = await db
     .select({

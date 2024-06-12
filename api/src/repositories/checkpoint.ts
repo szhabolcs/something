@@ -19,8 +19,8 @@ export async function updateCheckpoint(
     .from(CheckpointTable)
     .where(
       and(
-        eq(CheckpointTable.userUuid, user_uuid),
-        eq(CheckpointTable.thingUuid, thing_uuid),
+        eq(CheckpointTable.userId, user_uuid),
+        eq(CheckpointTable.thingId, thing_uuid),
         isNotNull(CheckpointTable.filename)
       )
     );
@@ -28,8 +28,8 @@ export async function updateCheckpoint(
   if (previousCheckpoint) {
     // If the user has already completed this checkpoint, we need to create a new one
     await db.insert(CheckpointTable).values({
-      userUuid: user_uuid,
-      thingUuid: previousCheckpoint.thingUuid,
+      userId: user_uuid,
+      thingId: previousCheckpoint.thingId,
       filename
     });
 
@@ -48,8 +48,8 @@ export async function updateCheckpoint(
       .set({ filename })
       .where(
         and(
-          eq(CheckpointTable.userUuid, user_uuid),
-          eq(CheckpointTable.thingUuid, thing_uuid),
+          eq(CheckpointTable.userId, user_uuid),
+          eq(CheckpointTable.thingId, thing_uuid),
           // on the same day as today
           and(
             gte(CheckpointTable.createdAt, startOfToday),
@@ -70,8 +70,8 @@ async function updateStreak(user_uuid: string, thing_uuid: string) {
     .from(StreakTable)
     .where(
       and(
-        eq(StreakTable.userUuid, user_uuid),
-        eq(StreakTable.thingUuid, thing_uuid)
+        eq(StreakTable.userId, user_uuid),
+        eq(StreakTable.thingId, thing_uuid)
       )
     );
 
@@ -83,8 +83,8 @@ async function updateStreak(user_uuid: string, thing_uuid: string) {
       })
       .where(
         and(
-          eq(StreakTable.userUuid, user_uuid),
-          eq(StreakTable.thingUuid, thing_uuid)
+          eq(StreakTable.userId, user_uuid),
+          eq(StreakTable.thingId, thing_uuid)
         )
       );
   }
@@ -94,7 +94,7 @@ async function updatePoints(user_uuid: string, by: number = 10) {
   const [currentPoints] = await db
     .select()
     .from(ScoreTable)
-    .where(eq(ScoreTable.userUuid, user_uuid));
+    .where(eq(ScoreTable.userId, user_uuid));
 
   if (currentPoints) {
     await db
@@ -102,6 +102,6 @@ async function updatePoints(user_uuid: string, by: number = 10) {
       .set({
         value: currentPoints.value + by
       })
-      .where(eq(ScoreTable.userUuid, user_uuid));
+      .where(eq(ScoreTable.userId, user_uuid));
   }
 }

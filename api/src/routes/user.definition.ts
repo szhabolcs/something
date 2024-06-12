@@ -1,6 +1,6 @@
 import { createRoute } from '@hono/zod-openapi';
 import { z } from 'zod';
-import { bearerAuth, jsonc, textc, useJWT } from '../utils/openapi.js';
+import { bearerAuth, jsonc, textc, useAccessToken } from '../utils/openapi.js';
 import { StatusCodes } from '../types/status-codes.js';
 import { ThingPreviewModel } from './things.definition.js';
 
@@ -36,7 +36,7 @@ const LeaderboardModel = z
 export const userProfile = createRoute({
   method: 'get',
   path: '/me/profile',
-  middleware: useJWT(),
+  middleware: useAccessToken(),
   security: bearerAuth,
   description: 'Retrieve data about the user.',
   tags: ['User'],
@@ -54,7 +54,7 @@ export const userProfile = createRoute({
 export const userBadges = createRoute({
   method: 'get',
   path: '/me/badges',
-  middleware: useJWT(),
+  middleware: useAccessToken(),
   security: bearerAuth,
   description: 'Retrieve all badges.',
   tags: ['User'],
@@ -72,7 +72,7 @@ export const userBadges = createRoute({
 export const leaderboard = createRoute({
   method: 'get',
   path: '/leaderboard/all',
-  middleware: useJWT(),
+  middleware: useAccessToken(),
   security: bearerAuth,
   description: 'Retrieve global leaderboard.',
   tags: ['Leaderboard'],
@@ -95,7 +95,7 @@ export const leaderboard = createRoute({
 export const toggleLeaderboardVisibility = createRoute({
   method: 'patch',
   path: '/leaderboard/toggle-visibility',
-  middleware: useJWT(),
+  middleware: useAccessToken(),
   security: bearerAuth,
   description: `Toggle the user's visibility on the global leaderboard.`,
   tags: ['Leaderboard'],

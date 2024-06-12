@@ -31,8 +31,12 @@ export const catchErrors: Parameters<OpenAPIHono['openapi']>['2'] = (
   }
 };
 
-export function useJWT() {
-  return jwt({ secret: process.env.JWT_SECRET! });
+export function useAccessToken() {
+  return jwt({ secret: process.env.ACCESS_TOKEN_SECRET });
+}
+
+export function useRefreshToken() {
+  return jwt({ secret: process.env.REFRESH_TOKEN_SECRET });
 }
 
 export const bearerAuth = [{ Bearer: [] }];

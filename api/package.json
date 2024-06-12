@@ -7,7 +7,8 @@
     "start": "node dist/index.js",
     "lint": "eslint --fix . && npm run typecheck",
     "typecheck": "tsc --noEmit",
-    "db:migrate": "tsx ./src/db/migrate.ts",
+    "db:migrations:apply": "tsx ./src/db/migrate.ts",
+    "db:migrations:new": "drizzle-kit generate --config ./src/db/drizzle.config.ts",
     "db:check": "drizzle-kit check --config ./src/db/drizzle.config.ts",
     "db:studio": "drizzle-kit studio --config ./src/db/drizzle.config.ts",
     "update-packages": "npm-check-updates -i --format group -x eslint"
@@ -25,7 +26,7 @@
     "drizzle-orm": "0.31.2",
     "hono": "4.4.4",
     "http-status-codes": "2.3.0",
-    "jsonwebtoken": "9.0.2",
+    "jsonwebtoken": "^9.0.2",
     "npm-check-updates": "16.14.20",
     "pg": "8.12.0",
     "postgres": "3.4.4",
@@ -36,6 +37,7 @@
   "devDependencies": {
     "@total-typescript/ts-reset": "0.5.1",
     "@types/bcrypt": "5.0.2",
+    "@types/jsonwebtoken": "^9.0.6",
     "@types/node": "20.14.2",
     "@types/pg": "8.11.6",
     "@typescript-eslint/eslint-plugin": "7.12.0",

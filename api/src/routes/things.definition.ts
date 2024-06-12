@@ -1,6 +1,6 @@
 import { createRoute } from '@hono/zod-openapi';
 import { z } from 'zod';
-import { bearerAuth, jsonc, textc, useJWT } from '../utils/openapi.js';
+import { bearerAuth, jsonc, textc, useAccessToken } from '../utils/openapi.js';
 import { StatusCodes } from '../types/status-codes.js';
 
 export const ThingPreviewModel = z.object({
@@ -50,7 +50,7 @@ const ThingDTO = z.object({
 export const userThingsToday = createRoute({
   method: 'get',
   path: '/mine/today',
-  middleware: useJWT(),
+  middleware: useAccessToken(),
   security: bearerAuth,
   description:
     'Retrieve some data about upcoming things scheduled for today. <br> This is only a preview.',
@@ -69,7 +69,7 @@ export const userThingsToday = createRoute({
 export const userThingsTodayAll = createRoute({
   method: 'get',
   path: '/mine/today/all',
-  middleware: useJWT(),
+  middleware: useAccessToken(),
   security: bearerAuth,
   description: 'Retrieve some data about things that are scheduled for today.',
   tags: ['Things'],
@@ -87,7 +87,7 @@ export const userThingsTodayAll = createRoute({
 export const userThingsAll = createRoute({
   method: 'get',
   path: '/mine/all',
-  middleware: useJWT(),
+  middleware: useAccessToken(),
   security: bearerAuth,
   description: `Retrieve some data about all of the user's things, created or shared with them.`,
   tags: ['Things'],
@@ -105,7 +105,7 @@ export const userThingsAll = createRoute({
 export const otherThingsToday = createRoute({
   method: 'get',
   path: '/others/today',
-  middleware: useJWT(),
+  middleware: useAccessToken(),
   security: bearerAuth,
   description:
     'Retrieve what others are doing today. <br> Only activity from shared things is shown (shared by user, or with the user).',
@@ -124,7 +124,7 @@ export const otherThingsToday = createRoute({
 export const thingDetails = createRoute({
   method: 'get',
   path: '/{uuid}/details',
-  middleware: useJWT(),
+  middleware: useAccessToken(),
   security: bearerAuth,
   description: 'Retrieve all info about a thing.',
   tags: ['Things'],
@@ -147,7 +147,7 @@ export const thingDetails = createRoute({
 export const createThing = createRoute({
   method: 'post',
   path: '/create',
-  middleware: useJWT(),
+  middleware: useAccessToken(),
   security: bearerAuth,
   description: 'Create a new thing.',
   tags: ['Things'],

@@ -6,7 +6,8 @@ declare global {
       DB_CONNECTION_STRING: string;
       DB_MAX_CONNECTIONS: string;
 
-      JWT_SECRET: string;
+      ACCESS_TOKEN_SECRET: string;
+      REFRESH_TOKEN_SECRET: string;
 
       API_HOST: string;
       API_VOLUME_PATH: string;

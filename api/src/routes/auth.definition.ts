@@ -1,16 +1,25 @@
 import { createRoute } from '@hono/zod-openapi';
 import { z } from 'zod';
-import { bearerAuth, jsonc, textc, useJWT } from '../utils/openapi.js';
+import {
+  bearerAuth,
+  jsonc,
+  textc,
+  useAccessToken,
+  useRefreshToken
+} from '../utils/openapi.js';
 import { StatusCodes } from '../types/status-codes.js';
 
 export const AuthDTO = z.object({
   username: z.string().min(5),
-  password: z.string().min(8)
+  password: z.string().min(8),
+  pushToken: z.string().optional()
 });
+export type AuthDTO = z.infer<typeof AuthDTO>;
 
-export const AuthResponseModel = z
-  .string()
-  .openapi({ description: 'JWT Token' });
+export const AuthResponseModel = z.object({
+  accessToken: z.string(),
+  refreshToken: z.string()
+});
 
 export const register = createRoute({
   method: 'post',
@@ -22,7 +31,7 @@ export const register = createRoute({
   },
   responses: {
     [StatusCodes.CREATED]: {
-      ...textc(AuthResponseModel),
+      ...jsonc(AuthResponseModel),
       description: 'Successfully registered.'
     },
     [StatusCodes.INTERNAL_SERVER_ERROR]: {
@@ -41,11 +50,44 @@ export const login = createRoute({
   },
   responses: {
     [StatusCodes.CREATED]: {
-      ...textc(AuthResponseModel),
+      ...jsonc(AuthResponseModel),
       description: 'Successful login.'
     },
     [StatusCodes.INTERNAL_SERVER_ERROR]: {
       description: 'Unexpected error occured.'
+    }
+  }
+});
+
+export const refresh = createRoute({
+  method: 'post',
+  path: '/refresh',
+  description: 'Refresh JWT token.',
+  tags: ['Auth'],
+  middleware: useRefreshToken(),
+  security: bearerAuth,
+  responses: {
+    [StatusCodes.CREATED]: {
+      ...jsonc(AuthResponseModel),
+      description: 'Successfully refreshed.'
+    },
+    [StatusCodes.INTERNAL_SERVER_ERROR]: {
+      description: 'Unexpected error occured.'
+    }
+  }
+});
+
+export const logout = createRoute({
+  method: 'post',
+  path: '/logout',
+  description: 'Logout user.',
+  tags: ['Auth'],
+  middleware: useRefreshToken(),
+  security: bearerAuth,
+  responses: {
+    [StatusCodes.OK]: {
+      ...textc(z.string()),
+      description: 'Successfully logged out.'
     }
   }
 });
@@ -55,7 +97,7 @@ export const testProtected = createRoute({
   path: '/protected',
   description: 'Test JWT token.',
   tags: ['Auth'],
-  middleware: useJWT(),
+  middleware: useAccessToken(),
   security: bearerAuth,
   responses: {
     [StatusCodes.CREATED]: {
