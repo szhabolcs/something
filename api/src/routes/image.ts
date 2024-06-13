@@ -7,8 +7,9 @@ import sharp from 'sharp';
 import { OpenAPIHono } from '@hono/zod-openapi';
 import { serveImage, uploadImage } from './image.definition.js';
 import { serveStatic } from '../utils/serve-static.js';
+import { zodErrorHandler } from '../utils/errors.js';
 
-export const imageRouter = new OpenAPIHono()
+export const imageRouter = new OpenAPIHono({ defaultHook: zodErrorHandler })
   .openapi(uploadImage, async (c) => {
     const user_uuid = c.get('jwtPayload').uuid;
 

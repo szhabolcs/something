@@ -14,8 +14,9 @@ import {
   userProfile,
   toggleLeaderboardVisibility
 } from './user.definition.js';
+import { zodErrorHandler } from '../utils/errors.js';
 
-export const userRouter = new OpenAPIHono()
+export const userRouter = new OpenAPIHono({ defaultHook: zodErrorHandler })
   .openapi(userProfile, async (c) => {
     const user_uuid = c.get('jwtPayload').uuid;
     // Step1: Get top 3 badess from badge repository (icon, name, description)

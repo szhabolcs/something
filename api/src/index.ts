@@ -9,11 +9,13 @@ import { imageRouter } from './routes/image.js';
 import { userRouter } from './routes/user.js';
 
 import { OpenAPIHono } from '@hono/zod-openapi';
-import { catchErrors, registerBearerAuthScheme } from './utils/openapi.js';
+import { registerBearerAuthScheme } from './utils/openapi.js';
 import { scalarUIProtected } from './utils/scalar.js';
 import { swaggerUIProtected } from './utils/swagger.js';
+import { globalErrorHandler, zodErrorHandler } from './utils/errors.js';
 
-const app = new OpenAPIHono({ defaultHook: catchErrors })
+const app = new OpenAPIHono({ defaultHook: zodErrorHandler })
+  .onError(globalErrorHandler)
   .use(logger())
   .get('/', (c) => {
     return c.text('so you found the api, nice! :)');

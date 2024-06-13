@@ -2,6 +2,7 @@ import { createRoute } from '@hono/zod-openapi';
 import { z } from 'zod';
 import {
   bearerAuth,
+  defaultResponses,
   jsonc,
   textc,
   useAccessToken,
@@ -30,12 +31,10 @@ export const register = createRoute({
     body: jsonc(AuthDTO)
   },
   responses: {
+    ...defaultResponses,
     [StatusCodes.CREATED]: {
       ...jsonc(AuthResponseModel),
       description: 'Successfully registered.'
-    },
-    [StatusCodes.INTERNAL_SERVER_ERROR]: {
-      description: 'Unexpected error occured.'
     }
   }
 });
@@ -49,12 +48,10 @@ export const login = createRoute({
     body: jsonc(AuthDTO)
   },
   responses: {
+    ...defaultResponses,
     [StatusCodes.CREATED]: {
       ...jsonc(AuthResponseModel),
       description: 'Successful login.'
-    },
-    [StatusCodes.INTERNAL_SERVER_ERROR]: {
-      description: 'Unexpected error occured.'
     }
   }
 });
@@ -67,12 +64,10 @@ export const refresh = createRoute({
   middleware: useRefreshToken(),
   security: bearerAuth,
   responses: {
+    ...defaultResponses,
     [StatusCodes.CREATED]: {
       ...jsonc(AuthResponseModel),
       description: 'Successfully refreshed.'
-    },
-    [StatusCodes.INTERNAL_SERVER_ERROR]: {
-      description: 'Unexpected error occured.'
     }
   }
 });
@@ -100,12 +95,10 @@ export const testProtected = createRoute({
   middleware: useAccessToken(),
   security: bearerAuth,
   responses: {
+    ...defaultResponses,
     [StatusCodes.CREATED]: {
       ...textc(z.string()),
       description: 'Successfully authorized.'
-    },
-    [StatusCodes.INTERNAL_SERVER_ERROR]: {
-      description: 'Unexpected error occured.'
     }
   }
 });

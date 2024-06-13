@@ -3,6 +3,7 @@ import { AuthDTO } from '../routes/auth.definition.js';
 import { BaseService } from './base.service.js';
 import jwt from 'jsonwebtoken';
 import { db } from '../db/db.js';
+import { ClientError } from '../utils/errors.js';
 
 export type AccessTokenPayload = {
   username: string;
@@ -22,9 +23,11 @@ export class AuthService extends BaseService {
    * @throws {Error}
    */
   public async register(data: AuthDTO) {
-    const existingUser = await this.repositories.user.getById(data.username);
+    const existingUser = await this.repositories.user.getByUsername(
+      data.username
+    );
     if (existingUser) {
-      throw new Error('User already exists');
+      throw new ClientError('User already exists.');
     }
 
     const hashedPassword = await bcrypt.hash(data.password, 10);
@@ -71,12 +74,14 @@ export class AuthService extends BaseService {
   public async login(data: AuthDTO) {
     const user = await this.repositories.user.getByUsername(data.username);
     if (!user) {
-      throw new Error('User not found');
+      console.log('User not found');
+      throw new ClientError('Invalid username or password');
     }
 
     const isPasswordValid = await bcrypt.compare(data.password, user.password);
     if (!isPasswordValid) {
-      throw new Error('Invalid password');
+      console.log('Invalid password');
+      throw new ClientError('Invalid username or password');
     }
 
     if (data.pushToken) {

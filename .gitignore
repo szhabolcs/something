@@ -132,3 +132,4 @@ dist
 .env
 *.jpg
 .vscode
+.idea
