@@ -1,8 +1,8 @@
 import { OpenAPIHono, createRoute, z } from '@hono/zod-openapi';
-import { StatusCode } from 'hono/utils/http-status';
-import { StatusCodes } from '../types/status-codes.js';
 import { jwt } from 'hono/jwt';
 import * as openapi3_ts_oas31 from 'openapi3-ts/oas31';
+import { StatusCodes } from '../types/status-codes.js';
+import { GeneralError, ValidationError } from './errors.js';
 
 export function jsonc<TSchema>(schema: TSchema) {
   return { content: { 'application/json': { schema } } };
@@ -16,21 +16,6 @@ export function formc<TSchema>(schema: TSchema) {
   return { content: { 'multipart/form-data': { schema } } };
 }
 
-export const catchErrors: Parameters<OpenAPIHono['openapi']>['2'] = (
-  result,
-  c
-) => {
-  if (!result.success) {
-    console.error(result.error);
-    return c.json(
-      {
-        reason: result.error.message
-      },
-      StatusCodes.INTERNAL_SERVER_ERROR
-    );
-  }
-};
-
 export function useAccessToken() {
   return jwt({ secret: process.env.ACCESS_TOKEN_SECRET });
 }
@@ -38,6 +23,16 @@ export function useAccessToken() {
 export function useRefreshToken() {
   return jwt({ secret: process.env.REFRESH_TOKEN_SECRET });
 }
+
+export const defaultResponses = {
+  [StatusCodes.BAD_REQUEST]: {
+    ...jsonc(ValidationError.or(GeneralError)),
+    description: 'Invalid request.'
+  },
+  [StatusCodes.INTERNAL_SERVER_ERROR]: {
+    description: 'Unexpected error occured.'
+  }
+} as const;
 
 export const bearerAuth = [{ Bearer: [] }];
 

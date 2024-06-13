@@ -15,8 +15,9 @@ import {
   thingDetails,
   createThing
 } from './things.definition.js';
+import { zodErrorHandler } from '../utils/errors.js';
 
-export const thingRouter = new OpenAPIHono()
+export const thingRouter = new OpenAPIHono({ defaultHook: zodErrorHandler })
   .openapi(userThingsToday, async (c) => {
     const user_uuid = c.get('jwtPayload').uuid;
     const things = await getUserThingsToday(user_uuid, 3);

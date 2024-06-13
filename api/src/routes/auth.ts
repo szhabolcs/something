@@ -8,11 +8,12 @@ import {
   testProtected
 } from './auth.definition.js';
 import { AuthService } from '../services/auth.service.js';
+import { zodErrorHandler } from '../utils/errors.js';
 
 const authService = new AuthService();
 
 // User registration endpoint
-export const authRouter = new OpenAPIHono()
+export const authRouter = new OpenAPIHono({ defaultHook: zodErrorHandler })
   .openapi(register, async (c) => {
     const { username, password } = c.req.valid('json');
     const tokenPair = await authService.register({ username, password });
