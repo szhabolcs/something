@@ -115,7 +115,6 @@ export const StatusCodes = {
    *
    * Was defined in a previous version of the HTTP specification to indicate that a requested response must be accessed by a proxy. It has been deprecated due to security concerns regarding in-band configuration of a proxy.
    */
-  // eslint-disable-next-line deprecation/deprecation
   USE_PROXY: 305,
   /**
    * Official Documentation @ https://tools.ietf.org/html/rfc7231#section-6.4.7
@@ -255,7 +254,6 @@ export const StatusCodes = {
    *
    * A deprecated response used by the Spring Framework when a method has failed.
    */
-  // eslint-disable-next-line deprecation/deprecation
   METHOD_FAILURE: 420,
   /**
    * Official Documentation @ https://datatracker.ietf.org/doc/html/rfc7540#section-9.1.2

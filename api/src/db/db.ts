@@ -14,6 +14,4 @@ const db = drizzle(pool, { schema });
 export { db };
 
 export type DrizzleDatabaseSession = typeof db;
-export type DrizzleTransactionSession = Parameters<
-  Parameters<typeof db.transaction>['0']
->['0'];
+export type DrizzleTransactionSession = Parameters<Parameters<typeof db.transaction>['0']>['0'];

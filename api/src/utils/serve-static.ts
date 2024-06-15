@@ -3,9 +3,9 @@
 
 import type { ReadStream } from 'fs';
 import { createReadStream, existsSync, lstatSync } from 'fs';
-import type { Context, MiddlewareHandler } from 'hono';
-import { getFilePath } from 'hono/utils/filepath';
+import type { Context, Handler } from 'hono';
 import { getMimeType } from 'hono/utils/mime';
+import { StatusCodes, reasonPhrase } from '../types/status-codes.js';
 
 export type ServeStaticOptions = {
   /**
@@ -36,42 +36,19 @@ const createStreamBody = (stream: ReadStream) => {
   return body;
 };
 
-export const serveStatic = (
-  options: ServeStaticOptions = { root: '' }
-): MiddlewareHandler => {
+export const serveStatic = (path: string): Handler => {
   return async (c, next) => {
+    console.log(`Serving static file: ${path}`);
+
     // Do nothing if Response is already set
     if (c.finalized) {
       return next();
     }
 
-    const url = new URL(c.req.url);
-
-    const filename = options.path ?? decodeURIComponent(url.pathname);
-    let path = getFilePath({
-      filename: options.rewriteRequestPath
-        ? options.rewriteRequestPath(filename)
-        : filename,
-      root: options.root,
-      defaultDocument: options.index ?? 'index.html'
-    });
-
-    if (!path) {
-      return next();
-    }
-
-    // MY FIX
-    if (options.root) {
-      path = `/${path}`;
-    } else {
-      path = `./${path}`;
-    }
-
-    console.log(`Serving static file: ${path}`);
-
     if (!existsSync(path)) {
-      await options.onNotFound?.(path, c);
-      return next();
+      // await options.onNotFound?.(path, c);
+      console.error(`File not found: ${path}`);
+      return c.text(reasonPhrase(StatusCodes.INTERNAL_SERVER_ERROR), StatusCodes.INTERNAL_SERVER_ERROR);
     }
 
     const mimeType = getMimeType(path);

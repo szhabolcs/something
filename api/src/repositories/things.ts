@@ -1,29 +1,9 @@
-import {
-  and,
-  eq,
-  gte,
-  lt,
-  inArray,
-  isNotNull,
-  ne,
-  asc,
-  desc
-} from 'drizzle-orm';
+import { and, eq, gte, lt, inArray, isNotNull, ne, asc, desc } from 'drizzle-orm';
 import { db } from '../db/db.js';
-import {
-  ThingTable,
-  ScheduleTable,
-  CheckpointTable,
-  SharingTable,
-  StreakTable,
-  UserTable
-} from '../db/schema.js';
+import { ThingTable, ScheduleTable, ImageTable, SharingTable, StreakTable, UserTable } from '../db/schema.js';
 import { union } from 'drizzle-orm/pg-core';
 
-export async function getUserThingsToday(
-  user_uuid: string,
-  limit: number | undefined = undefined
-) {
+export async function getUserThingsToday(user_uuid: string, limit: number | undefined = undefined) {
   const startOfToday = new Date();
   startOfToday.setHours(0, 0, 0, 0);
   const endOfToday = new Date();
@@ -56,38 +36,23 @@ export async function getUserThingsToday(
       endTime: ScheduleTable.endTime
     })
     .from(ThingTable)
-    .leftJoin(
-      StreakTable,
-      and(
-        eq(ThingTable.id, StreakTable.thingId),
-        eq(StreakTable.userId, user_uuid)
-      )
-    )
+    .leftJoin(StreakTable, and(eq(ThingTable.id, StreakTable.thingId), eq(StreakTable.userId, user_uuid)))
     .leftJoin(ScheduleTable, eq(ThingTable.id, ScheduleTable.thingId))
-    .leftJoin(CheckpointTable, eq(ThingTable.id, CheckpointTable.thingId))
+    .leftJoin(ImageTable, eq(ThingTable.id, ImageTable.thingId))
     .where(
       and(
         inArray(
           ThingTable.id,
           sq.map((thing) => thing.uuid)
         ),
-        and(
-          gte(CheckpointTable.createdAt, startOfToday),
-          lt(CheckpointTable.createdAt, endOfToday)
-        ),
+        and(gte(ImageTable.createdAt, startOfToday), lt(ImageTable.createdAt, endOfToday)),
         isNotNull(ScheduleTable.startTime),
         isNotNull(ScheduleTable.endTime),
-        eq(CheckpointTable.userId, user_uuid)
+        eq(ImageTable.userId, user_uuid)
       )
     )
     .orderBy(asc(ScheduleTable.startTime))
-    .groupBy(
-      ThingTable.id,
-      ThingTable.name,
-      StreakTable.count,
-      ScheduleTable.startTime,
-      ScheduleTable.endTime
-    );
+    .groupBy(ThingTable.id, ThingTable.name, StreakTable.count, ScheduleTable.startTime, ScheduleTable.endTime);
 
   let result;
   if (limit) {
@@ -101,16 +66,8 @@ export async function getUserThingsToday(
 
 export async function getOthersThingsToday(user_uuid: string) {
   const today = new Date();
-  const startOfDay = new Date(
-    today.getFullYear(),
-    today.getMonth(),
-    today.getDate()
-  );
-  const endOfDay = new Date(
-    today.getFullYear(),
-    today.getMonth(),
-    today.getDate() + 1
-  );
+  const startOfDay = new Date(today.getFullYear(), today.getMonth(), today.getDate());
+  const endOfDay = new Date(today.getFullYear(), today.getMonth(), today.getDate() + 1);
 
   const userThings = db
     .select({
@@ -135,23 +92,23 @@ export async function getOthersThingsToday(user_uuid: string) {
       username: UserTable.username,
       thingName: ThingTable.name,
       thingUuid: ThingTable.id,
-      filename: CheckpointTable.filename
+      filename: ImageTable.filename
     })
-    .from(CheckpointTable)
-    .leftJoin(ThingTable, eq(ThingTable.id, CheckpointTable.thingId))
-    .leftJoin(UserTable, eq(CheckpointTable.userId, UserTable.id))
+    .from(ImageTable)
+    .leftJoin(ThingTable, eq(ThingTable.id, ImageTable.thingId))
+    .leftJoin(UserTable, eq(ImageTable.userId, UserTable.id))
     .where(
       and(
         inArray(
-          CheckpointTable.thingId,
+          ImageTable.thingId,
           sq.map((thing) => thing.uuid)
         ),
-        ne(CheckpointTable.userId, user_uuid),
-        gte(CheckpointTable.createdAt, startOfDay),
-        lt(CheckpointTable.createdAt, endOfDay)
+        ne(ImageTable.userId, user_uuid),
+        gte(ImageTable.createdAt, startOfDay),
+        lt(ImageTable.createdAt, endOfDay)
       )
     )
-    .orderBy(desc(CheckpointTable.createdAt));
+    .orderBy(desc(ImageTable.createdAt));
 
   const result = await query;
 
@@ -190,15 +147,9 @@ export async function getUserThings(user_uuid: string) {
       endTime: ScheduleTable.endTime
     })
     .from(ThingTable)
-    .leftJoin(
-      StreakTable,
-      and(
-        eq(ThingTable.id, StreakTable.thingId),
-        eq(StreakTable.userId, user_uuid)
-      )
-    )
+    .leftJoin(StreakTable, and(eq(ThingTable.id, StreakTable.thingId), eq(StreakTable.userId, user_uuid)))
     .leftJoin(ScheduleTable, eq(ThingTable.id, ScheduleTable.thingId))
-    .leftJoin(CheckpointTable, eq(ThingTable.id, CheckpointTable.thingId))
+    .leftJoin(ImageTable, eq(ThingTable.id, ImageTable.thingId))
     .where(
       and(
         inArray(
@@ -207,17 +158,11 @@ export async function getUserThings(user_uuid: string) {
         ),
         isNotNull(ScheduleTable.startTime),
         isNotNull(ScheduleTable.endTime),
-        eq(CheckpointTable.userId, user_uuid)
+        eq(ImageTable.userId, user_uuid)
       )
     )
     .orderBy(desc(ScheduleTable.startTime))
-    .groupBy(
-      ThingTable.id,
-      ThingTable.name,
-      StreakTable.count,
-      ScheduleTable.startTime,
-      ScheduleTable.endTime
-    );
+    .groupBy(ThingTable.id, ThingTable.name, StreakTable.count, ScheduleTable.startTime, ScheduleTable.endTime);
 
   const result = await query;
 
@@ -237,16 +182,8 @@ export async function getThingDetails(user_uuid: string, thing_uuid: string) {
 
   // Step2: Get next occurrence
   const today = new Date();
-  const startOfDay = new Date(
-    today.getFullYear(),
-    today.getMonth(),
-    today.getDate()
-  );
-  const endOfDay = new Date(
-    today.getFullYear(),
-    today.getMonth(),
-    today.getDate() + 1
-  );
+  const startOfDay = new Date(today.getFullYear(), today.getMonth(), today.getDate());
+  const endOfDay = new Date(today.getFullYear(), today.getMonth(), today.getDate() + 1);
 
   let nextOccurrenceQuery;
   if (thingTypeQuery.length > 0 && thingTypeQuery[0].type === 'personal') {
@@ -259,21 +196,16 @@ export async function getThingDetails(user_uuid: string, thing_uuid: string) {
       })
       .from(ScheduleTable)
       .leftJoin(
-        CheckpointTable,
+        ImageTable,
         and(
-          eq(CheckpointTable.thingId, thing_uuid),
-          gte(CheckpointTable.createdAt, startOfDay),
-          lt(CheckpointTable.createdAt, endOfDay)
+          eq(ImageTable.thingId, thing_uuid),
+          gte(ImageTable.createdAt, startOfDay),
+          lt(ImageTable.createdAt, endOfDay)
         )
       )
       .where(eq(ScheduleTable.thingId, thing_uuid))
-      .groupBy(
-        ScheduleTable.thingId,
-        ScheduleTable.startTime,
-        ScheduleTable.endTime,
-        CheckpointTable.createdAt
-      )
-      .orderBy(asc(CheckpointTable.createdAt));
+      .groupBy(ScheduleTable.thingId, ScheduleTable.startTime, ScheduleTable.endTime, ImageTable.createdAt)
+      .orderBy(asc(ImageTable.createdAt));
   }
 
   // Step3: Get list of people shared with
@@ -292,14 +224,14 @@ export async function getThingDetails(user_uuid: string, thing_uuid: string) {
     .select({
       username: UserTable.username,
       thingName: ThingTable.name,
-      filename: CheckpointTable.filename
+      filename: ImageTable.filename
     })
-    .from(CheckpointTable)
-    .leftJoin(UserTable, eq(CheckpointTable.userId, UserTable.id))
-    .leftJoin(ThingTable, eq(CheckpointTable.thingId, ThingTable.id))
+    .from(ImageTable)
+    .leftJoin(UserTable, eq(ImageTable.userId, UserTable.id))
+    .leftJoin(ThingTable, eq(ImageTable.thingId, ThingTable.id))
     .leftJoin(ScheduleTable, eq(ThingTable.id, ScheduleTable.thingId))
     .where(and(eq(ScheduleTable.thingId, thing_uuid)))
-    .orderBy(desc(CheckpointTable.createdAt));
+    .orderBy(desc(ImageTable.createdAt));
 
   // Alter the previous checkpoints query (add domain)
   previousCheckpointsQuery.map((checkpoint) => {
@@ -315,164 +247,4 @@ export async function getThingDetails(user_uuid: string, thing_uuid: string) {
   };
 
   return result;
-}
-
-export async function createThing(
-  user_uuid: string,
-  name: string,
-  description: string,
-  occurances: any[] | null, // [{start, end, repeat, dayOfWeek}] only if user is not org
-  sharedUsernames: string[]
-) {
-  // Step1: Create thing
-  const newThing = await db
-    .insert(ThingTable)
-    .values({
-      name: name,
-      userId: user_uuid,
-      description: description,
-      type: 'personal'
-    })
-    .returning();
-
-  // Step2: Add shared people to sharing table
-  for (const username of sharedUsernames) {
-    const sharedUserId = (
-      await db
-        .select({ uuid: UserTable.id })
-        .from(UserTable)
-        .where(eq(UserTable.username, username))
-    )[0].uuid;
-    await db
-      .insert(SharingTable)
-      .values({
-        userId: sharedUserId,
-        thingId: newThing[0].id
-      })
-      .returning();
-  }
-
-  // Get all users that the thing is shared with and the current user
-  const usersWithThing = await db
-    .select({ uuid: UserTable.id })
-    .from(SharingTable)
-    .innerJoin(UserTable, eq(SharingTable.userId, UserTable.id))
-    .innerJoin(ThingTable, eq(ThingTable.id, SharingTable.thingId))
-    .where(eq(SharingTable.thingId, newThing[0].id));
-
-  // Add the current user to the list
-  usersWithThing.push({ uuid: user_uuid });
-
-  // Step2: Create schedules
-  if (occurances) {
-    for (const occurrence of occurances) {
-      if (occurrence.repeat === 'once' || occurrence.repeat === 'daily') {
-        occurrence.dayOfWeek = ['mon']; // arbitrary day
-      }
-
-      for (const day of occurrence.dayOfWeek) {
-        await db
-          .insert(ScheduleTable)
-          .values({
-            thingId: newThing[0].id,
-            startTime: occurrence.startTime,
-            endTime: occurrence.endTime,
-            repeat: occurrence.repeat,
-            dayOfWeek: day
-          })
-          .returning();
-      }
-    }
-  }
-
-  // Step3: Create, streak, and checkpoints for each user
-  for (const userWithThing of usersWithThing) {
-    // Create streak
-    await db
-      .insert(StreakTable)
-      .values({
-        userId: userWithThing.uuid,
-        thingId: newThing[0].id,
-        count: 0
-      })
-      .returning();
-
-    // Add one checkpoint (create) for every user that has the thing
-
-    const currentDate = new Date();
-    const currentDay = currentDate.getDay();
-    const timestamps: Date[] = [];
-
-    if (occurances) {
-      for (const occurrence of occurances) {
-        if (occurrence.repeat === 'once' || occurrence.repeat === 'daily') {
-          const [hours, minutes, seconds] = occurrence.startTime
-            .split(':')
-            .map(Number);
-          const startTime = new Date(currentDate);
-          startTime.setHours(hours);
-          startTime.setMinutes(minutes);
-          startTime.setSeconds(seconds);
-          startTime.setMilliseconds(0);
-          timestamps.push(startTime);
-        } else if (occurrence.repeat === 'weekly') {
-          for (const day of occurrence.dayOfWeek) {
-            const dayIndex = getDayIndex(day);
-            const diff = (dayIndex - currentDay + 7) % 7;
-            const [hours, minutes, seconds] = occurrence.startTime
-              .split(':')
-              .map(Number);
-            const startTime = new Date(currentDate);
-            startTime.setDate(startTime.getDate() + diff);
-            startTime.setHours(hours);
-            startTime.setMinutes(minutes);
-            startTime.setSeconds(seconds);
-            startTime.setMilliseconds(0);
-            timestamps.push(startTime);
-          }
-        } else if (occurrence.repeat === 'monthly') {
-          const [hours, minutes, seconds] = occurrence.startTime
-            .split(':')
-            .map(Number);
-          const startTime = new Date(currentDate);
-          const dayOfMonth = occurrence.dayOfWeek[0];
-          startTime.setDate(getDayOfMonth(startTime, dayOfMonth));
-          startTime.setHours(hours);
-          startTime.setMinutes(minutes);
-          startTime.setSeconds(seconds);
-          startTime.setMilliseconds(0);
-          if (startTime < currentDate) {
-            startTime.setMonth(startTime.getMonth() + 1);
-          }
-          timestamps.push(startTime);
-        }
-      }
-    }
-
-    for (const timestamp of timestamps) {
-      // TEMPORARY: Add checkpoints for the next 7 days
-      for (let i = 0; i < 7; i++) {
-        await db.insert(CheckpointTable).values({
-          userId: userWithThing.uuid,
-          thingId: newThing[0].id,
-          createdAt: timestamp,
-          filename: null
-        });
-        timestamp.setDate(timestamp.getDate() + 1);
-      }
-    }
-  }
-}
-
-function getDayIndex(day: string): number {
-  const daysOfWeek = ['sun', 'mon', 'tue', 'wed', 'thu', 'fri', 'sat'];
-  return daysOfWeek.indexOf(day.toLowerCase());
-}
-
-function getDayOfMonth(date: Date, dayOfWeek: string): number {
-  const targetDayIndex = getDayIndex(dayOfWeek);
-  const firstDayOfMonth = new Date(date.getFullYear(), date.getMonth(), 1);
-  const firstDayOfMonthIndex = firstDayOfMonth.getDay();
-  const diff = (targetDayIndex - firstDayOfMonthIndex + 7) % 7;
-  return 1 + diff;
 }

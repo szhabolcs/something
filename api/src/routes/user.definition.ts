@@ -3,26 +3,11 @@ import { z } from 'zod';
 import { bearerAuth, jsonc, textc, useAccessToken } from '../utils/openapi.js';
 import { StatusCodes } from '../types/status-codes.js';
 import { ThingPreviewModel } from './things.definition.js';
-
-const BadgeModel = z.object({
-  icon: z.string(),
-  name: z.string(),
-  description: z.string()
-});
-
-const LevelModel = z.object({
-  level: z.string(),
-  minThreshold: z.number()
-});
-const LevelsModel = z.object({
-  currentLevel: LevelModel,
-  nextLevel: LevelModel,
-  currentPoints: z.number()
-});
+import { BadgeInfoModel, LevelInfoModel } from '../types/reward.js';
 
 const UserProfileModel = z.object({
-  levels: LevelsModel,
-  badges: BadgeModel.array(),
+  level: LevelInfoModel,
+  badges: BadgeInfoModel.array(),
   things: ThingPreviewModel.array()
 });
 
@@ -60,7 +45,7 @@ export const userBadges = createRoute({
   tags: ['User'],
   responses: {
     [StatusCodes.OK]: {
-      ...jsonc(BadgeModel.array()),
+      ...jsonc(BadgeInfoModel.array()),
       description: `User's badges.`
     },
     [StatusCodes.INTERNAL_SERVER_ERROR]: {

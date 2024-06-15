@@ -1,13 +1,7 @@
 import { OpenAPIHono } from '@hono/zod-openapi';
 import { StatusCodes, reasonPhrase } from '../types/status-codes.js';
-import {
-  login,
-  logout,
-  refresh,
-  register,
-  testProtected
-} from './auth.definition.js';
-import { AuthService } from '../services/auth.service.js';
+import { login, logout, refresh, register, testProtected } from './auth.definition.js';
+import { AccessTokenPayload, AuthService } from '../services/auth.service.js';
 import { zodErrorHandler } from '../utils/errors.js';
 
 const authService = new AuthService();
@@ -47,6 +41,6 @@ export const authRouter = new OpenAPIHono({ defaultHook: zodErrorHandler })
   })
 
   .openapi(testProtected, async (c) => {
-    const username = c.get('jwtPayload').username;
+    const username = (c.get('jwtPayload') as AccessTokenPayload).username;
     return c.text(`Hello, "${username}"! You are authorized.`, StatusCodes.OK);
   });

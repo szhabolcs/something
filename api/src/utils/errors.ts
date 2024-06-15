@@ -30,10 +30,7 @@ export class ClientError extends HTTPException {
   }
 }
 
-export const zodErrorHandler: Parameters<OpenAPIHono['openapi']>['2'] = (
-  result,
-  c
-) => {
+export const zodErrorHandler: Parameters<OpenAPIHono['openapi']>['2'] = (result, c) => {
   if (!result.success) {
     const errors = result.error.issues.map(({ path, message }) => ({
       path,
@@ -52,8 +49,9 @@ export const globalErrorHandler: ErrorHandler = (error, c) => {
     return c.json(body, error.status);
   }
 
-  return c.json(
-    reasonPhrase(StatusCodes.INTERNAL_SERVER_ERROR),
-    StatusCodes.INTERNAL_SERVER_ERROR
-  );
+  if (error instanceof HTTPException && error.res?.status === StatusCodes.UNAUTHORIZED) {
+    return c.json(reasonPhrase(StatusCodes.UNAUTHORIZED), StatusCodes.UNAUTHORIZED);
+  }
+
+  return c.json(reasonPhrase(StatusCodes.INTERNAL_SERVER_ERROR), StatusCodes.INTERNAL_SERVER_ERROR);
 };

@@ -1,7 +1,6 @@
 import { eq, desc } from 'drizzle-orm';
 import { db } from '../db/db.js';
-import { UserTable, LevelDefinitionTable, ScoreTable } from '../db/schema.js';
-import { union } from 'drizzle-orm/pg-core';
+import { UserTable, ScoreTable } from '../db/schema.js';
 
 export async function getLeaderBoard(limit: number = 100) {
   return await db
@@ -32,14 +31,8 @@ export async function toggleLeaderboardVisibility(uuid: string) {
     .limit(1);
 
   if (visibility[0].visibility) {
-    return await db
-      .update(ScoreTable)
-      .set({ public: false })
-      .where(eq(ScoreTable.userId, uuid));
+    return await db.update(ScoreTable).set({ public: false }).where(eq(ScoreTable.userId, uuid));
   } else {
-    return await db
-      .update(ScoreTable)
-      .set({ public: true })
-      .where(eq(ScoreTable.userId, uuid));
+    return await db.update(ScoreTable).set({ public: true }).where(eq(ScoreTable.userId, uuid));
   }
 }

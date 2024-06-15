@@ -4,9 +4,7 @@ import * as openapi3_ts_oas31 from 'openapi3-ts/oas31';
 import { ApiReferenceOptions, javascript } from '@scalar/hono-api-reference';
 import { completeOpenAPIConfig } from './openapi.js';
 
-export function scalarUIProtected(
-  openapi31config: openapi3_ts_oas31.OpenAPIObject
-) {
+export function scalarUIProtected(openapi31config: openapi3_ts_oas31.OpenAPIObject) {
   return createMiddleware(async (c) => {
     const { pwd } = c.req.query();
 

@@ -7,13 +7,9 @@ module.exports = {
     sourceType: 'module',
     project: ['./tsconfig.json']
   },
-  extends: [
-    'eslint:recommended',
-    'plugin:@typescript-eslint/recommended',
-    'plugin:prettier/recommended'
-  ],
+  extends: ['eslint:recommended', 'plugin:@typescript-eslint/recommended', 'plugin:prettier/recommended'],
   parser: '@typescript-eslint/parser',
-  plugins: ['@typescript-eslint', 'deprecation', 'prettier'],
+  plugins: ['@typescript-eslint', 'prettier', 'unused-imports'],
   rules: {
     '@typescript-eslint/ban-ts-comment': 'off',
     '@typescript-eslint/no-empty-function': 'off',
@@ -22,8 +18,17 @@ module.exports = {
     '@typescript-eslint/no-non-null-assertion': 'off',
     '@typescript-eslint/no-unused-vars': 'off',
     'no-case-declarations': 'off',
-    'deprecation/deprecation': 'error',
-    'no-console': 'warn'
+    'no-console': 'warn',
+    'unused-imports/no-unused-imports': 'error',
+    'unused-imports/no-unused-vars': [
+      'warn',
+      {
+        vars: 'all',
+        varsIgnorePattern: '^_',
+        args: 'after-used',
+        argsIgnorePattern: '^_'
+      }
+    ]
   },
   ignorePatterns: ['.eslintrc.cjs', 'dist', 'drizzle.config.ts', 'node_modules']
 };
