@@ -23,9 +23,7 @@ export class AuthService extends BaseService {
    * @throws {Error}
    */
   public async register(data: AuthDTO) {
-    const existingUser = await this.repositories.user.getByUsername(
-      data.username
-    );
+    const existingUser = await this.repositories.user.getByUsername(data.username);
     if (existingUser) {
       throw new ClientError('User already exists.');
     }
@@ -54,11 +52,7 @@ export class AuthService extends BaseService {
         });
 
         // Save the refresh token in the database
-        await this.repositories.session.create(
-          user.id,
-          tokenPair.refreshToken,
-          tx
-        );
+        await this.repositories.session.create(user.id, tokenPair.refreshToken, tx);
 
         return tokenPair;
       } catch (error) {
@@ -112,13 +106,9 @@ export class AuthService extends BaseService {
     const accessToken = jwt.sign(payload, this.ACCESS_TOKEN_SECRET, {
       expiresIn: '15m'
     });
-    const refreshToken = jwt.sign(
-      { type: 'refresh', id: payload.id },
-      this.REFRESH_TOKEN_SECRET,
-      {
-        expiresIn: '30d'
-      }
-    );
+    const refreshToken = jwt.sign({ type: 'refresh', id: payload.id }, this.REFRESH_TOKEN_SECRET, {
+      expiresIn: '30d'
+    });
 
     return {
       accessToken,
@@ -133,10 +123,7 @@ export class AuthService extends BaseService {
     let tokenData: RefreshTokenPayload | null = null;
     try {
       // Check if the refresh token is valid
-      tokenData = jwt.verify(
-        refreshToken,
-        this.REFRESH_TOKEN_SECRET
-      ) as RefreshTokenPayload;
+      tokenData = jwt.verify(refreshToken, this.REFRESH_TOKEN_SECRET) as RefreshTokenPayload;
 
       // Check if the refresh token exists in the database
       const session = await this.repositories.session.get(refreshToken);

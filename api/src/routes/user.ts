@@ -8,17 +8,12 @@ import {
   toggleLeaderboardVisibility as repoToggleLeaderboardVisibility
 } from '../repositories/leaderboard.js';
 import { OpenAPIHono } from '@hono/zod-openapi';
-import {
-  leaderboard,
-  userBadges,
-  userProfile,
-  toggleLeaderboardVisibility
-} from './user.definition.js';
+import { leaderboard, userBadges, userProfile, toggleLeaderboardVisibility } from './user.definition.js';
 import { zodErrorHandler } from '../utils/errors.js';
 
 export const userRouter = new OpenAPIHono({ defaultHook: zodErrorHandler })
   .openapi(userProfile, async (c) => {
-    const user_uuid = c.get('jwtPayload').uuid;
+    const user_uuid = c.get('jwtPayload').id;
     // Step1: Get top 3 badess from badge repository (icon, name, description)
     const topBadges = await getTopBadges(user_uuid, 3);
 
@@ -37,13 +32,13 @@ export const userRouter = new OpenAPIHono({ defaultHook: zodErrorHandler })
   })
 
   .openapi(userBadges, async (c) => {
-    const user_uuid = c.get('jwtPayload').uuid;
+    const user_uuid = c.get('jwtPayload').id;
     const badges = await getAllBadges(user_uuid);
     return c.json(badges, StatusCodes.OK);
   })
 
   .openapi(leaderboard, async (c) => {
-    const user_uuid = c.get('jwtPayload').uuid;
+    const user_uuid = c.get('jwtPayload').id;
     const leaderboard = await getLeaderBoard();
     const currentVisibility = await currentLeaderBoardVisibility(user_uuid);
     return c.json(
@@ -56,7 +51,7 @@ export const userRouter = new OpenAPIHono({ defaultHook: zodErrorHandler })
   })
 
   .openapi(toggleLeaderboardVisibility, async (c) => {
-    const uuid = c.get('jwtPayload').uuid;
+    const uuid = c.get('jwtPayload').id;
     await repoToggleLeaderboardVisibility(uuid);
     return c.text(reasonPhrase(StatusCodes.OK), StatusCodes.OK);
   });

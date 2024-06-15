@@ -12,9 +12,7 @@ export const ThingPreviewModel = z.object({
 });
 
 const ThingCardModel = z.object({
-  photoUuid: z
-    .string()
-    .openapi({ description: 'This is actually the link to the picture' }),
+  photoUuid: z.string().openapi({ description: 'This is actually the link to the picture' }),
   username: z.string(),
   thingName: z.string(),
   thingUuid: z.string()
@@ -52,8 +50,7 @@ export const userThingsToday = createRoute({
   path: '/mine/today',
   middleware: useAccessToken(),
   security: bearerAuth,
-  description:
-    'Retrieve some data about upcoming things scheduled for today. <br> This is only a preview.',
+  description: 'Retrieve some data about upcoming things scheduled for today. <br> This is only a preview.',
   tags: ['Things'],
   responses: {
     [StatusCodes.OK]: {

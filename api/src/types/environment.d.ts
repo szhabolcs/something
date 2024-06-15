@@ -10,7 +10,7 @@ declare global {
       REFRESH_TOKEN_SECRET: string;
 
       API_HOST: string;
-      API_VOLUME_PATH: string;
+      API_IMAGE_DIR: string;
       PORT: string;
     }
   }

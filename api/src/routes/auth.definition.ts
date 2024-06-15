@@ -1,13 +1,6 @@
 import { createRoute } from '@hono/zod-openapi';
 import { z } from 'zod';
-import {
-  bearerAuth,
-  defaultResponses,
-  jsonc,
-  textc,
-  useAccessToken,
-  useRefreshToken
-} from '../utils/openapi.js';
+import { bearerAuth, defaultResponses, jsonc, textc, useAccessToken, useRefreshToken } from '../utils/openapi.js';
 import { StatusCodes } from '../types/status-codes.js';
 
 export const AuthDTO = z.object({

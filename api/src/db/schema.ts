@@ -24,8 +24,7 @@ const timechangeColumns = {
 
 // quick hack to be able to have check support
 // (https://github.com/drizzle-team/drizzle-orm/issues/880#issuecomment-1814869720)
-const check = (defaultval: string, checkexpr: string) =>
-  sql`${sql.raw(defaultval)} CHECK (${sql.raw(checkexpr)})`;
+const check = (defaultval: string, checkexpr: string) => sql`${sql.raw(defaultval)} CHECK (${sql.raw(checkexpr)})`;
 
 export const UserTable = pgTable(
   'user',
@@ -103,15 +102,7 @@ export const ScheduleTable = pgTable(
     dayOfWeek: text(
       'day_of_week', // used for repeat 'weekly'
       {
-        enum: [
-          'monday',
-          'tuesday',
-          'wednesday',
-          'thursday',
-          'friday',
-          'saturday',
-          'sunday'
-        ]
+        enum: ['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday']
       }
     ).default(
       check(
@@ -150,8 +141,8 @@ export const NotificationTable = pgTable(
   })
 );
 
-export const CheckpointTable = pgTable(
-  'checkpoint',
+export const ImageTable = pgTable(
+  'image',
   {
     userId: uuid('user_id')
       .notNull()
@@ -159,7 +150,7 @@ export const CheckpointTable = pgTable(
     thingId: uuid('thing_id')
       .notNull()
       .references(() => ThingTable.id),
-    filename: text('filename'),
+    filename: text('filename').notNull(),
     ...timechangeColumns
   },
   (table) => ({

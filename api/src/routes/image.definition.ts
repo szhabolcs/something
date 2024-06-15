@@ -1,31 +1,29 @@
 import { createRoute } from '@hono/zod-openapi';
 import { z } from 'zod';
-import { bearerAuth, formc, textc, useAccessToken } from '../utils/openapi.js';
+import { bearerAuth, defaultResponses, formc, jsonc, useAccessToken } from '../utils/openapi.js';
 import { StatusCodes } from '../types/status-codes.js';
+import { RewardInfoModel } from '../types/reward.js';
 
 export const uploadImage = createRoute({
   method: 'post',
   path: '/upload',
   middleware: useAccessToken(),
   security: bearerAuth,
-  description:
-    'Send an image as a checkpoint for a thing. <br> (Scalar UI does not support formdata yet)',
+  description: 'Send an image as a checkpoint for a thing. <br> (Scalar UI does not support formdata yet)',
   tags: ['Images'],
   request: {
     body: formc(
       z.object({
         image: z.string().openapi({ format: 'binary' }),
-        thing_uuid: z.string()
+        thingId: z.string()
       })
     )
   },
   responses: {
-    [StatusCodes.CREATED]: {
-      ...textc(z.string()),
+    ...defaultResponses,
+    [StatusCodes.OK]: {
+      ...jsonc(RewardInfoModel),
       description: 'Successfully sent image.'
-    },
-    [StatusCodes.INTERNAL_SERVER_ERROR]: {
-      description: 'Unexpected error occured.'
     }
   }
 });
@@ -33,13 +31,15 @@ export const uploadImage = createRoute({
 export const serveImage = createRoute({
   method: 'get',
   path: '/{filename}',
-  // middleware: useJWT(),
+  middleware: useAccessToken(),
+  security: bearerAuth,
   description: `Get image using its filename.`,
   tags: ['Images'],
   request: {
     params: z.object({ filename: z.string() })
   },
   responses: {
+    ...defaultResponses,
     [StatusCodes.OK]: {
       content: {
         'image/jpeg': {
@@ -48,8 +48,8 @@ export const serveImage = createRoute({
       },
       description: 'The image.'
     },
-    [StatusCodes.INTERNAL_SERVER_ERROR]: {
-      description: 'Unexpected error occured.'
+    [StatusCodes.NOT_FOUND]: {
+      description: 'Image not found.'
     }
   }
 });

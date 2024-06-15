@@ -1,9 +1,5 @@
 import { eq } from 'drizzle-orm';
-import {
-  DrizzleDatabaseSession,
-  DrizzleTransactionSession,
-  db
-} from '../db/db.js';
+import { DrizzleDatabaseSession, DrizzleTransactionSession, db } from '../db/db.js';
 import { SessionTable } from '../db/schema.js';
 
 export class SessionRepository {
@@ -32,9 +28,7 @@ export class SessionRepository {
   }
 
   public async delete(refreshToken: string) {
-    return db
-      .delete(SessionTable)
-      .where(eq(SessionTable.refreshToken, refreshToken));
+    return db.delete(SessionTable).where(eq(SessionTable.refreshToken, refreshToken));
   }
 
   public async deleteAll(userId: string) {
