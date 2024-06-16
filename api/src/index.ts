@@ -3,10 +3,10 @@ import 'dotenv/config';
 import { serve } from '@hono/node-server';
 import { logger } from 'hono/logger';
 
-import { authRouter } from './routes/auth.js';
-import { thingRouter } from './routes/things.js';
-import { imageRouter } from './routes/image.js';
-import { userRouter } from './routes/user.js';
+import { authRouter } from './routes/auth.router.js';
+import { thingRouter } from './routes/things.router.js';
+import { imageRouter } from './routes/image.router.js';
+import { userRouter } from './routes/user.router.js';
 
 import { OpenAPIHono } from '@hono/zod-openapi';
 import { registerBearerAuthScheme } from './utils/openapi.js';
