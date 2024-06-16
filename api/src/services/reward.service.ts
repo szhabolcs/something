@@ -10,11 +10,17 @@ export class RewardService extends BaseService {
         // First of all, lock the streak table so the scheduler won't be able to update it
         const [{ streak: currentStreak }] = await this.repositories.streak.getCurrent(userId, thingId, tx, true);
 
+        // Check if the user has access
+        const hasAccess = await this.repositories.access.getThingAccess(userId, thingId);
+        if (!hasAccess) {
+          throw new Error(`User (${userId}) has no access to thing (${thingId})`);
+        }
+
         // Add image to database
         const _createdAt = await this.repositories.image.insert(userId, thingId, filename, tx);
         const createdAt = DateTime.fromJSDate(_createdAt, { zone: 'UTC' });
 
-        const [schedule] = await this.repositories.schedule.getThingSchedule(thingId, tx);
+        const schedule = await this.repositories.schedule.getThingSchedule(thingId, tx);
         const scheduleInterval = this.computeScheduleInterval(schedule.startTime, schedule.endTime);
         const dayInterval = this.computeDayInterval(scheduleInterval);
 
@@ -151,5 +157,17 @@ export class RewardService extends BaseService {
       const [data] = await this.repositories.badge.getById(nextBadgeId, tx);
       return data;
     }
+  }
+
+  public async getTopBadges(userId: string) {
+    return this.repositories.badge.getTopBadges(userId);
+  }
+
+  public async getUserBadges(userId: string, limit: number | undefined = undefined) {
+    return this.repositories.badge.getUserBadges(userId, limit);
+  }
+
+  public async getUserLevel(userId: string) {
+    return this.repositories.score.getUserLevel(userId);
   }
 }

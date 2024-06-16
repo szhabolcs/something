@@ -1,6 +1,6 @@
 import { DrizzleDatabaseSession, DrizzleTransactionSession, db } from '../db/db.js';
 import { UserTable } from '../db/schema.js';
-import { InferInsertModel, eq } from 'drizzle-orm';
+import { InferInsertModel, eq, inArray } from 'drizzle-orm';
 
 export class UserRepository {
   public async getById(id: string) {
@@ -31,7 +31,17 @@ export class UserRepository {
     return tx.insert(UserTable).values(user).returning();
   }
 
+  /**
+   * @throws {Error}
+   */
   public async updatePushToken(userId: string, pushToken: string) {
     return db.update(UserTable).set({ pushToken }).where(eq(UserTable.id, userId));
+  }
+
+  /**
+   * @throws {Error}
+   */
+  public async getUserIds(usernames: string[], tx: DrizzleDatabaseSession | DrizzleTransactionSession = db) {
+    return tx.select({ userId: UserTable.id }).from(UserTable).where(inArray(UserTable.username, usernames));
   }
 }

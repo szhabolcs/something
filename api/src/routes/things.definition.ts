@@ -2,48 +2,7 @@ import { createRoute } from '@hono/zod-openapi';
 import { z } from 'zod';
 import { bearerAuth, jsonc, textc, useAccessToken } from '../utils/openapi.js';
 import { StatusCodes } from '../types/status-codes.js';
-
-export const ThingPreviewModel = z.object({
-  uuid: z.string().uuid(),
-  name: z.string(),
-  streakCount: z.number(),
-  startTime: z.string(),
-  endTime: z.string()
-});
-
-const ThingCardModel = z.object({
-  photoUuid: z.string().openapi({ description: 'This is actually the link to the picture' }),
-  username: z.string(),
-  thingName: z.string(),
-  thingUuid: z.string()
-});
-
-const ThingDetailsModel = z.object({
-  nextOccurrence: z.object({
-    startTime: z.string(),
-    endTime: z.string()
-  }),
-  sharedWith: z
-    .object({
-      userUuid: z.string(),
-      username: z.string()
-    })
-    .array(),
-  previousCheckpoints: ThingCardModel.omit({
-    thingName: true,
-    thingUuid: true
-  }).array(),
-  name: z.string(),
-  description: z.string(),
-  type: z.enum(['personal', 'social'])
-});
-
-const ThingDTO = z.object({
-  name: z.string(),
-  description: z.string(),
-  occurances: z.any(), // TODO: this needs refactoring
-  sharedUsernames: z.string().array()
-});
+import { ThingCardModel, ThingDTO, ThingDetailsModel, ThingPreviewModel } from '../types/thing.types.js';
 
 export const userThingsToday = createRoute({
   method: 'get',
