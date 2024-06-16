@@ -1,7 +1,6 @@
 import { DrizzleDatabaseSession, DrizzleTransactionSession, db } from '../db/db.js';
-import { ImageTable } from '../db/schema.js';
-import { and, between, count, eq, inArray, sql } from 'drizzle-orm';
-import { ThingRepository } from './thing.repository.js';
+import { ImageTable, UserTable } from '../db/schema.js';
+import { and, between, count, eq } from 'drizzle-orm';
 
 export class ImageRepository {
   /**
@@ -22,22 +21,6 @@ export class ImageRepository {
       );
   }
 
-  public async checkAccess(userId: string, filename: string) {
-    try {
-      const [{ id: hasAccess }] = await db
-        .select({ id: ImageTable.thingId })
-        .from(ImageTable)
-        .where(
-          and(eq(ImageTable.filename, filename), inArray(ImageTable.thingId, ThingRepository.userThingsSQ(userId)))
-        );
-
-      return Boolean(hasAccess);
-    } catch (error) {
-      console.error(error);
-      return false;
-    }
-  }
-
   /**
    * @throws {Error}
    */
@@ -47,22 +30,9 @@ export class ImageRepository {
     filename: string,
     tx: DrizzleDatabaseSession | DrizzleTransactionSession = db
   ) {
-    const [{ thingId: hasAccess }] = await tx
-      .select({ thingId: sql`userThingsSQ.thingId`.mapWith(String) })
-      .from(ThingRepository.userThingsSQ(userId))
-      .where(eq(sql`id`, thingId));
-
-    if (!hasAccess) {
-      throw new Error(`User (${userId}) has no access to thing (${thingId})`);
-    }
-
     const [{ createdAt }] = await tx
       .insert(ImageTable)
-      .values({
-        userId,
-        thingId,
-        filename
-      })
+      .values({ userId, thingId, filename })
       .returning({ createdAt: ImageTable.createdAt });
 
     return createdAt;
@@ -76,5 +46,28 @@ export class ImageRepository {
       .select({ count: count(ImageTable.thingId) })
       .from(ImageTable)
       .where(eq(ImageTable.userId, userId));
+  }
+
+  /**
+   * @throws {Error}
+   */
+  public async getThingImages(thingId: string, tx: DrizzleDatabaseSession | DrizzleTransactionSession = db) {
+    return tx
+      .select({ username: UserTable.username, filename: ImageTable.filename, createdAt: ImageTable.createdAt })
+      .from(ImageTable)
+      .innerJoin(UserTable, eq(ImageTable.userId, UserTable.id))
+      .where(eq(ImageTable.thingId, thingId));
+  }
+
+  /**
+   * @throws {Error}
+   */
+  public async getThingIdFromFilename(filename: string, tx: DrizzleDatabaseSession | DrizzleTransactionSession = db) {
+    const [{ thingId }] = await tx
+      .select({ thingId: ImageTable.thingId })
+      .from(ImageTable)
+      .where(eq(ImageTable.filename, filename));
+
+    return thingId ? thingId : null;
   }
 }

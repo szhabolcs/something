@@ -1,11 +1,4 @@
 import { StatusCodes, reasonPhrase } from '../types/status-codes.js';
-import {
-  getUserThingsToday,
-  getOthersThingsToday,
-  getUserThings,
-  getThingDetails,
-  createThing as repoCreateThing
-} from '../repositories/things.js';
 import { OpenAPIHono } from '@hono/zod-openapi';
 import {
   otherThingsToday,
@@ -16,42 +9,45 @@ import {
   createThing
 } from './things.definition.js';
 import { zodErrorHandler } from '../utils/errors.js';
+import { ThingService } from '../services/thing.service.js';
+
+const thingService = new ThingService();
 
 export const thingRouter = new OpenAPIHono({ defaultHook: zodErrorHandler })
   .openapi(userThingsToday, async (c) => {
-    const user_uuid = c.get('jwtPayload').id;
-    const things = await getUserThingsToday(user_uuid, 3);
+    const userId = c.get('jwtPayload').id;
+    const things = await thingService.getUserThingsToday(userId, 3);
     return c.json(things, StatusCodes.OK);
   })
 
   .openapi(userThingsTodayAll, async (c) => {
-    const user_uuid = c.get('jwtPayload').id;
-    const things = await getUserThingsToday(user_uuid);
+    const userId = c.get('jwtPayload').id;
+    const things = await thingService.getUserThingsToday(userId);
     return c.json(things, StatusCodes.OK);
   })
 
   .openapi(userThingsAll, async (c) => {
-    const user_uuid = c.get('jwtPayload').id;
-    const things = await getUserThings(user_uuid);
+    const userId = c.get('jwtPayload').id;
+    const things = await thingService.getUserThings(userId);
     return c.json(things, StatusCodes.OK);
   })
 
   .openapi(otherThingsToday, async (c) => {
-    const user_uuid = c.get('jwtPayload').id;
-    const things = await getOthersThingsToday(user_uuid);
+    const userId = c.get('jwtPayload').id;
+    const things = await thingService.getOthersThingsToday(userId);
     return c.json(things, StatusCodes.OK);
   })
 
   .openapi(thingDetails, async (c) => {
-    const user_uuid = c.get('jwtPayload').id;
-    const thing_uuid = c.req.param('uuid');
-    const thingsDetails = await getThingDetails(user_uuid, thing_uuid);
+    const userId = c.get('jwtPayload').id;
+    const thingId = c.req.param('uuid');
+    const thingsDetails = await thingService.getDetails(userId, thingId);
     return c.json(thingsDetails, StatusCodes.OK);
   })
 
   .openapi(createThing, async (c) => {
-    const user_uuid = c.get('jwtPayload').id;
-    const { name, description, occurances, sharedUsernames } = c.req.valid('json');
-    await repoCreateThing(user_uuid, name, description, occurances, sharedUsernames);
+    const userId = c.get('jwtPayload').id;
+    const body = c.req.valid('json');
+    await thingService.create(userId, body);
     return c.text(reasonPhrase(StatusCodes.CREATED), StatusCodes.CREATED);
   });

@@ -91,7 +91,7 @@ export const ScheduleTable = pgTable(
     repeat: text('repeat', { enum: ['once', 'daily', 'weekly'] })
       .notNull()
       .default(check(`'once'`, `repeat IN ('once', 'daily', 'weekly')`)),
-    specificDate: date('specific_date') // used for repeat 'once'
+    specificDate: date('specific_date', { mode: 'date' }) // used for repeat 'once'
       .default(
         check(
           'NULL',
@@ -128,15 +128,21 @@ export const NotificationTable = pgTable(
     userId: uuid('user_id')
       .notNull()
       .references(() => UserTable.id),
+    thingId: uuid('thing_id')
+      .notNull()
+      .references(() => ThingTable.id),
     title: text('title').notNull(),
     body: text('body').notNull(),
     data: json('data').notNull(),
     pushToken: text('push_token').notNull(),
+    scheduledAt: date('scheduled_at', { mode: 'date' }).notNull(),
     sent: boolean('sent').notNull().default(false),
     ...timechangeColumns
   },
   (table) => ({
     userIdIdx: index().on(table.userId),
+    thingIdIdx: index().on(table.thingId),
+    scheduledAt: index().on(table.scheduledAt),
     sentIdx: index().on(table.sent)
   })
 );
@@ -162,8 +168,8 @@ export const ImageTable = pgTable(
   })
 );
 
-export const SharingTable = pgTable(
-  'sharing',
+export const ThingAccessTable = pgTable(
+  'thing_access',
   {
     thingId: uuid('thing_id')
       .notNull()
@@ -171,6 +177,9 @@ export const SharingTable = pgTable(
     userId: uuid('user_id')
       .notNull()
       .references(() => UserTable.id),
+    role: text('role', { enum: ['admin', 'viewer'] })
+      .notNull()
+      .default(check(`'viewer'`, `role IN ('admin', 'viewer')`)),
     ...timechangeColumns
   },
   (table) => ({

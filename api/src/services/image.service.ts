@@ -6,7 +6,13 @@ import { ClientError } from '../utils/errors.js';
 
 export class ImageService extends BaseService {
   public async checkAccess(userId: string, filename: string) {
-    return this.repositories.image.checkAccess(userId, filename);
+    const thingId = await this.repositories.image.getThingIdFromFilename(filename);
+    if (!thingId) {
+      return false;
+    }
+
+    const role = await this.repositories.access.getThingAccess(userId, thingId);
+    return !!role;
   }
 
   public async saveImageToDisk(data: ArrayBuffer) {
@@ -30,5 +36,9 @@ export class ImageService extends BaseService {
 
   public getImagePath(filename: string) {
     return path.join(process.env.API_IMAGE_DIR, filename);
+  }
+
+  static getImageUrl(filename: string) {
+    return `${process.env.API_HOST}/images/${filename}`;
   }
 }
