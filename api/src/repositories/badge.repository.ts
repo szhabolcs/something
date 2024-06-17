@@ -23,9 +23,9 @@ export class BadgeRepository {
       .from(BadgeTable)
       .where(eq(BadgeTable.userId, userId));
 
-    const [{ id: nextBadge }] = await except(allPossibleBadges, userEarnedBadges).limit(1);
+    const [nextBadge] = await except(allPossibleBadges, userEarnedBadges).limit(1);
 
-    return nextBadge as string | undefined;
+    return nextBadge ? nextBadge.id : undefined;
   }
 
   /**

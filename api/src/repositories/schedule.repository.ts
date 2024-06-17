@@ -1,6 +1,6 @@
 import { DrizzleDatabaseSession, DrizzleTransactionSession, db } from '../db/db.js';
 import { ScheduleTable } from '../db/schema.js';
-import { eq } from 'drizzle-orm';
+import { InferSelectModel, eq, or } from 'drizzle-orm';
 import type { ScheduleDTO } from '../types/thing.types.js';
 
 export class ScheduleRepository {
@@ -18,5 +18,24 @@ export class ScheduleRepository {
   public async getThingSchedule(thingId: string, tx: DrizzleDatabaseSession | DrizzleTransactionSession = db) {
     const [schedule] = await tx.select().from(ScheduleTable).where(eq(ScheduleTable.thingId, thingId)).limit(1);
     return schedule;
+  }
+
+  public async getSchedulesForToday(
+    day: Date,
+    weekday: Exclude<InferSelectModel<typeof ScheduleTable>['dayOfWeek'], null>
+  ) {
+    return db
+      .select()
+      .from(ScheduleTable)
+      .where(
+        or(
+          // once
+          eq(ScheduleTable.specificDate, day),
+          // daily
+          eq(ScheduleTable.repeat, 'daily'),
+          // weekly
+          eq(ScheduleTable.dayOfWeek, weekday)
+        )
+      );
   }
 }

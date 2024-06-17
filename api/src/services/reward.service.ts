@@ -2,6 +2,7 @@ import { DrizzleTransactionSession, db } from '../db/db.js';
 import { PointInfoModel, RewardInfoModel, StreakInfoModel } from '../types/reward.js';
 import { BaseService } from './base.service.js';
 import { DateTime, Interval } from 'luxon';
+import { NotificationService } from './notification.service.js';
 
 export class RewardService extends BaseService {
   public async handleImageUpload(userId: string, thingId: string, filename: string) {
@@ -21,7 +22,7 @@ export class RewardService extends BaseService {
         const createdAt = DateTime.fromJSDate(_createdAt, { zone: 'UTC' });
 
         const schedule = await this.repositories.schedule.getThingSchedule(thingId, tx);
-        const scheduleInterval = this.computeScheduleInterval(schedule.startTime, schedule.endTime);
+        const scheduleInterval = NotificationService.computeScheduleInterval(schedule.startTime, schedule.endTime);
         const dayInterval = this.computeDayInterval(scheduleInterval);
 
         const points: PointInfoModel[] = [];
@@ -105,29 +106,6 @@ export class RewardService extends BaseService {
         tx.rollback();
       }
     });
-  }
-
-  private computeScheduleInterval(startTime: string, endTime: string) {
-    const [startHour, startMinute] = startTime.split(':').map(Number);
-    const scheduleStart = DateTime.utc().set({
-      hour: startHour,
-      minute: startMinute
-    });
-
-    const [endHour, endMinute] = endTime.split(':').map(Number);
-    let scheduleEnd = DateTime.utc().set({
-      hour: endHour,
-      minute: endMinute
-    });
-
-    // If the end date is before the start
-    // it means that the end hour is past midnight,
-    // so one day needs to be added, since the end hour is technically "next day"
-    if (scheduleEnd < scheduleStart) {
-      scheduleEnd = scheduleEnd.plus({ days: 1 });
-    }
-
-    return Interval.fromDateTimes(scheduleStart, scheduleEnd) as Interval<true>;
   }
 
   private computeDayInterval(scheduleInterval: Interval<true>) {

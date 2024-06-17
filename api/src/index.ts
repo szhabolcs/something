@@ -13,6 +13,7 @@ import { registerBearerAuthScheme } from './utils/openapi.js';
 import { scalarUIProtected } from './utils/scalar.js';
 import { swaggerUIProtected } from './utils/swagger.js';
 import { globalErrorHandler, zodErrorHandler } from './utils/errors.js';
+import { NotificationService } from './services/notification.service.js';
 
 const app = new OpenAPIHono({ defaultHook: zodErrorHandler })
   .onError(globalErrorHandler)
@@ -39,3 +40,6 @@ serve({
   fetch: app.fetch,
   port
 });
+
+const notificationService = new NotificationService();
+await notificationService.start();
