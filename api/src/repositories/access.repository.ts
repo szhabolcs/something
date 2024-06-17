@@ -47,4 +47,17 @@ export class AccessRepository {
 
     return usernames.map((u) => u.username);
   }
+
+  /**
+   * @throws {Error}
+   */
+  public async getUsersForThing(thingId: string) {
+    const users = await db
+      .select({ user: UserTable })
+      .from(ThingAccessTable)
+      .innerJoin(UserTable, eq(ThingAccessTable.userId, UserTable.id))
+      .where(eq(ThingAccessTable.thingId, thingId));
+
+    return users.map(({ user }) => user);
+  }
 }

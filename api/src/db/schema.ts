@@ -16,7 +16,7 @@ import {
 
 const timechangeColumns = {
   createdAt: timestamp('created_at').notNull().defaultNow(),
-  updatedAt: timestamp('updated_at')
+  updatedAt: timestamp('updated_at', { mode: 'string' })
     .notNull()
     .defaultNow()
     .$onUpdate(() => sql`NOW()`)
@@ -135,15 +135,16 @@ export const NotificationTable = pgTable(
     body: text('body').notNull(),
     data: json('data').notNull(),
     pushToken: text('push_token').notNull(),
-    scheduledAt: date('scheduled_at', { mode: 'date' }).notNull(),
-    sent: boolean('sent').notNull().default(false),
+    scheduledAt: timestamp('scheduled_at').notNull(),
+    status: text('status', { enum: ['scheduled', 'completed'] })
+      .notNull()
+      .default(check(`'scheduled'`, `status IN ('scheduled', 'completed')`)),
     ...timechangeColumns
   },
   (table) => ({
     userIdIdx: index().on(table.userId),
     thingIdIdx: index().on(table.thingId),
-    scheduledAt: index().on(table.scheduledAt),
-    sentIdx: index().on(table.sent)
+    scheduledAt: index().on(table.scheduledAt)
   })
 );
 

@@ -1,5 +1,5 @@
 {
-  "id": "2e9b0f1b-eb88-4917-a4fe-6e0cab6477b6",
+  "id": "5bab8a88-74a7-4f74-8f98-afb5fbc631eb",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "version": "7",
   "dialect": "postgresql",
@@ -161,8 +161,8 @@
       },
       "uniqueConstraints": {}
     },
-    "public.checkpoint": {
-      "name": "checkpoint",
+    "public.image": {
+      "name": "image",
       "schema": "",
       "columns": {
         "user_id": {
@@ -181,7 +181,7 @@
           "name": "filename",
           "type": "text",
           "primaryKey": false,
-          "notNull": false
+          "notNull": true
         },
         "created_at": {
           "name": "created_at",
@@ -199,8 +199,8 @@
         }
       },
       "indexes": {
-        "checkpoint_thing_id_index": {
-          "name": "checkpoint_thing_id_index",
+        "image_thing_id_index": {
+          "name": "image_thing_id_index",
           "columns": [
             {
               "expression": "thing_id",
@@ -214,8 +214,8 @@
           "method": "btree",
           "with": {}
         },
-        "checkpoint_user_id_thing_id_index": {
-          "name": "checkpoint_user_id_thing_id_index",
+        "image_user_id_thing_id_index": {
+          "name": "image_user_id_thing_id_index",
           "columns": [
             {
               "expression": "user_id",
@@ -237,9 +237,9 @@
         }
       },
       "foreignKeys": {
-        "checkpoint_user_id_user_id_fk": {
-          "name": "checkpoint_user_id_user_id_fk",
-          "tableFrom": "checkpoint",
+        "image_user_id_user_id_fk": {
+          "name": "image_user_id_user_id_fk",
+          "tableFrom": "image",
           "tableTo": "user",
           "columnsFrom": [
             "user_id"
@@ -250,9 +250,9 @@
           "onDelete": "no action",
           "onUpdate": "no action"
         },
-        "checkpoint_thing_id_thing_id_fk": {
-          "name": "checkpoint_thing_id_thing_id_fk",
-          "tableFrom": "checkpoint",
+        "image_thing_id_thing_id_fk": {
+          "name": "image_thing_id_thing_id_fk",
+          "tableFrom": "image",
           "tableTo": "thing",
           "columnsFrom": [
             "thing_id"
@@ -265,8 +265,8 @@
         }
       },
       "compositePrimaryKeys": {
-        "checkpoint_user_id_thing_id_filename_pk": {
-          "name": "checkpoint_user_id_thing_id_filename_pk",
+        "image_user_id_thing_id_filename_pk": {
+          "name": "image_user_id_thing_id_filename_pk",
           "columns": [
             "user_id",
             "thing_id",
@@ -345,6 +345,12 @@
           "primaryKey": false,
           "notNull": true
         },
+        "thing_id": {
+          "name": "thing_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
         "title": {
           "name": "title",
           "type": "text",
@@ -369,12 +375,18 @@
           "primaryKey": false,
           "notNull": true
         },
-        "sent": {
-          "name": "sent",
-          "type": "boolean",
+        "scheduled_at": {
+          "name": "scheduled_at",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "status": {
+          "name": "status",
+          "type": "text",
           "primaryKey": false,
           "notNull": true,
-          "default": false
+          "default": "'scheduled' CHECK (status IN ('scheduled', 'completed'))"
         },
         "created_at": {
           "name": "created_at",
@@ -407,11 +419,26 @@
           "method": "btree",
           "with": {}
         },
-        "notification_sent_index": {
-          "name": "notification_sent_index",
+        "notification_thing_id_index": {
+          "name": "notification_thing_id_index",
           "columns": [
             {
-              "expression": "sent",
+              "expression": "thing_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        },
+        "notification_scheduled_at_index": {
+          "name": "notification_scheduled_at_index",
+          "columns": [
+            {
+              "expression": "scheduled_at",
               "isExpression": false,
               "asc": true,
               "nulls": "last"
@@ -430,6 +457,19 @@
           "tableTo": "user",
           "columnsFrom": [
             "user_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        },
+        "notification_thing_id_thing_id_fk": {
+          "name": "notification_thing_id_thing_id_fk",
+          "tableFrom": "notification",
+          "tableTo": "thing",
+          "columnsFrom": [
+            "thing_id"
           ],
           "columnsTo": [
             "id"
@@ -703,114 +743,6 @@
         }
       }
     },
-    "public.sharing": {
-      "name": "sharing",
-      "schema": "",
-      "columns": {
-        "thing_id": {
-          "name": "thing_id",
-          "type": "uuid",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "user_id": {
-          "name": "user_id",
-          "type": "uuid",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "created_at": {
-          "name": "created_at",
-          "type": "timestamp",
-          "primaryKey": false,
-          "notNull": true,
-          "default": "now()"
-        },
-        "updated_at": {
-          "name": "updated_at",
-          "type": "timestamp",
-          "primaryKey": false,
-          "notNull": true,
-          "default": "now()"
-        }
-      },
-      "indexes": {
-        "sharing_user_id_index": {
-          "name": "sharing_user_id_index",
-          "columns": [
-            {
-              "expression": "user_id",
-              "isExpression": false,
-              "asc": true,
-              "nulls": "last"
-            }
-          ],
-          "isUnique": false,
-          "concurrently": false,
-          "method": "btree",
-          "with": {}
-        },
-        "sharing_thing_id_user_id_index": {
-          "name": "sharing_thing_id_user_id_index",
-          "columns": [
-            {
-              "expression": "thing_id",
-              "isExpression": false,
-              "asc": true,
-              "nulls": "last"
-            },
-            {
-              "expression": "user_id",
-              "isExpression": false,
-              "asc": true,
-              "nulls": "last"
-            }
-          ],
-          "isUnique": false,
-          "concurrently": false,
-          "method": "btree",
-          "with": {}
-        }
-      },
-      "foreignKeys": {
-        "sharing_thing_id_thing_id_fk": {
-          "name": "sharing_thing_id_thing_id_fk",
-          "tableFrom": "sharing",
-          "tableTo": "thing",
-          "columnsFrom": [
-            "thing_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
-          "onDelete": "no action",
-          "onUpdate": "no action"
-        },
-        "sharing_user_id_user_id_fk": {
-          "name": "sharing_user_id_user_id_fk",
-          "tableFrom": "sharing",
-          "tableTo": "user",
-          "columnsFrom": [
-            "user_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
-          "onDelete": "no action",
-          "onUpdate": "no action"
-        }
-      },
-      "compositePrimaryKeys": {
-        "sharing_thing_id_user_id_pk": {
-          "name": "sharing_thing_id_user_id_pk",
-          "columns": [
-            "thing_id",
-            "user_id"
-          ]
-        }
-      },
-      "uniqueConstraints": {}
-    },
     "public.streak": {
       "name": "streak",
       "schema": "",
@@ -870,6 +802,121 @@
           "columns": [
             "user_id",
             "thing_id"
+          ]
+        }
+      },
+      "uniqueConstraints": {}
+    },
+    "public.thing_access": {
+      "name": "thing_access",
+      "schema": "",
+      "columns": {
+        "thing_id": {
+          "name": "thing_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "user_id": {
+          "name": "user_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "role": {
+          "name": "role",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "'viewer' CHECK (role IN ('admin', 'viewer'))"
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        },
+        "updated_at": {
+          "name": "updated_at",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        }
+      },
+      "indexes": {
+        "thing_access_user_id_index": {
+          "name": "thing_access_user_id_index",
+          "columns": [
+            {
+              "expression": "user_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        },
+        "thing_access_thing_id_user_id_index": {
+          "name": "thing_access_thing_id_user_id_index",
+          "columns": [
+            {
+              "expression": "thing_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            },
+            {
+              "expression": "user_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        }
+      },
+      "foreignKeys": {
+        "thing_access_thing_id_thing_id_fk": {
+          "name": "thing_access_thing_id_thing_id_fk",
+          "tableFrom": "thing_access",
+          "tableTo": "thing",
+          "columnsFrom": [
+            "thing_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        },
+        "thing_access_user_id_user_id_fk": {
+          "name": "thing_access_user_id_user_id_fk",
+          "tableFrom": "thing_access",
+          "tableTo": "user",
+          "columnsFrom": [
+            "user_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {
+        "thing_access_thing_id_user_id_pk": {
+          "name": "thing_access_thing_id_user_id_pk",
+          "columns": [
+            "thing_id",
+            "user_id"
           ]
         }
       },

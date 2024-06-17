@@ -14,7 +14,7 @@ export const uploadImage = createRoute({
   request: {
     body: formc(
       z.object({
-        image: z.string().openapi({ format: 'binary' }),
+        image: z.any().openapi({ format: 'binary' }),
         thingId: z.string()
       })
     )

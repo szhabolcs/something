@@ -40,7 +40,7 @@ export class ThingRepository {
     tx: DrizzleDatabaseSession | DrizzleTransactionSession = db
   ): Promise<ThingPreviewModel[]> {
     const query = tx
-      .select({
+      .selectDistinct({
         id: ThingTable.id,
         name: ThingTable.name,
         startTime: ScheduleTable.startTime,

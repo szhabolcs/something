@@ -9,14 +9,14 @@ const authService = new AuthService();
 // User registration endpoint
 export const authRouter = new OpenAPIHono({ defaultHook: zodErrorHandler })
   .openapi(register, async (c) => {
-    const { username, password } = c.req.valid('json');
-    const tokenPair = await authService.register({ username, password });
+    const body = c.req.valid('json');
+    const tokenPair = await authService.register(body);
     return c.json(tokenPair, StatusCodes.CREATED);
   })
 
   .openapi(login, async (c) => {
-    const { username, password } = c.req.valid('json');
-    const tokenPair = await authService.login({ username, password });
+    const body = c.req.valid('json');
+    const tokenPair = await authService.login(body);
     return c.json(tokenPair, StatusCodes.CREATED);
   })
 

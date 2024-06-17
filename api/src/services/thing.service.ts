@@ -22,6 +22,7 @@ export class ThingService extends BaseService {
           const res = await this.repositories.user.getUserIds(data.sharedUsernames, tx);
           const userIds = res.map((u) => u.userId);
           await this.repositories.access.giveThingAccess(thingId, userIds, 'viewer', tx);
+          await this.repositories.streak.setStreaks(userIds, thingId, 0);
         }
       } catch (error) {
         console.error('Error creating thing: %o', error);

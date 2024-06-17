@@ -18,13 +18,13 @@ CREATE TABLE IF NOT EXISTS "badge" (
 	CONSTRAINT "badge_user_id_badge_definition_id_pk" PRIMARY KEY("user_id","badge_definition_id")
 );
 --> statement-breakpoint
-CREATE TABLE IF NOT EXISTS "checkpoint" (
+CREATE TABLE IF NOT EXISTS "image" (
 	"user_id" uuid NOT NULL,
 	"thing_id" uuid NOT NULL,
-	"filename" text,
+	"filename" text NOT NULL,
 	"created_at" timestamp DEFAULT now() NOT NULL,
 	"updated_at" timestamp DEFAULT now() NOT NULL,
-	CONSTRAINT "checkpoint_user_id_thing_id_filename_pk" PRIMARY KEY("user_id","thing_id","filename")
+	CONSTRAINT "image_user_id_thing_id_filename_pk" PRIMARY KEY("user_id","thing_id","filename")
 );
 --> statement-breakpoint
 CREATE TABLE IF NOT EXISTS "level_definition" (
@@ -37,11 +37,13 @@ CREATE TABLE IF NOT EXISTS "level_definition" (
 CREATE TABLE IF NOT EXISTS "notification" (
 	"id" uuid PRIMARY KEY DEFAULT gen_random_uuid() NOT NULL,
 	"user_id" uuid NOT NULL,
+	"thing_id" uuid NOT NULL,
 	"title" text NOT NULL,
 	"body" text NOT NULL,
 	"data" json NOT NULL,
 	"push_token" text NOT NULL,
-	"sent" boolean DEFAULT false NOT NULL,
+	"scheduled_at" timestamp NOT NULL,
+	"status" text DEFAULT 'scheduled' CHECK (status IN ('scheduled', 'completed')) NOT NULL,
 	"created_at" timestamp DEFAULT now() NOT NULL,
 	"updated_at" timestamp DEFAULT now() NOT NULL
 );
@@ -81,19 +83,20 @@ CREATE TABLE IF NOT EXISTS "session" (
 	CONSTRAINT "session_user_id_refresh_token_unique" UNIQUE("user_id","refresh_token")
 );
 --> statement-breakpoint
-CREATE TABLE IF NOT EXISTS "sharing" (
-	"thing_id" uuid NOT NULL,
-	"user_id" uuid NOT NULL,
-	"created_at" timestamp DEFAULT now() NOT NULL,
-	"updated_at" timestamp DEFAULT now() NOT NULL,
-	CONSTRAINT "sharing_thing_id_user_id_pk" PRIMARY KEY("thing_id","user_id")
-);
---> statement-breakpoint
 CREATE TABLE IF NOT EXISTS "streak" (
 	"user_id" uuid NOT NULL,
 	"thing_id" uuid NOT NULL,
 	"count" integer DEFAULT 0 NOT NULL,
 	CONSTRAINT "streak_user_id_thing_id_pk" PRIMARY KEY("user_id","thing_id")
+);
+--> statement-breakpoint
+CREATE TABLE IF NOT EXISTS "thing_access" (
+	"thing_id" uuid NOT NULL,
+	"user_id" uuid NOT NULL,
+	"role" text DEFAULT 'viewer' CHECK (role IN ('admin', 'viewer')) NOT NULL,
+	"created_at" timestamp DEFAULT now() NOT NULL,
+	"updated_at" timestamp DEFAULT now() NOT NULL,
+	CONSTRAINT "thing_access_thing_id_user_id_pk" PRIMARY KEY("thing_id","user_id")
 );
 --> statement-breakpoint
 CREATE TABLE IF NOT EXISTS "thing" (
@@ -130,19 +133,25 @@ EXCEPTION
 END $$;
 --> statement-breakpoint
 DO $$ BEGIN
- ALTER TABLE "checkpoint" ADD CONSTRAINT "checkpoint_user_id_user_id_fk" FOREIGN KEY ("user_id") REFERENCES "public"."user"("id") ON DELETE no action ON UPDATE no action;
+ ALTER TABLE "image" ADD CONSTRAINT "image_user_id_user_id_fk" FOREIGN KEY ("user_id") REFERENCES "public"."user"("id") ON DELETE no action ON UPDATE no action;
 EXCEPTION
  WHEN duplicate_object THEN null;
 END $$;
 --> statement-breakpoint
 DO $$ BEGIN
- ALTER TABLE "checkpoint" ADD CONSTRAINT "checkpoint_thing_id_thing_id_fk" FOREIGN KEY ("thing_id") REFERENCES "public"."thing"("id") ON DELETE no action ON UPDATE no action;
+ ALTER TABLE "image" ADD CONSTRAINT "image_thing_id_thing_id_fk" FOREIGN KEY ("thing_id") REFERENCES "public"."thing"("id") ON DELETE no action ON UPDATE no action;
 EXCEPTION
  WHEN duplicate_object THEN null;
 END $$;
 --> statement-breakpoint
 DO $$ BEGIN
  ALTER TABLE "notification" ADD CONSTRAINT "notification_user_id_user_id_fk" FOREIGN KEY ("user_id") REFERENCES "public"."user"("id") ON DELETE no action ON UPDATE no action;
+EXCEPTION
+ WHEN duplicate_object THEN null;
+END $$;
+--> statement-breakpoint
+DO $$ BEGIN
+ ALTER TABLE "notification" ADD CONSTRAINT "notification_thing_id_thing_id_fk" FOREIGN KEY ("thing_id") REFERENCES "public"."thing"("id") ON DELETE no action ON UPDATE no action;
 EXCEPTION
  WHEN duplicate_object THEN null;
 END $$;
@@ -166,18 +175,6 @@ EXCEPTION
 END $$;
 --> statement-breakpoint
 DO $$ BEGIN
- ALTER TABLE "sharing" ADD CONSTRAINT "sharing_thing_id_thing_id_fk" FOREIGN KEY ("thing_id") REFERENCES "public"."thing"("id") ON DELETE no action ON UPDATE no action;
-EXCEPTION
- WHEN duplicate_object THEN null;
-END $$;
---> statement-breakpoint
-DO $$ BEGIN
- ALTER TABLE "sharing" ADD CONSTRAINT "sharing_user_id_user_id_fk" FOREIGN KEY ("user_id") REFERENCES "public"."user"("id") ON DELETE no action ON UPDATE no action;
-EXCEPTION
- WHEN duplicate_object THEN null;
-END $$;
---> statement-breakpoint
-DO $$ BEGIN
  ALTER TABLE "streak" ADD CONSTRAINT "streak_user_id_user_id_fk" FOREIGN KEY ("user_id") REFERENCES "public"."user"("id") ON DELETE no action ON UPDATE no action;
 EXCEPTION
  WHEN duplicate_object THEN null;
@@ -190,22 +187,35 @@ EXCEPTION
 END $$;
 --> statement-breakpoint
 DO $$ BEGIN
+ ALTER TABLE "thing_access" ADD CONSTRAINT "thing_access_thing_id_thing_id_fk" FOREIGN KEY ("thing_id") REFERENCES "public"."thing"("id") ON DELETE no action ON UPDATE no action;
+EXCEPTION
+ WHEN duplicate_object THEN null;
+END $$;
+--> statement-breakpoint
+DO $$ BEGIN
+ ALTER TABLE "thing_access" ADD CONSTRAINT "thing_access_user_id_user_id_fk" FOREIGN KEY ("user_id") REFERENCES "public"."user"("id") ON DELETE no action ON UPDATE no action;
+EXCEPTION
+ WHEN duplicate_object THEN null;
+END $$;
+--> statement-breakpoint
+DO $$ BEGIN
  ALTER TABLE "thing" ADD CONSTRAINT "thing_user_id_user_id_fk" FOREIGN KEY ("user_id") REFERENCES "public"."user"("id") ON DELETE no action ON UPDATE no action;
 EXCEPTION
  WHEN duplicate_object THEN null;
 END $$;
 --> statement-breakpoint
 CREATE INDEX IF NOT EXISTS "badge_user_id_index" ON "badge" USING btree ("user_id");--> statement-breakpoint
-CREATE INDEX IF NOT EXISTS "checkpoint_thing_id_index" ON "checkpoint" USING btree ("thing_id");--> statement-breakpoint
-CREATE INDEX IF NOT EXISTS "checkpoint_user_id_thing_id_index" ON "checkpoint" USING btree ("user_id","thing_id");--> statement-breakpoint
+CREATE INDEX IF NOT EXISTS "image_thing_id_index" ON "image" USING btree ("thing_id");--> statement-breakpoint
+CREATE INDEX IF NOT EXISTS "image_user_id_thing_id_index" ON "image" USING btree ("user_id","thing_id");--> statement-breakpoint
 CREATE INDEX IF NOT EXISTS "level_definition_min_threshold_index" ON "level_definition" USING btree ("min_threshold");--> statement-breakpoint
 CREATE INDEX IF NOT EXISTS "notification_user_id_index" ON "notification" USING btree ("user_id");--> statement-breakpoint
-CREATE INDEX IF NOT EXISTS "notification_sent_index" ON "notification" USING btree ("sent");--> statement-breakpoint
+CREATE INDEX IF NOT EXISTS "notification_thing_id_index" ON "notification" USING btree ("thing_id");--> statement-breakpoint
+CREATE INDEX IF NOT EXISTS "notification_scheduled_at_index" ON "notification" USING btree ("scheduled_at");--> statement-breakpoint
 CREATE INDEX IF NOT EXISTS "schedule_thing_id_index" ON "schedule" USING btree ("thing_id");--> statement-breakpoint
 CREATE INDEX IF NOT EXISTS "score_public_index" ON "score" USING btree ("public");--> statement-breakpoint
 CREATE INDEX IF NOT EXISTS "session_user_id_index" ON "session" USING btree ("user_id");--> statement-breakpoint
-CREATE INDEX IF NOT EXISTS "sharing_user_id_index" ON "sharing" USING btree ("user_id");--> statement-breakpoint
-CREATE INDEX IF NOT EXISTS "sharing_thing_id_user_id_index" ON "sharing" USING btree ("thing_id","user_id");--> statement-breakpoint
+CREATE INDEX IF NOT EXISTS "thing_access_user_id_index" ON "thing_access" USING btree ("user_id");--> statement-breakpoint
+CREATE INDEX IF NOT EXISTS "thing_access_thing_id_user_id_index" ON "thing_access" USING btree ("thing_id","user_id");--> statement-breakpoint
 CREATE INDEX IF NOT EXISTS "thing_user_id_index" ON "thing" USING btree ("user_id");--> statement-breakpoint
 CREATE INDEX IF NOT EXISTS "thing_user_id_type_index" ON "thing" USING btree ("user_id","type");--> statement-breakpoint
 CREATE INDEX IF NOT EXISTS "user_username_index" ON "user" USING btree ("username");
