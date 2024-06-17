@@ -1,18 +1,13 @@
 import { useState } from 'react';
 import { useAppDispatch, useAppSelector } from '../../hooks/hooks';
-import {
-  createThing,
-  resetNewPersonalThing,
-  thingSelector
-} from '../../redux/thing/ThingStack';
+import { createThing, resetNewPersonalThing, thingSelector } from '../../redux/thing/ThingStack';
 import { scheduleAllNotifications } from '../../navigation/RootNavigation.logic';
 
 export const useCreateThingScreenLogic = () => {
   const [thingName, setThingName] = useState('');
   const [thingDescription, setThingDescription] = useState('');
   const [sharedUsernames, setSharedUsernames] = useState<string[]>([]);
-  const [currentSharedUsername, setCurrentSharedUsername] =
-    useState<string>('');
+  const [currentSharedUsername, setCurrentSharedUsername] = useState<string>('');
   const thingState = useAppSelector(thingSelector);
   const dispatch = useAppDispatch();
 

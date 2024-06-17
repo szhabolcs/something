@@ -22,13 +22,9 @@ export const usePushNotifications = (): PushNotificationState => {
     })
   });
 
-  const [expoPushToken, setExpoPushToken] = useState<
-    Notifications.ExpoPushToken | undefined
-  >();
+  const [expoPushToken, setExpoPushToken] = useState<Notifications.ExpoPushToken | undefined>();
 
-  const [notification, setNotification] = useState<
-    Notifications.Notification | undefined
-  >();
+  const [notification, setNotification] = useState<Notifications.Notification | undefined>();
 
   const [lastNotificationResponse, setLastNotificationResponse] = useState<
     Notifications.NotificationResponse | undefined
@@ -40,8 +36,7 @@ export const usePushNotifications = (): PushNotificationState => {
   async function registerForPushNotificationsAsync() {
     let token;
     if (Device.isDevice) {
-      const { status: existingStatus } =
-        await Notifications.getPermissionsAsync();
+      const { status: existingStatus } = await Notifications.getPermissionsAsync();
       let finalStatus = existingStatus;
 
       if (existingStatus !== 'granted') {
@@ -86,32 +81,25 @@ export const usePushNotifications = (): PushNotificationState => {
       });
     });
 
-    notificationListener.current =
-      Notifications.addNotificationReceivedListener((notification) => {
-        setNotification(notification);
-      });
+    notificationListener.current = Notifications.addNotificationReceivedListener((notification) => {
+      setNotification(notification);
+    });
 
-    responseListener.current =
-      Notifications.addNotificationResponseReceivedListener(
-        async (response) => {
-          console.log('Expo notification response: ', response);
-          if (response?.notification.request.content.data) {
-            navigate('Camera', response?.notification.request.content.data);
-          } else {
-            const _response =
-              await Notifications.getLastNotificationResponseAsync();
-            console.log('Expo last notification _response: ', _response);
-            if (_response?.notification.request.content.data) {
-              navigate('Camera', _response?.notification.request.content.data);
-            }
-          }
+    responseListener.current = Notifications.addNotificationResponseReceivedListener(async (response) => {
+      console.log('Expo notification response: ', response);
+      if (response?.notification.request.content.data) {
+        navigate('Camera', response?.notification.request.content.data);
+      } else {
+        const _response = await Notifications.getLastNotificationResponseAsync();
+        console.log('Expo last notification _response: ', _response);
+        if (_response?.notification.request.content.data) {
+          navigate('Camera', _response?.notification.request.content.data);
         }
-      );
+      }
+    });
 
     return () => {
-      Notifications.removeNotificationSubscription(
-        notificationListener.current!
-      );
+      Notifications.removeNotificationSubscription(notificationListener.current!);
 
       Notifications.removeNotificationSubscription(responseListener.current!);
     };

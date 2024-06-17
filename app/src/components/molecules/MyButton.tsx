@@ -13,14 +13,7 @@ type MyButtonProps = {
   smalltext?: boolean;
 };
 
-const MyButton = ({
-  text,
-  onPress,
-  accent,
-  small,
-  subLine,
-  smalltext
-}: MyButtonProps) => {
+const MyButton = ({ text, onPress, accent, small, subLine, smalltext }: MyButtonProps) => {
   if (small) {
     return (
       <Pressable onPress={onPress}>
@@ -34,11 +27,7 @@ const MyButton = ({
   return (
     <Pressable onPress={onPress}>
       <Column styles={[styles.button, accent ? styles.accent : styles.button]}>
-        {!smalltext ? (
-          <H4 accent={accent}>{text}</H4>
-        ) : (
-          <H3 accent={accent}>{text}</H3>
-        )}
+        {!smalltext ? <H4 accent={accent}>{text}</H4> : <H3 accent={accent}>{text}</H3>}
       </Column>
     </Pressable>
   );

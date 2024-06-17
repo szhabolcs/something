@@ -1,12 +1,4 @@
-import {
-  Button,
-  Dimensions,
-  RefreshControl,
-  ScrollView,
-  StyleSheet,
-  Text,
-  View
-} from 'react-native';
+import { Button, Dimensions, RefreshControl, ScrollView, StyleSheet, Text, View } from 'react-native';
 import React, { useEffect } from 'react';
 import Column from '../../components/atoms/Column';
 import H2 from '../../components/atoms/H2';
@@ -21,13 +13,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import ImageViewer from '../../components/molecules/ImageViewer';
 
 const HomeScreen = ({ navigation }: any) => {
-  const {
-    todaysPersonalThings,
-    todaysOtherThings,
-    getHomeThings,
-    refreshing,
-    loading
-  } = useHomeScreenLogic();
+  const { todaysPersonalThings, todaysOtherThings, getHomeThings, refreshing, loading } = useHomeScreenLogic();
 
   useEffect(() => {
     getHomeThings();
@@ -79,13 +65,7 @@ const HomeScreen = ({ navigation }: any) => {
         keyExtractor={(_, index) => index.toString()}
         style={{ marginTop: 18, marginBottom: 50 }}
         contentContainerStyle={{ gap: 14 }}
-        renderItem={({ item }) => (
-          <ImageViewer
-            uri={item.photoUuid}
-            name={item.thingName}
-            username={item.username}
-          />
-        )}
+        renderItem={({ item }) => <ImageViewer uri={item.photoUuid} name={item.thingName} username={item.username} />}
       />
     );
   };
@@ -118,9 +98,7 @@ const HomeScreen = ({ navigation }: any) => {
     <Column styles={{ flex: 1 }}>
       <ScrollView
         style={styles.container}
-        refreshControl={
-          <RefreshControl refreshing={refreshing} onRefresh={getHomeThings} />
-        }
+        refreshControl={<RefreshControl refreshing={refreshing} onRefresh={getHomeThings} />}
       >
         <H2>
           Todays <H2 accent>Things</H2>

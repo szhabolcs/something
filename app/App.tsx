@@ -8,8 +8,7 @@ import { useFonts } from 'expo-font';
 import { usePushNotifications } from './src/hooks/notifications';
 
 export default function App() {
-  const { expoPushToken, notification, lastNotificationResponse } =
-    usePushNotifications();
+  const { expoPushToken, notification, lastNotificationResponse } = usePushNotifications();
 
   const [fontsLoaded] = useFonts({
     'Cursive-Regular': require('./assets/fonts/CedarvilleCursive-Regular.ttf'),

@@ -1,11 +1,4 @@
-import {
-  ActivityIndicator,
-  Pressable,
-  RefreshControl,
-  StyleSheet,
-  Text,
-  View
-} from 'react-native';
+import { ActivityIndicator, Pressable, RefreshControl, StyleSheet, Text, View } from 'react-native';
 import React, { useEffect, useState } from 'react';
 import Column from '../../components/atoms/Column';
 import H1 from '../../components/atoms/H1';
@@ -38,9 +31,7 @@ const ProfileScreen = ({ navigation }: any) => {
 
     (async () => {
       const keys = await AsyncStorage.getAllKeys();
-      const notificationKeys = keys.filter((key) =>
-        key.startsWith('notificationId')
-      );
+      const notificationKeys = keys.filter((key) => key.startsWith('notificationId'));
       if (notificationKeys.length > 0) {
         setNotificationsScheduled(true);
       }
@@ -54,9 +45,7 @@ const ProfileScreen = ({ navigation }: any) => {
 
   async function removeNotifications() {
     const keys = await AsyncStorage.getAllKeys();
-    const notificationKeys = keys.filter((key) =>
-      key.startsWith('notificationId')
-    );
+    const notificationKeys = keys.filter((key) => key.startsWith('notificationId'));
     // Clear all notifications
     await Notifications.cancelAllScheduledNotificationsAsync();
 
@@ -87,8 +76,7 @@ const ProfileScreen = ({ navigation }: any) => {
   function calculatePointPercentage(data: UserDetails) {
     const percentage =
       ((data.levels.currentPoints - data.levels.currentLevel.minThreshold) /
-        (data.levels.nextLevel.minThreshold -
-          data.levels.currentLevel.minThreshold)) *
+        (data.levels.nextLevel.minThreshold - data.levels.currentLevel.minThreshold)) *
       100;
     console.log('Calculating point percentage', percentage);
     return percentage + 1;
@@ -150,8 +138,7 @@ const ProfileScreen = ({ navigation }: any) => {
             }}
           >
             <Text>
-              {data.levels.currentLevel.level} (
-              {data.levels.currentLevel.minThreshold})
+              {data.levels.currentLevel.level} ({data.levels.currentLevel.minThreshold})
             </Text>
           </Row>
           <Text>
@@ -270,23 +257,10 @@ const ProfileScreen = ({ navigation }: any) => {
         <Spacer space={10} />
         <Label text="If any other problems occur feel free to contact me about it :)" />
         <Spacer space={20} />
-        <H3>
-          {notificationsScheduled
-            ? 'Notifications are scheduled'
-            : 'Notifications are not scheduled'}
-        </H3>
-        <H3>
-          {allowNotifications
-            ? 'Notifications are allowed'
-            : 'Notifications are not allowed'}
-        </H3>
+        <H3>{notificationsScheduled ? 'Notifications are scheduled' : 'Notifications are not scheduled'}</H3>
+        <H3>{allowNotifications ? 'Notifications are allowed' : 'Notifications are not allowed'}</H3>
         <Spacer space={10} />
-        <MyButton
-          accent
-          smalltext
-          text="Toggle notifications"
-          onPress={toggleNotifications}
-        />
+        <MyButton accent smalltext text="Toggle notifications" onPress={toggleNotifications} />
         <Spacer space={10} />
         <MyButton accent smalltext text="Log out" onPress={handleLogout} />
       </Column>

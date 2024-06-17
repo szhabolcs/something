@@ -8,11 +8,7 @@ type H1Props = {
 };
 
 const H1 = ({ children, customColor, accent }: H1Props) => {
-  return (
-    <Text style={[styles.h1, { color: customColor }, accent && styles.accent]}>
-      {children}
-    </Text>
-  );
+  return <Text style={[styles.h1, { color: customColor }, accent && styles.accent]}>{children}</Text>;
 };
 
 export default H1;

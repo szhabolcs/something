@@ -41,54 +41,45 @@ export const logout = createAsyncThunk('auth/logout', async () => {
   return;
 });
 
-export const loginSilently = createAsyncThunk(
-  'auth/loginSilently',
-  async () => {
-    const testToken = await AsyncStorage.getItem('token');
+export const loginSilently = createAsyncThunk('auth/loginSilently', async () => {
+  const testToken = await AsyncStorage.getItem('token');
 
-    if (testToken) {
-      return {
-        token: testToken,
-        username: (await AsyncStorage.getItem('username')) || ''
-      };
-    }
-
-    return null;
+  if (testToken) {
+    return {
+      token: testToken,
+      username: (await AsyncStorage.getItem('username')) || ''
+    };
   }
-);
 
-export const login = createAsyncThunk(
-  'auth/login',
-  async (data: { username: string; password: string }) => {
-    const repositoryService = new RespositoryService();
-    const response = await repositoryService.authRespoitory.login<{
-      token: string;
-      user: { username: string };
-    }>(data);
+  return null;
+});
 
-    if (response) {
-      await AsyncStorage.setItem('token', response.token);
-      await AsyncStorage.setItem('username', response.user.username);
-      await AsyncStorage.setItem('allowNotifications', 'true');
-    }
+export const login = createAsyncThunk('auth/login', async (data: { username: string; password: string }) => {
+  const repositoryService = new RespositoryService();
+  const response = await repositoryService.authRespoitory.login<{
+    token: string;
+    user: { username: string };
+  }>(data);
 
-    return response;
+  if (response) {
+    await AsyncStorage.setItem('token', response.token);
+    await AsyncStorage.setItem('username', response.user.username);
+    await AsyncStorage.setItem('allowNotifications', 'true');
   }
-);
 
-export const register = createAsyncThunk(
-  'auth/register',
-  async (data: { username: string; password: string }) => {
-    const repositoryService = new RespositoryService();
-    const response = await repositoryService.authRespoitory.register(data);
+  return response;
+});
 
-    if (response) {
-      return true;
-    }
+export const register = createAsyncThunk('auth/register', async (data: { username: string; password: string }) => {
+  const repositoryService = new RespositoryService();
+  const response = await repositoryService.authRespoitory.register(data);
 
-    return false;
+  if (response) {
+    return true;
   }
-);
+
+  return false;
+});
 
 export const authSlice = createSlice({
   name: 'auth',
@@ -123,20 +114,14 @@ export const authSlice = createSlice({
     builder.addCase(login.pending, (state) => {
       state.loading = true;
     });
-    builder.addCase(
-      login.fulfilled,
-      (
-        state,
-        action: PayloadAction<{ token: string; user: { username: string } }>
-      ) => {
-        // TODO: change secret to my own secret
-        state.loading = false;
-        state.user = {
-          token: action.payload.token,
-          username: action.payload.user.username
-        };
-      }
-    );
+    builder.addCase(login.fulfilled, (state, action: PayloadAction<{ token: string; user: { username: string } }>) => {
+      // TODO: change secret to my own secret
+      state.loading = false;
+      state.user = {
+        token: action.payload.token,
+        username: action.payload.user.username
+      };
+    });
     builder.addCase(login.rejected, (state, action) => {
       state.loading = false;
       state.error = action.error.message;

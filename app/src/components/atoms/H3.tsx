@@ -8,11 +8,7 @@ type H3Props = {
 };
 
 const H3 = ({ children, accent, white }: H3Props) => {
-  return (
-    <Text style={[styles.H3, accent && styles.accent, white && styles.white]}>
-      {children}
-    </Text>
-  );
+  return <Text style={[styles.H3, accent && styles.accent, white && styles.white]}>{children}</Text>;
 };
 
 export default H3;

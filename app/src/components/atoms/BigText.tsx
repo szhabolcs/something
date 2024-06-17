@@ -8,17 +8,7 @@ type BigTextProps = {
 };
 
 const BigText = ({ children, accent, underLine }: BigTextProps) => {
-  return (
-    <Text
-      style={[
-        styles.bigText,
-        accent && styles.accent,
-        underLine && styles.underLine
-      ]}
-    >
-      {children}
-    </Text>
-  );
+  return <Text style={[styles.bigText, accent && styles.accent, underLine && styles.underLine]}>{children}</Text>;
 };
 
 export default BigText;

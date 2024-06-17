@@ -1,12 +1,4 @@
-import {
-  FlatList,
-  Image,
-  ImageBackground,
-  Pressable,
-  ScrollView,
-  StyleSheet,
-  Text
-} from 'react-native';
+import { FlatList, Image, ImageBackground, Pressable, ScrollView, StyleSheet, Text } from 'react-native';
 import Column from '../../components/atoms/Column';
 import H2 from '../../components/atoms/H2';
 import Label from '../../components/atoms/Label';
@@ -95,9 +87,7 @@ const SocialThings = () => {
                         backgroundColor: 'rgba(16, 185, 129, 0.5)'
                       }}
                     >
-                      <Text style={{ color: '#16a34a', fontWeight: 'bold' }}>
-                        Join
-                      </Text>
+                      <Text style={{ color: '#16a34a', fontWeight: 'bold' }}>Join</Text>
                     </Column>
                   </Pressable>
                 </Row>

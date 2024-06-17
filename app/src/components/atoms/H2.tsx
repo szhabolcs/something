@@ -8,13 +8,7 @@ type H2Props = {
 };
 
 const H2 = ({ children, accent, cursive }: H2Props) => {
-  return (
-    <Text
-      style={[styles.H2, accent && styles.accent, cursive && styles.cursive]}
-    >
-      {children}
-    </Text>
-  );
+  return <Text style={[styles.H2, accent && styles.accent, cursive && styles.cursive]}>{children}</Text>;
 };
 
 export default H2;

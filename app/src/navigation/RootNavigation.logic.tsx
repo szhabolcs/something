@@ -29,28 +29,21 @@ export async function scheduleAllNotifications() {
 
   const repositoryService = new RespositoryService();
   const token = await AsyncStorage.getItem('token');
-  const thingsToDo =
-    await repositoryService.thingRepository.getAllPersonalThings(token ?? '');
+  const thingsToDo = await repositoryService.thingRepository.getAllPersonalThings(token ?? '');
   for (const thing of thingsToDo) {
     await scheduleNotificationForThing(thing);
   }
 }
 
 async function scheduleNotificationForThing(thing: any) {
-  const existingNotificationId = await AsyncStorage.getItem(
-    `notificationId-${thing.uuid}`
-  );
+  const existingNotificationId = await AsyncStorage.getItem(`notificationId-${thing.uuid}`);
   if (existingNotificationId) {
     console.log(`Notification for thing: ${thing.name} already scheduled`);
     return;
   }
 
-  const time = getRandomTime(thing.startTime, thing.endTime)
-    .split(':')
-    .map(Number);
-  const lastNotificationTime = getRandomTime('18:00:00', '22:00:00')
-    .split(':')
-    .map(Number);
+  const time = getRandomTime(thing.startTime, thing.endTime).split(':').map(Number);
+  const lastNotificationTime = getRandomTime('18:00:00', '22:00:00').split(':').map(Number);
   console.log(
     `Scheduling notification for thing: ${thing.name} at ${time[0]}:${time[1]}:${time[2]} for the next 7 days`
   );
@@ -89,16 +82,13 @@ async function scheduleNotificationForThing(thing: any) {
 }
 
 function getRandomTime(startTime: string, endTime: string): string {
-  const [startHour, startMinute, startSecond] = startTime
-    .split(':')
-    .map(Number);
+  const [startHour, startMinute, startSecond] = startTime.split(':').map(Number);
   const [endHour, endMinute, endSecond] = endTime.split(':').map(Number);
 
   const startTotalSeconds = startHour * 3600 + startMinute * 60 + startSecond;
   const endTotalSeconds = endHour * 3600 + endMinute * 60 + endSecond;
 
-  const randomTotalSeconds =
-    startTotalSeconds + Math.random() * (endTotalSeconds - startTotalSeconds);
+  const randomTotalSeconds = startTotalSeconds + Math.random() * (endTotalSeconds - startTotalSeconds);
 
   const randomHour = Math.floor(randomTotalSeconds / 3600);
   const randomMinute = Math.floor((randomTotalSeconds % 3600) / 60);
