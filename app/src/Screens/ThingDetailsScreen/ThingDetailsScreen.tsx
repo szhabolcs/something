@@ -138,12 +138,7 @@ const ThingDetailsScreen = ({ route, navigation }: any) => {
               gap: 16
             }}
             renderItem={({ item, index }) => (
-              <ImageViewer
-                key={index.toString()}
-                uri={item.photoUuid}
-                name={item.thingName}
-                username={item.username}
-              />
+              <ImageViewer key={index.toString()} uri={item.photoUuid} name={item.thingName} username={item.username} />
             )}
           />
         </Column>

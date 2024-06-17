@@ -36,10 +36,7 @@ export default class ApiService {
       });
 
       if (!response.ok) {
-        console.error(
-          'Error while fetching: ',
-          JSON.stringify(response, null, 2)
-        );
+        console.error('Error while fetching: ', JSON.stringify(response, null, 2));
         return null;
       }
 
@@ -61,17 +58,11 @@ export default class ApiService {
     })) as T;
   }
 
-  async post<T = object | null>(
-    endPoint: string,
-    options?: { body?: any; token?: string }
-  ) {
+  async post<T = object | null>(endPoint: string, options?: { body?: any; token?: string }) {
     return (await this.fetchData(endPoint, 'POST', options)) as T;
   }
 
-  async postFormData<T = object | null>(
-    endPoint: string,
-    options: { body: FormData; token: string }
-  ) {
+  async postFormData<T = object | null>(endPoint: string, options: { body: FormData; token: string }) {
     try {
       const response = await fetch(`${this.baseUrl}/${endPoint}`, {
         method: 'POST',

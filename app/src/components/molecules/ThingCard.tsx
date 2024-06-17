@@ -14,19 +14,11 @@ type ThingCardProps = {
   navigation?: any;
 };
 
-const ThingCard = ({
-  navigation,
-  name,
-  startTime,
-  endTime,
-  streak,
-  id
-}: ThingCardProps) => {
+const ThingCard = ({ navigation, name, startTime, endTime, streak, id }: ThingCardProps) => {
   return (
     <Pressable
       onPress={() => {
-        navigation &&
-          navigation.navigate('Details', { thingId: id, streakCount: streak });
+        navigation && navigation.navigate('Details', { thingId: id, streakCount: streak });
       }}
     >
       <Column styles={styles.container}>

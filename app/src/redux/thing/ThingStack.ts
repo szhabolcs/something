@@ -63,74 +63,54 @@ const initialState: ThingState = {
   error: undefined
 };
 
-export const getTodaysPersonalThingsPreview = createAsyncThunk(
-  'thing/getTodaysPersonalThings',
-  async (_, thunkApi) => {
-    const userState = (thunkApi.getState() as RootState).authReducer;
-    if (!userState.user) {
-      return;
-    }
-    const repositoryService = new RespositoryService();
-    const response =
-      await repositoryService.thingRepository.getTodaysPersonalThings<
-        PersonalThing[]
-      >(userState.user.token);
-    if (!response) {
-      throw new Error('No response');
-    }
-    return response;
+export const getTodaysPersonalThingsPreview = createAsyncThunk('thing/getTodaysPersonalThings', async (_, thunkApi) => {
+  const userState = (thunkApi.getState() as RootState).authReducer;
+  if (!userState.user) {
+    return;
   }
-);
-
-export const getOtherThingsToday = createAsyncThunk(
-  'thing/getOtherThingsToday',
-  async (_, thunkApi) => {
-    const userState = (thunkApi.getState() as RootState).authReducer;
-    if (!userState.user) {
-      return;
-    }
-    const repositoryService = new RespositoryService();
-    const response =
-      await repositoryService.thingRepository.getOtherThingsToday<
-        OtherThings[]
-      >(userState.user.token);
-    return response;
+  const repositoryService = new RespositoryService();
+  const response = await repositoryService.thingRepository.getTodaysPersonalThings<PersonalThing[]>(
+    userState.user.token
+  );
+  if (!response) {
+    throw new Error('No response');
   }
-);
+  return response;
+});
 
-export const getAllTodaysPersonalThings = createAsyncThunk(
-  'thing/getAllTodaysPersonalThings',
-  async (_, thunkApi) => {
-    const userState = (thunkApi.getState() as RootState).authReducer;
-    if (!userState.user) {
-      return;
-    }
-    const repositoryService = new RespositoryService();
-    const response =
-      await repositoryService.thingRepository.getAllTodaysPersonalThings<
-        PersonalThing[]
-      >(userState.user.token);
-
-    return response;
+export const getOtherThingsToday = createAsyncThunk('thing/getOtherThingsToday', async (_, thunkApi) => {
+  const userState = (thunkApi.getState() as RootState).authReducer;
+  if (!userState.user) {
+    return;
   }
-);
+  const repositoryService = new RespositoryService();
+  const response = await repositoryService.thingRepository.getOtherThingsToday<OtherThings[]>(userState.user.token);
+  return response;
+});
 
-export const getAllPersonalThings = createAsyncThunk(
-  'thing/getAllPersonalThings',
-  async (_, thunkApi) => {
-    const userState = (thunkApi.getState() as RootState).authReducer;
-    if (!userState.user) {
-      return;
-    }
-    const repositoryService = new RespositoryService();
-    const response =
-      await repositoryService.thingRepository.getAllPersonalThings<
-        PersonalThing[]
-      >(userState.user.token);
-
-    return response;
+export const getAllTodaysPersonalThings = createAsyncThunk('thing/getAllTodaysPersonalThings', async (_, thunkApi) => {
+  const userState = (thunkApi.getState() as RootState).authReducer;
+  if (!userState.user) {
+    return;
   }
-);
+  const repositoryService = new RespositoryService();
+  const response = await repositoryService.thingRepository.getAllTodaysPersonalThings<PersonalThing[]>(
+    userState.user.token
+  );
+
+  return response;
+});
+
+export const getAllPersonalThings = createAsyncThunk('thing/getAllPersonalThings', async (_, thunkApi) => {
+  const userState = (thunkApi.getState() as RootState).authReducer;
+  if (!userState.user) {
+    return;
+  }
+  const repositoryService = new RespositoryService();
+  const response = await repositoryService.thingRepository.getAllPersonalThings<PersonalThing[]>(userState.user.token);
+
+  return response;
+});
 
 export const createThing = createAsyncThunk(
   'thing/createThing',
@@ -154,11 +134,7 @@ export const createThing = createAsyncThunk(
     }
     const repositoryService = new RespositoryService();
     console.log('Creating thing...', JSON.stringify(data));
-    const response =
-      await repositoryService.thingRepository.createThing<PersonalThing>(
-        data,
-        userState.user.token
-      );
+    const response = await repositoryService.thingRepository.createThing<PersonalThing>(data, userState.user.token);
 
     return response;
   }
@@ -238,22 +214,16 @@ const thingSlice = createSlice({
     builder.addCase(getTodaysPersonalThingsPreview.pending, (state) => {
       state.loading = true;
     });
-    builder.addCase(
-      getTodaysPersonalThingsPreview.fulfilled,
-      (state, action) => {
-        state.loading = false;
-        state.personalThings.today.preview = action.payload || [];
-      }
-    );
-    builder.addCase(
-      getTodaysPersonalThingsPreview.rejected,
-      (state, action) => {
-        state.loading = false;
-        state.error = action.error.message;
-        // Throw an error to distinguish between no response and an error response
-        throw new Error(action.error.message);
-      }
-    );
+    builder.addCase(getTodaysPersonalThingsPreview.fulfilled, (state, action) => {
+      state.loading = false;
+      state.personalThings.today.preview = action.payload || [];
+    });
+    builder.addCase(getTodaysPersonalThingsPreview.rejected, (state, action) => {
+      state.loading = false;
+      state.error = action.error.message;
+      // Throw an error to distinguish between no response and an error response
+      throw new Error(action.error.message);
+    });
 
     builder.addCase(getOtherThingsToday.pending, (state) => {
       state.loading = true;

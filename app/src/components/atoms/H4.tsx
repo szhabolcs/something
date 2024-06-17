@@ -8,17 +8,7 @@ type H4Props = {
 };
 
 const H4 = ({ children, accent, cursive }: H4Props) => {
-  return (
-    <Text
-      style={[
-        styles.h4,
-        accent && { color: '#16a34a' },
-        cursive && styles.cursive
-      ]}
-    >
-      {children}
-    </Text>
-  );
+  return <Text style={[styles.h4, accent && { color: '#16a34a' }, cursive && styles.cursive]}>{children}</Text>;
 };
 
 export default H4;

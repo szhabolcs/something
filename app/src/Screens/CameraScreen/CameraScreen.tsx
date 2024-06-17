@@ -1,13 +1,6 @@
 import { Camera, CameraType, FaceDetectionResult } from 'expo-camera';
 import React, { useEffect, useState, useRef } from 'react';
-import {
-  StyleSheet,
-  Text,
-  Dimensions,
-  View,
-  TouchableOpacity,
-  ActivityIndicator
-} from 'react-native';
+import { StyleSheet, Text, Dimensions, View, TouchableOpacity, ActivityIndicator } from 'react-native';
 import H1 from '../../components/atoms/H1';
 import H3 from '../../components/atoms/H3';
 import Row from '../../components/atoms/Row';
@@ -38,9 +31,7 @@ export default function CameraScreen({ route, navigation }: any) {
   }, []);
 
   const toggleCameraType = () => {
-    setType((current) =>
-      current === CameraType.back ? CameraType.front : CameraType.back
-    );
+    setType((current) => (current === CameraType.back ? CameraType.front : CameraType.back));
   };
 
   const captureImage = async () => {
@@ -53,10 +44,7 @@ export default function CameraScreen({ route, navigation }: any) {
       exif: true
     });
     if (type === CameraType.back) {
-      photo = await manipulateAsync(photo.uri, [
-        { rotate: 90 },
-        { flip: FlipType.Vertical }
-      ]);
+      photo = await manipulateAsync(photo.uri, [{ rotate: 90 }, { flip: FlipType.Vertical }]);
     }
 
     await cameraRef.current?.pausePreview();
@@ -92,12 +80,7 @@ export default function CameraScreen({ route, navigation }: any) {
   };
 
   if (hasPermission === false) {
-    return (
-      <Text>
-        No access to camera. Please provide access in the phone's settings, and
-        try again.
-      </Text>
-    );
+    return <Text>No access to camera. Please provide access in the phone's settings, and try again.</Text>;
   }
 
   return (
@@ -118,9 +101,7 @@ export default function CameraScreen({ route, navigation }: any) {
         ]}
       />
       <Row>
-        {!capturingImage && !pauseImageCapture && (
-          <TouchableOpacity style={styles.shutter} onPress={captureImage} />
-        )}
+        {!capturingImage && !pauseImageCapture && <TouchableOpacity style={styles.shutter} onPress={captureImage} />}
         {capturingImage && <ActivityIndicator size="large" />}
         {!capturingImage && !pauseImageCapture && (
           <TouchableOpacity style={styles.change} onPress={toggleCameraType}>

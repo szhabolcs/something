@@ -15,14 +15,13 @@ export const useLeaderboardLogic = () => {
   const getData = async () => {
     setRefreshing(true);
     const repositoryService = new RespositoryService();
-    const response =
-      await repositoryService.leaderboardResository.getLeaderboard<{
-        leaderboard: {
-          username: string;
-          points: number;
-        }[];
-        currentVisibility: boolean;
-      }>((await AsyncStorage.getItem('token')) || '');
+    const response = await repositoryService.leaderboardResository.getLeaderboard<{
+      leaderboard: {
+        username: string;
+        points: number;
+      }[];
+      currentVisibility: boolean;
+    }>((await AsyncStorage.getItem('token')) || '');
 
     setLeaderBoard(response.leaderboard);
     setVisibility(response.currentVisibility);
@@ -31,10 +30,9 @@ export const useLeaderboardLogic = () => {
 
   const toggleVisibility = async () => {
     const repositoryService = new RespositoryService();
-    const response =
-      await repositoryService.leaderboardResository.toggleVisibility<{
-        currentVisibility: boolean;
-      }>((await AsyncStorage.getItem('token')) || '');
+    const response = await repositoryService.leaderboardResository.toggleVisibility<{
+      currentVisibility: boolean;
+    }>((await AsyncStorage.getItem('token')) || '');
 
     getData();
 

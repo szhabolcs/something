@@ -29,6 +29,7 @@
     "expo-linear-gradient": "~12.7.2",
     "expo-notifications": "~0.27.6",
     "expo-status-bar": "~1.11.1",
+    "hono": "^4.4.6",
     "nativewind": "^2.0.11",
     "react": "18.2.0",
     "react-native": "0.73.6",

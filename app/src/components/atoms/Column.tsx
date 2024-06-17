@@ -1,13 +1,4 @@
-import {
-  View,
-  Text,
-  ViewStyle,
-  StyleSheet,
-  ScrollView,
-  SafeAreaView,
-  StatusBar,
-  RefreshControl
-} from 'react-native';
+import { View, Text, ViewStyle, StyleSheet, ScrollView, SafeAreaView, StatusBar, RefreshControl } from 'react-native';
 import React from 'react';
 
 type ColumProps = {
@@ -18,21 +9,13 @@ type ColumProps = {
   getData?: () => void | Promise<void>;
 };
 
-const Column = ({
-  children,
-  styles,
-  scrollable,
-  refreshing,
-  getData
-}: ColumProps) => {
+const Column = ({ children, styles, scrollable, refreshing, getData }: ColumProps) => {
   if (scrollable) {
     return (
       // <SafeAreaView>
       <ScrollView
         style={{ flex: 1, height: '100%' }}
-        refreshControl={
-          <RefreshControl refreshing={refreshing} onRefresh={getData} />
-        }
+        refreshControl={<RefreshControl refreshing={refreshing} onRefresh={getData} />}
       >
         <View style={[ColumStyles.column, styles]}>{children}</View>
       </ScrollView>

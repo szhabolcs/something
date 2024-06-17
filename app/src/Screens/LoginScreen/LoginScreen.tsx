@@ -9,8 +9,7 @@ import Row from '../../components/atoms/Row';
 import { ChevronRight } from 'react-native-feather';
 
 const LoginScreen = ({ navigation }: any) => {
-  const { username, setUsername, password, setPassword, handleLogin } =
-    useLoginScreenLogic();
+  const { username, setUsername, password, setPassword, handleLogin } = useLoginScreenLogic();
 
   return (
     <Column

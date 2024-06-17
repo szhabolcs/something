@@ -4,10 +4,7 @@ import Column from '../../components/atoms/Column';
 import Row from '../../components/atoms/Row';
 import MyButton from '../../components/molecules/MyButton';
 import H2 from '../../components/atoms/H2';
-import {
-  DateTimePickerAndroid,
-  DateTimePickerEvent
-} from '@react-native-community/datetimepicker';
+import { DateTimePickerAndroid, DateTimePickerEvent } from '@react-native-community/datetimepicker';
 import { Dropdown } from 'react-native-element-dropdown';
 import BigText from '../../components/atoms/BigText';
 import { useAppDispatch } from '../../hooks/hooks';
@@ -16,9 +13,7 @@ import { setOccuranceForNewPersonalThing } from '../../redux/thing/ThingStack';
 const SetTimeIntervals = ({ navigation }: any) => {
   const [startDate, setStartDate] = useState(new Date(Date.now()));
   const daysOfWeek = ['mon', 'tue', 'wed', 'thu', 'fri', 'sat', 'sun'];
-  const [endDate, setEndDate] = useState(
-    new Date(new Date(Date.now()).setHours(startDate.getHours() + 1))
-  );
+  const [endDate, setEndDate] = useState(new Date(new Date(Date.now()).setHours(startDate.getHours() + 1)));
   const dispatch = useAppDispatch();
   const [value, setValue] = useState('every');
   const [period, setPeriod] = useState('daily');
@@ -51,18 +46,12 @@ const SetTimeIntervals = ({ navigation }: any) => {
     );
   };
 
-  const onStartDateChange = (
-    event: DateTimePickerEvent,
-    selectedDate?: Date | undefined
-  ) => {
+  const onStartDateChange = (event: DateTimePickerEvent, selectedDate?: Date | undefined) => {
     const currentDate = selectedDate;
     setStartDate(currentDate ?? new Date(Date.now()));
   };
 
-  const onEndDateChange = (
-    event: DateTimePickerEvent,
-    selectedDate?: Date | undefined
-  ) => {
+  const onEndDateChange = (event: DateTimePickerEvent, selectedDate?: Date | undefined) => {
     const currentDate = selectedDate;
     setEndDate(currentDate ?? new Date(Date.now()));
   };
@@ -82,9 +71,7 @@ const SetTimeIntervals = ({ navigation }: any) => {
 
   const formatDate = (date: Date, additionalHours?: number) => {
     let newDate = new Date(date);
-    newDate = new Date(
-      newDate.setHours(date.getHours() + (additionalHours || 0))
-    );
+    newDate = new Date(newDate.setHours(date.getHours() + (additionalHours || 0)));
 
     return `${newDate.getHours()}:${newDate.getMinutes()}`;
   };

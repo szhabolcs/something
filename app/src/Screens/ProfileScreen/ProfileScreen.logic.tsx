@@ -41,10 +41,7 @@ export const useProfileScreenLogic = () => {
     setrefreshing(true);
     const repositoryService = new RespositoryService();
     const token = (await AsyncStorage.getItem('token')) ?? '';
-    const response =
-      await repositoryService.authRespoitory.getUserDetails<UserDetails | null>(
-        token
-      );
+    const response = await repositoryService.authRespoitory.getUserDetails<UserDetails | null>(token);
     setData(response);
     setrefreshing(false);
   };

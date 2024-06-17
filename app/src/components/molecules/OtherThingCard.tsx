@@ -26,10 +26,7 @@ const OtherThingCard = ({ image, name, username }: OtherThingCardProps) => {
       imageStyle={{ borderRadius: 8 }}
       source={imageLink}
     >
-      <LinearGradient
-        colors={['#21212100', '#212121']}
-        style={{ height: '100%', width: '100%', borderRadius: 8 }}
-      >
+      <LinearGradient colors={['#21212100', '#212121']} style={{ height: '100%', width: '100%', borderRadius: 8 }}>
         <Column
           styles={{
             height: '100%',

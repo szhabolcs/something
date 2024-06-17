@@ -9,14 +9,7 @@ import { useRegisterScreenLogic } from './RegisterScree.logic';
 import { ChevronLeft } from 'react-native-feather';
 
 const RegisterScreen = ({ navigation }: any) => {
-  const {
-    username,
-    setUsername,
-    password,
-    setPassword,
-    error,
-    handleRegister
-  } = useRegisterScreenLogic();
+  const { username, setUsername, password, setPassword, error, handleRegister } = useRegisterScreenLogic();
 
   return (
     <Column

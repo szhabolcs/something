@@ -12,14 +12,7 @@ type MyInputProps = {
   error?: boolean;
 };
 
-const MyInput = ({
-  text,
-  setText,
-  placeholder,
-  secure,
-  error,
-  multiline
-}: MyInputProps) => {
+const MyInput = ({ text, setText, placeholder, secure, error, multiline }: MyInputProps) => {
   return (
     <TextInput
       placeholder={placeholder}

@@ -11,8 +11,7 @@ import Label from '../../components/atoms/Label';
 import H2 from '../../components/atoms/H2';
 
 const Leaderboard = () => {
-  const { leaderBoard, getData, visibility, toggleVisibility, refreshing } =
-    useLeaderboardLogic();
+  const { leaderBoard, getData, visibility, toggleVisibility, refreshing } = useLeaderboardLogic();
 
   useEffect(() => {
     getData();

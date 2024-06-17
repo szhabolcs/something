@@ -50,8 +50,8 @@ const CreateThingScreen = ({ navigation }: any) => {
             }}
           >
             <Text>
-              As of now, you cannot change anything about the Thing after being
-              created. But if you want to, feel free to contact me :)
+              As of now, you cannot change anything about the Thing after being created. But if you want to, feel free
+              to contact me :)
             </Text>
             <TextInputWithLabel
               label={'Name'}
@@ -79,9 +79,8 @@ const CreateThingScreen = ({ navigation }: any) => {
               newThing.occurances.map((occurance: any, idx) => {
                 return (
                   <H3 key={idx}>
-                    {occurance.startTime} - {occurance.endTime} repeats:{' '}
-                    {occurance.repeat} {occurance.dayOfWeek.length ? 'on' : ''}{' '}
-                    {occurance.dayOfWeek?.join(', ')}
+                    {occurance.startTime} - {occurance.endTime} repeats: {occurance.repeat}{' '}
+                    {occurance.dayOfWeek.length ? 'on' : ''} {occurance.dayOfWeek?.join(', ')}
                   </H3>
                 );
               })}
@@ -143,9 +142,7 @@ const CreateThingScreen = ({ navigation }: any) => {
                   <X
                     color={'#fff'}
                     onPress={() => {
-                      setSharedUsernames(
-                        sharedUsernames.filter((name) => name !== username)
-                      );
+                      setSharedUsernames(sharedUsernames.filter((name) => name !== username));
                     }}
                   />
                   <H3>{username}</H3>
