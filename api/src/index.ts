@@ -14,7 +14,8 @@ import { scalarUIProtected } from './utils/scalar.js';
 import { swaggerUIProtected } from './utils/swagger.js';
 import { globalErrorHandler, zodErrorHandler } from './utils/errors.js';
 import { NotificationService } from './services/notification.service.js';
-import { hc } from 'hono/client';
+import { InferResponseType as _InferResponseType, InferRequestType as _InferRequestType, hc } from 'hono/client';
+import { StatusCode } from 'hono/utils/http-status';
 
 const app = new OpenAPIHono({ defaultHook: zodErrorHandler })
   .onError(globalErrorHandler)
@@ -48,3 +49,5 @@ await notificationService.start();
 export type AppType = typeof app;
 const client = hc<AppType>('localhost');
 export type Client = typeof client;
+export type InferResponseType<T, S extends StatusCode> = _InferResponseType<T, S>;
+export type InferRequestType<T> = _InferRequestType<T>;
