@@ -8,7 +8,7 @@ import { DateTimePickerAndroid, DateTimePickerEvent } from '@react-native-commun
 import { Dropdown } from 'react-native-element-dropdown';
 import BigText from '../../components/atoms/BigText';
 import { useAppDispatch } from '../../hooks/hooks';
-import { setOccuranceForNewPersonalThing } from '../../redux/thing/ThingStack';
+import { setScheduleForNewPersonalThing } from '../../redux/thing/ThingStack';
 
 const SetTimeIntervals = ({ navigation }: any) => {
   const [startDate, setStartDate] = useState(new Date(Date.now()));
@@ -26,7 +26,7 @@ const SetTimeIntervals = ({ navigation }: any) => {
 
     if (value === 'once') {
       dispatch(
-        setOccuranceForNewPersonalThing({
+        setScheduleForNewPersonalThing({
           startTime: `${formatDate(startDate)}:00`,
           endTime: `${formatDate(endDate)}:00`,
           repeat: 'once',
@@ -37,7 +37,7 @@ const SetTimeIntervals = ({ navigation }: any) => {
     }
 
     dispatch(
-      setOccuranceForNewPersonalThing({
+      setScheduleForNewPersonalThing({
         startTime: `${formatDate(startDate)}:00`,
         endTime: `${formatDate(endDate)}:00`,
         repeat: period,

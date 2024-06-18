@@ -1,7 +1,11 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import type { Client } from '../../../api/dist/index';
+import type { Client, InferResponseType, InferRequestType } from '../../../api/dist/index';
+import { StatusCode } from 'hono/utils/http-status';
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 const hono = require('../../node_modules/hono/dist/client/index.js');
+
+export type ApiResponse<T, S extends StatusCode> = InferResponseType<T, S>;
+export type ApiRequest<T> = InferRequestType<T>;
 
 export type ApiError =
   | {

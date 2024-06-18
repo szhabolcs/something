@@ -1,4 +1,3 @@
-import { useEffect, useState } from 'react';
 import { useAppDispatch, useAppSelector } from '../hooks/hooks';
 import { authSelector, loginSilently } from '../redux/auth/AuthSlice';
 import { getExpoPushToken } from '../hooks/notifications';

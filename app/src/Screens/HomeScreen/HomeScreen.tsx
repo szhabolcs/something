@@ -1,48 +1,42 @@
-import { Button, Dimensions, RefreshControl, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { RefreshControl, ScrollView, StyleSheet, Text, View } from 'react-native';
 import React, { useEffect } from 'react';
 import Column from '../../components/atoms/Column';
 import H2 from '../../components/atoms/H2';
 import { FlatList } from 'react-native-gesture-handler';
 import ThingCard from '../../components/molecules/ThingCard';
 import Spacer from '../../components/atoms/Spacer';
-import OtherThingCard from '../../components/molecules/OtherThingCard';
 import { useHomeScreenLogic } from './HomeScreen.logic';
 import { Plus } from 'react-native-feather';
-import MyButton from '../../components/molecules/MyButton';
-import AsyncStorage from '@react-native-async-storage/async-storage';
 import ImageViewer from '../../components/molecules/ImageViewer';
+import LoadingOverlay from '../../components/organisms/LoadingOverlay';
 
 const HomeScreen = ({ navigation }: any) => {
-  const { todaysPersonalThings, todaysOtherThings, getHomeThings, refreshing, loading } = useHomeScreenLogic();
+  const logic = useHomeScreenLogic();
 
   useEffect(() => {
-    getHomeThings();
+    logic.getHomeThings();
   }, []);
 
   const renderTodayThings = () => {
-    if (loading) {
-      return <Text>Loading...</Text>;
-    }
-
-    if (todaysPersonalThings.length === 0) {
+    if (logic.userThings.home.length === 0) {
       return <Text>No things for today</Text>;
     }
 
     return (
       <FlatList
-        data={todaysPersonalThings}
+        data={logic.userThings.home}
         scrollEnabled={false}
         style={{ marginTop: 18 }}
         contentContainerStyle={{ gap: 14 }}
         keyExtractor={(_, index) => index.toString()}
         renderItem={({ item }) => (
           <ThingCard
-            id={item.uuid}
+            id={item.id}
             navigation={navigation}
             name={item.name}
             startTime={item.startTime}
             endTime={item.endTime}
-            streak={item.streakCount}
+            streak={item.streak}
           />
         )}
       />
@@ -50,22 +44,18 @@ const HomeScreen = ({ navigation }: any) => {
   };
 
   const renderOtherThings = () => {
-    if (loading) {
-      return <Text>Loading...</Text>;
-    }
-
-    if (todaysOtherThings.length === 0) {
+    if (logic.otherThings.home.length === 0) {
       return <Text>None of yor friends uploaded anything yet</Text>;
     }
 
     return (
       <FlatList
-        data={todaysOtherThings}
+        data={logic.otherThings.home}
         scrollEnabled={false}
         keyExtractor={(_, index) => index.toString()}
         style={{ marginTop: 18, marginBottom: 50 }}
         contentContainerStyle={{ gap: 14 }}
-        renderItem={({ item }) => <ImageViewer uri={item.photoUuid} name={item.thingName} username={item.username} />}
+        renderItem={({ item }) => <ImageViewer uri={item.image} name={item.name} username={item.username} />}
       />
     );
   };
@@ -96,9 +86,10 @@ const HomeScreen = ({ navigation }: any) => {
 
   return (
     <Column styles={{ flex: 1 }}>
+      <LoadingOverlay visible={logic.refreshing} />
       <ScrollView
         style={styles.container}
-        refreshControl={<RefreshControl refreshing={refreshing} onRefresh={getHomeThings} />}
+        refreshControl={<RefreshControl refreshing={logic.refreshing} onRefresh={logic.getHomeThings} />}
       >
         <H2>
           Todays <H2 accent>Things</H2>
