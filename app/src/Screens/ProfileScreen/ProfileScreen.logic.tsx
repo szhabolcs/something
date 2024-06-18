@@ -1,55 +1,23 @@
-import AsyncStorage from '@react-native-async-storage/async-storage';
-import { useAppSelector } from '../../hooks/hooks';
-import { authSelector } from '../../redux/auth/AuthSlice';
-import RespositoryService from '../../services/RespositoryService';
+import { useAppDispatch, useAppSelector } from '../../hooks/hooks';
 import { useState } from 'react';
-
-export type UserDetails = {
-  badges: {
-    icon: string;
-    name: string;
-    description: string;
-  }[];
-  things: {
-    uuid: string;
-    name: string;
-    streakCount: number;
-    startTime: string;
-    endTime: string;
-  }[];
-  levels: {
-    currentLevel: {
-      level: string;
-      minThreshold: number;
-    };
-    nextLevel: {
-      level: string;
-      minThreshold: number;
-    };
-    currentPoints: number;
-  };
-};
+import { getProfileData, profileSelector } from '../../redux/profile/ProfileStack';
+import { authSelector, logout } from '../../redux/auth/AuthSlice';
 
 export const useProfileScreenLogic = () => {
-  const authState = useAppSelector(authSelector);
-  const user = authState.user;
-
-  const [data, setData] = useState<UserDetails | null>(null);
   const [refreshing, setrefreshing] = useState(true);
+  const { loading, error, profile } = useAppSelector(profileSelector);
+  const { user } = useAppSelector(authSelector);
+  const dispatch = useAppDispatch();
 
   const getData = async () => {
     setrefreshing(true);
-    const repositoryService = new RespositoryService();
-    const token = (await AsyncStorage.getItem('accessToken')) ?? '';
-    const response = await repositoryService.authRespoitory.getUserDetails<UserDetails | null>(token);
-    setData(response);
+    await dispatch(getProfileData());
     setrefreshing(false);
   };
 
-  return {
-    user,
-    data,
-    getData,
-    refreshing
-  };
+  const handleLogout = () => {
+    dispatch(logout());
+  }
+
+  return { loading, error, profile, getData, handleLogout, refreshing, user };
 };

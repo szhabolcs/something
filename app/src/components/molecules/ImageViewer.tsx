@@ -1,16 +1,49 @@
 import { ImageBackground, StyleSheet, Text, View } from 'react-native';
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import Column from '../atoms/Column';
 import H2 from '../atoms/H2';
 import H4 from '../atoms/H4';
+import ApiService from '../../services/ApiService';
+import Row from '../atoms/Row';
+import H3 from '../atoms/H3';
 
 type ImageViewerProps = {
   uri: string;
   name: string;
   username: string;
+  createdAt: Date;
 };
 
-const ImageViewer = ({ uri, name, username }: ImageViewerProps) => {
+const api = new ApiService();
+
+const ImageViewer = ({ uri, createdAt, name, username }: ImageViewerProps) => {
+  const [image, setImage] = useState('');
+  const date = new Date(createdAt).toLocaleString(undefined, {
+    month: 'long',
+    day: 'numeric',
+    hour: 'numeric',
+    minute: 'numeric'
+  });
+
+  useEffect(() => {
+    (async () => {
+      const filename = uri.split('/')[4];
+      const response = await api.call(api.client.images[':filename'].$get, { param: { filename } });
+      if (response.ok) {
+        const data = await response.blob();
+        const fileReaderInstance = new FileReader();
+        fileReaderInstance.readAsDataURL(data);
+        fileReaderInstance.onload = () => {
+          const base64data = fileReaderInstance.result as string;
+          setImage(base64data);
+        };
+      }
+    })();
+  }, []);
+
+  if (!image) {
+    return <></>;
+  }
   return (
     <Column
       styles={{
@@ -23,18 +56,19 @@ const ImageViewer = ({ uri, name, username }: ImageViewerProps) => {
       }}
     >
       <ImageBackground
-        source={{
-          uri
-        }}
+        source={{ uri: image }}
         style={{
           width: '100%',
           aspectRatio: 1
         }}
       />
       <H2 cursive>{name}</H2>
-      <H4 cursive accent>
-        {username}
-      </H4>
+      <Row styles={{justifyContent: 'space-between', width: '100%'}}>
+        <H4 cursive accent>
+          @{username}
+        </H4>
+        <H2 cursive>{date} { }</H2>
+      </Row>
     </Column>
   );
 };
