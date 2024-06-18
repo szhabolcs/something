@@ -1,28 +1,22 @@
-import { View, Text } from 'react-native';
 import React from 'react';
 import Label from '../atoms/Label';
 import Column from '../atoms/Column';
 import MyInput from '../molecules/MyInput';
+import { ApiError, extractError } from '../../services/ApiService';
+import ErrorText from '../atoms/ErrorText';
 
-type TextInputWithLabelProps = {
+type Props = {
   label: string;
   placeholder: string;
   value: string;
   onChangeText: (text: string) => void;
   secure?: boolean;
-  error?: string;
+  error?: ApiError;
+  path?: (string | number)[];
   multiline?: boolean;
 };
 
-const TextInputWithLabel = ({
-  label,
-  placeholder,
-  value,
-  onChangeText,
-  secure,
-  error,
-  multiline
-}: TextInputWithLabelProps) => {
+const LabeledInput = ({ label, placeholder, value, onChangeText, secure, error, path, multiline }: Props) => {
   return (
     <Column styles={{ gap: 5 }}>
       <Label text={label} />
@@ -31,10 +25,12 @@ const TextInputWithLabel = ({
         text={value}
         setText={onChangeText}
         placeholder={placeholder}
-        error={error ? true : false}
+        error={!!extractError(error, path ?? [])}
+        multiline={multiline}
       />
+      <ErrorText>{extractError(error, path ?? [])}</ErrorText>
     </Column>
   );
 };
 
-export default TextInputWithLabel;
+export default LabeledInput;

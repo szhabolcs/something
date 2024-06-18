@@ -6,7 +6,7 @@ import { FlatList } from 'react-native-gesture-handler';
 import ThingCard from '../../components/molecules/ThingCard';
 import Spacer from '../../components/atoms/Spacer';
 import OtherThingCard from '../../components/molecules/OtherThingCard';
-import { useHomeScreenLogic } from './HomeScree.logic';
+import { useHomeScreenLogic } from './HomeScreen.logic';
 import { Plus } from 'react-native-feather';
 import MyButton from '../../components/molecules/MyButton';
 import AsyncStorage from '@react-native-async-storage/async-storage';

@@ -14,6 +14,7 @@ import { scalarUIProtected } from './utils/scalar.js';
 import { swaggerUIProtected } from './utils/swagger.js';
 import { globalErrorHandler, zodErrorHandler } from './utils/errors.js';
 import { NotificationService } from './services/notification.service.js';
+import { hc } from 'hono/client';
 
 const app = new OpenAPIHono({ defaultHook: zodErrorHandler })
   .onError(globalErrorHandler)
@@ -43,3 +44,7 @@ serve({
 
 const notificationService = new NotificationService();
 await notificationService.start();
+
+export type AppType = typeof app;
+const client = hc<AppType>('localhost');
+export type Client = typeof client;

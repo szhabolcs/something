@@ -1,10 +1,10 @@
-import { PayloadAction, createAsyncThunk, createSlice } from '@reduxjs/toolkit';
-import RespositoryService from '../../services/RespositoryService';
+import { createAsyncThunk, createSlice } from '@reduxjs/toolkit';
 import { RootState } from '../store';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import ApiService, { ApiError } from '../../services/ApiService';
 
 type User = {
-  token: string;
+  accessToken: string;
   username: string;
   badges?: {
     icon: string;
@@ -26,7 +26,7 @@ type User = {
 interface AuthState {
   user: User | null;
   loading: boolean;
-  error: string | undefined;
+  error: ApiError | undefined;
 }
 
 const initialState: AuthState = {
@@ -35,109 +35,134 @@ const initialState: AuthState = {
   error: undefined
 };
 
+const api = new ApiService();
+
 export const logout = createAsyncThunk('auth/logout', async () => {
-  await AsyncStorage.removeItem('token');
+  await AsyncStorage.removeItem('accessToken');
   await AsyncStorage.removeItem('username');
   return;
 });
 
-export const loginSilently = createAsyncThunk('auth/loginSilently', async () => {
-  const testToken = await AsyncStorage.getItem('token');
+export const loginSilently = createAsyncThunk('auth/loginSilently', async (pushToken: string | undefined) => {
+  console.log(`[auth/loginSilently] pushToken: %o`, pushToken);
+  await api.call(api.client.auth.silent.$post, { json: { pushToken } });
 
-  if (testToken) {
-    return {
-      token: testToken,
-      username: (await AsyncStorage.getItem('username')) || ''
-    };
+  const accessToken = await AsyncStorage.getItem('accessToken');
+  const username = await AsyncStorage.getItem('username');
+
+  if (accessToken && username) {
+    return { accessToken, username };
   }
 
   return null;
 });
 
-export const login = createAsyncThunk('auth/login', async (data: { username: string; password: string }) => {
-  const repositoryService = new RespositoryService();
-  const response = await repositoryService.authRespoitory.login<{
-    token: string;
-    user: { username: string };
-  }>(data);
+export const login = createAsyncThunk(
+  'auth/login',
+  async (payload: { username: string; password: string }, { rejectWithValue }) => {
+    console.log(`[auth/login] Data: %o`, payload);
 
-  if (response) {
-    await AsyncStorage.setItem('token', response.token);
-    await AsyncStorage.setItem('username', response.user.username);
-    await AsyncStorage.setItem('allowNotifications', 'true');
+    const response = await api.call(api.client.auth.login.$post, { json: payload });
+
+    if (response.ok) {
+      const data = await response.json();
+      await AsyncStorage.setItem('accessToken', data.accessToken);
+      await AsyncStorage.setItem('refreshToken', data.refreshToken);
+      await AsyncStorage.setItem('username', payload.username);
+      await AsyncStorage.setItem('allowNotifications', 'true');
+
+      return { accessToken: data.accessToken, username: payload.username };
+    }
+    if (response.status === 400) {
+      const error = await response.json();
+      return rejectWithValue(error);
+    }
+
+    return rejectWithValue({});
   }
+);
 
-  return response;
-});
+export const register = createAsyncThunk(
+  'auth/register',
+  async (payload: { username: string; password: string }, { rejectWithValue }) => {
+    console.log(`[auth/register] Data: %o`, payload);
 
-export const register = createAsyncThunk('auth/register', async (data: { username: string; password: string }) => {
-  const repositoryService = new RespositoryService();
-  const response = await repositoryService.authRespoitory.register(data);
+    const response = await api.call(api.client.auth.register.$post, { json: payload });
 
-  if (response) {
-    return true;
+    if (response.ok) {
+      const data = await response.json();
+      await AsyncStorage.setItem('accessToken', data.accessToken);
+      await AsyncStorage.setItem('refreshToken', data.refreshToken);
+      await AsyncStorage.setItem('username', payload.username);
+      await AsyncStorage.setItem('allowNotifications', 'true');
+
+      return { accessToken: data.accessToken, username: payload.username };
+    }
+    if (response.status === 400) {
+      const error = await response.json();
+      return rejectWithValue(error);
+    }
+
+    return rejectWithValue({});
   }
-
-  return false;
-});
+);
 
 export const authSlice = createSlice({
   name: 'auth',
   initialState,
   reducers: {},
   extraReducers: (builder) => {
+    // loginSilently
     builder.addCase(loginSilently.pending, (state) => {
       state.loading = true;
     });
-    builder.addCase(
-      loginSilently.fulfilled,
-      (
-        state,
-        action: PayloadAction<{
-          token: string;
-          username: string;
-        } | null>
-      ) => {
-        state.loading = false;
-        if (action.payload === null) {
-          return;
-        }
-        state.user = {
-          token: action.payload.token,
-          username: action.payload.username
-        };
+    builder.addCase(loginSilently.fulfilled, (state, action) => {
+      state.loading = false;
+      if (!action.payload) {
+        return;
       }
-    );
+      state.user = {
+        accessToken: action.payload.accessToken,
+        username: action.payload.username
+      };
+    });
     builder.addCase(loginSilently.rejected, (state) => {
       state.loading = false;
     });
+
+    // login
     builder.addCase(login.pending, (state) => {
       state.loading = true;
     });
-    builder.addCase(login.fulfilled, (state, action: PayloadAction<{ token: string; user: { username: string } }>) => {
-      // TODO: change secret to my own secret
+    builder.addCase(login.fulfilled, (state, action) => {
       state.loading = false;
       state.user = {
-        token: action.payload.token,
-        username: action.payload.user.username
+        accessToken: action.payload.accessToken,
+        username: action.payload.username
       };
     });
     builder.addCase(login.rejected, (state, action) => {
       state.loading = false;
-      state.error = action.error.message;
+      state.error = action.payload as any;
     });
 
+    // register
     builder.addCase(register.pending, (state) => {
       state.loading = true;
     });
-    builder.addCase(register.fulfilled, (state, _) => {
+    builder.addCase(register.fulfilled, (state, action) => {
       state.loading = false;
+      state.user = {
+        accessToken: action.payload.accessToken,
+        username: action.payload.username
+      };
     });
     builder.addCase(register.rejected, (state, action) => {
       state.loading = false;
-      state.error = action.error.message;
+      state.error = action.payload as any;
     });
 
+    // logout
     builder.addCase(logout.pending, (state) => {
       state.loading = false;
       state.user = null;

@@ -21,7 +21,7 @@ export const useLeaderboardLogic = () => {
         points: number;
       }[];
       currentVisibility: boolean;
-    }>((await AsyncStorage.getItem('token')) || '');
+    }>((await AsyncStorage.getItem('accessToken')) || '');
 
     setLeaderBoard(response.leaderboard);
     setVisibility(response.currentVisibility);
@@ -32,7 +32,7 @@ export const useLeaderboardLogic = () => {
     const repositoryService = new RespositoryService();
     const response = await repositoryService.leaderboardResository.toggleVisibility<{
       currentVisibility: boolean;
-    }>((await AsyncStorage.getItem('token')) || '');
+    }>((await AsyncStorage.getItem('accessToken')) || '');
 
     getData();
 

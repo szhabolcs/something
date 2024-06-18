@@ -17,7 +17,7 @@ const MyButton = ({ text, onPress, accent, small, subLine, smalltext }: MyButton
   if (small) {
     return (
       <Pressable onPress={onPress}>
-        <Column styles={[]}>
+        <Column>
           <H4 accent={accent}>{text}</H4>
         </Column>
       </Pressable>

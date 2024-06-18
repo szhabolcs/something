@@ -65,6 +65,24 @@ export const refresh = createRoute({
   }
 });
 
+export const silentLogin = createRoute({
+  method: 'post',
+  path: '/silent',
+  description: 'Login silently.',
+  tags: ['Auth'],
+  middleware: useAccessToken(),
+  security: bearerAuth,
+  request: {
+    body: jsonc(AuthDTO.pick({ pushToken: true }))
+  },
+  responses: {
+    ...defaultResponses,
+    [StatusCodes.OK]: {
+      description: 'Successful silent login.'
+    }
+  }
+});
+
 export const logout = createRoute({
   method: 'post',
   path: '/logout',

@@ -4,11 +4,10 @@ import { useRootNavigationLogic } from '../RootNavigation.logic';
 import SplashScreen from '../../Screens/SplashScreen/SplashScreen';
 import { AuthStackNavigation } from '../StackNavigation/AuthStack';
 import { Home, User, Users } from 'react-native-feather';
-import { useEffect } from 'react';
 import { getFocusedRouteNameFromRoute } from '@react-navigation/core';
 import { ProfileStackNavigation } from '../StackNavigation/ProfileStack';
 import SocialThings from '../../Screens/SocialThings/SocialThings';
-import * as Notifications from 'expo-notifications';
+import { useEffect } from 'react';
 
 const Tab = createBottomTabNavigator();
 
@@ -35,7 +34,6 @@ export const RootTabNavigation = () => {
         options={({ route }) => ({
           tabBarStyle: ((route) => {
             const routeName = getFocusedRouteNameFromRoute(route) ?? '';
-            console.log(routeName);
             if (routeName === 'Camera') {
               return { display: 'none' };
             }
