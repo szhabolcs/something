@@ -6,6 +6,7 @@ const hono = require('../../node_modules/hono/dist/client/index.js');
 
 export type ApiResponse<T, S extends StatusCode> = InferResponseType<T, S>;
 export type ApiRequest<T> = InferRequestType<T>;
+export type ApiHeaders = { Authorization: string };
 
 export type ApiError =
   | {
@@ -63,7 +64,7 @@ export default class ApiService {
     }
   }
 
-  private async getAuthorizationHeaders() {
+  public async getAuthorizationHeaders() {
     const accessToken = await AsyncStorage.getItem('accessToken');
     return {
       Authorization: `Bearer ${accessToken}`
@@ -84,7 +85,12 @@ export default class ApiService {
       const data = await response.json();
       await AsyncStorage.setItem('accessToken', data.accessToken);
       await AsyncStorage.setItem('refreshToken', data.refreshToken);
+      console.debug('[api] Tokens refreshed');
+    } else {
+      await AsyncStorage.removeItem('accessToken');
+      await AsyncStorage.removeItem('refreshToken');
     }
+
   }
 
   async fetchData(

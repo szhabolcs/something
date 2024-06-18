@@ -43,7 +43,7 @@ export const logout = createAsyncThunk('auth/logout', async () => {
   return;
 });
 
-export const loginSilently = createAsyncThunk('auth/loginSilently', async (pushToken: string | undefined) => {
+export const loginSilently = createAsyncThunk('auth/loginSilently', async (pushToken: string | undefined, { rejectWithValue }) => {
   console.log(`[auth/loginSilently] pushToken: %o`, pushToken);
   await api.call(api.client.auth.silent.$post, { json: { pushToken } });
 
@@ -54,7 +54,7 @@ export const loginSilently = createAsyncThunk('auth/loginSilently', async (pushT
     return { accessToken, username };
   }
 
-  return null;
+  return rejectWithValue(null);
 });
 
 export const login = createAsyncThunk(
@@ -118,9 +118,6 @@ export const authSlice = createSlice({
     });
     builder.addCase(loginSilently.fulfilled, (state, action) => {
       state.loading = false;
-      if (!action.payload) {
-        return;
-      }
       state.user = {
         accessToken: action.payload.accessToken,
         username: action.payload.username
@@ -135,6 +132,7 @@ export const authSlice = createSlice({
       state.loading = true;
     });
     builder.addCase(login.fulfilled, (state, action) => {
+      console.log('login.fulfilled');
       state.loading = false;
       state.user = {
         accessToken: action.payload.accessToken,

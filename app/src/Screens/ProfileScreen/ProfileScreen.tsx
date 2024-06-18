@@ -4,85 +4,36 @@ import Column from '../../components/atoms/Column';
 import H1 from '../../components/atoms/H1';
 import Row from '../../components/atoms/Row';
 import H2 from '../../components/atoms/H2';
-import { UserDetails, useProfileScreenLogic } from './ProfileScreen.logic';
+import { useProfileScreenLogic } from './ProfileScreen.logic';
 import Label from '../../components/atoms/Label';
 import Spacer from '../../components/atoms/Spacer';
 import { FlatList } from 'react-native-gesture-handler';
 import * as Icons from 'react-native-feather';
 import H3 from '../../components/atoms/H3';
 import ThingCard from '../../components/molecules/ThingCard';
-import AsyncStorage from '@react-native-async-storage/async-storage';
-import * as Notifications from 'expo-notifications';
 import MyButton from '../../components/molecules/MyButton';
-import { scheduleAllNotifications } from '../../navigation/RootNavigation.logic';
-import { useAppDispatch } from '../../hooks/hooks';
-import { logout } from '../../redux/auth/AuthSlice';
+
+type NonUndefined<T> = T extends undefined ? never : T;
+
 
 const ProfileScreen = ({ navigation }: any) => {
-  const { user, getData, data, refreshing } = useProfileScreenLogic();
-  const dispatch = useAppDispatch();
+  const logic = useProfileScreenLogic();
 
   const [opened, setOpened] = useState(true);
-  const [notificationsScheduled, setNotificationsScheduled] = useState(false);
-  const [allowNotifications, setAllowNotifications] = useState(false);
 
   useEffect(() => {
-    getData();
-
-    (async () => {
-      const keys = await AsyncStorage.getAllKeys();
-      const notificationKeys = keys.filter((key) => key.startsWith('notificationId'));
-      if (notificationKeys.length > 0) {
-        setNotificationsScheduled(true);
-      }
-
-      const consent = await AsyncStorage.getItem('allowNotifications');
-      if (consent === 'true') {
-        setAllowNotifications(true);
-      }
-    })();
+    logic.getData();
   }, []);
 
-  async function removeNotifications() {
-    const keys = await AsyncStorage.getAllKeys();
-    const notificationKeys = keys.filter((key) => key.startsWith('notificationId'));
-    // Clear all notifications
-    await Notifications.cancelAllScheduledNotificationsAsync();
-
-    for (const key of notificationKeys) {
-      await AsyncStorage.removeItem(key);
-    }
-
-    setNotificationsScheduled(false);
-  }
-
-  async function toggleNotifications() {
-    if (allowNotifications) {
-      await AsyncStorage.setItem('allowNotifications', 'false');
-      setAllowNotifications(false);
-      await removeNotifications();
-    } else {
-      await AsyncStorage.setItem('allowNotifications', 'true');
-      setAllowNotifications(true);
-      await scheduleAllNotifications();
-      setNotificationsScheduled(true);
-    }
-  }
-
-  async function handleLogout() {
-    dispatch(logout());
-  }
-
-  function calculatePointPercentage(data: UserDetails) {
+  function calculatePointPercentage(data: NonUndefined<typeof logic.profile>) {
     const percentage =
-      ((data.levels.currentPoints - data.levels.currentLevel.minThreshold) /
-        (data.levels.nextLevel.minThreshold - data.levels.currentLevel.minThreshold)) *
+      ((data.level.currentScore - data.level.currentLevel.minThreshold) /
+        (data.level.nextLevel.minThreshold - data.level.currentLevel.minThreshold)) *
       100;
-    console.log('Calculating point percentage', percentage);
     return percentage + 1;
   }
 
-  if (!data) {
+  if (!logic.profile) {
     return (
       <Column
         styles={{
@@ -99,8 +50,8 @@ const ProfileScreen = ({ navigation }: any) => {
   return (
     <Column
       scrollable
-      refreshing={refreshing}
-      getData={getData}
+      refreshing={logic.refreshing}
+      getData={logic.getData}
       styles={{
         flex: 1,
         padding: 16
@@ -120,8 +71,8 @@ const ProfileScreen = ({ navigation }: any) => {
         }}
       >
         <Row styles={{ justifyContent: 'space-between', alignItems: 'center' }}>
-          <H2>{user?.username}</H2>
-          <Text>{data.levels.currentPoints} points</Text>
+          <H2>{logic.user?.username}</H2>
+          <Text>{logic.profile?.level.currentScore} points</Text>
         </Row>
         <Spacer space={10} />
         <Row
@@ -138,11 +89,11 @@ const ProfileScreen = ({ navigation }: any) => {
             }}
           >
             <Text>
-              {data.levels.currentLevel.level} ({data.levels.currentLevel.minThreshold})
+              {logic.profile?.level.currentLevel.name} ({logic.profile?.level.currentLevel.minThreshold})
             </Text>
           </Row>
           <Text>
-            {data.levels.nextLevel.level} ({data.levels.nextLevel.minThreshold})
+            {logic.profile?.level.nextLevel.name} ({logic.profile?.level.nextLevel.minThreshold})
           </Text>
         </Row>
         <Column
@@ -158,7 +109,7 @@ const ProfileScreen = ({ navigation }: any) => {
           <Column
             styles={{
               height: '100%',
-              width: `${calculatePointPercentage(data)}%`,
+              width: `${calculatePointPercentage(logic.profile)}%`,
               backgroundColor: '#16a34a',
               borderRadius: 20
             }}
@@ -168,7 +119,7 @@ const ProfileScreen = ({ navigation }: any) => {
         {/* <Text>Badges</Text> */}
         {/* <Spacer space={10} /> */}
         <FlatList
-          data={data.badges}
+          data={logic.profile?.badges}
           horizontal
           contentContainerStyle={{ gap: 10, flexGrow: 1 }}
           renderItem={({ item }) => {
@@ -231,7 +182,7 @@ const ProfileScreen = ({ navigation }: any) => {
         <H3 accent>My Things</H3>
         <FlatList
           scrollEnabled={false}
-          data={opened ? data.things : data.things.slice(0, 3)}
+          data={opened ? logic.profile?.things : logic.profile?.things.slice(0, 3)}
           style={{ marginTop: 16 }}
           contentContainerStyle={{ gap: 5 }}
           renderItem={({ item }) => (
@@ -239,8 +190,8 @@ const ProfileScreen = ({ navigation }: any) => {
               name={item.name}
               startTime={item.startTime}
               endTime={item.endTime}
-              streak={item.streakCount}
-              id={item.uuid}
+              streak={item.streak}
+              id={item.id}
               navigation={navigation}
             />
           )}
@@ -251,18 +202,7 @@ const ProfileScreen = ({ navigation }: any) => {
           marginTop: 100
         }}
       >
-        <H3 accent>Debug/dev things</H3>
-        <Spacer space={10} />
-        <Label text="If there are any problems regarding notifications, please toggle notifications twice, to re-enable and reschedule them." />
-        <Spacer space={10} />
-        <Label text="If any other problems occur feel free to contact me about it :)" />
-        <Spacer space={20} />
-        <H3>{notificationsScheduled ? 'Notifications are scheduled' : 'Notifications are not scheduled'}</H3>
-        <H3>{allowNotifications ? 'Notifications are allowed' : 'Notifications are not allowed'}</H3>
-        <Spacer space={10} />
-        <MyButton accent smalltext text="Toggle notifications" onPress={toggleNotifications} />
-        <Spacer space={10} />
-        <MyButton accent smalltext text="Log out" onPress={handleLogout} />
+        <MyButton accent smalltext text="Log out" onPress={logic.handleLogout} />
       </Column>
     </Column>
   );

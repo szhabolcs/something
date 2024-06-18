@@ -13,15 +13,12 @@ import ImageViewer from '../../components/molecules/ImageViewer';
 import MyButton from '../../components/molecules/MyButton';
 
 const ThingDetailsScreen = ({ route, navigation }: any) => {
-  const { getDetails, thing, refreshing } = useThingDetailsScreenLogic();
-
+  const { getDetails, thing, refreshing, headers } = useThingDetailsScreenLogic();
   const { thingId, streakCount } = route.params;
 
   useEffect(() => {
     getDetails(thingId);
   }, [thingId]);
-
-  console.log(JSON.stringify(thing));
 
   if (!thing) {
     return (
@@ -70,16 +67,6 @@ const ThingDetailsScreen = ({ route, navigation }: any) => {
           gap: 16
         }}
       >
-        <H3>Next occurance</H3>
-        <H4>
-          {thing.nextOccurrence?.startTime} - {thing.nextOccurrence?.endTime}
-        </H4>
-      </Column>
-      <Column
-        styles={{
-          gap: 16
-        }}
-      >
         <H4>Description</H4>
         <H3>{thing.description}</H3>
       </Column>
@@ -91,7 +78,7 @@ const ThingDetailsScreen = ({ route, navigation }: any) => {
         <H4>Shared with</H4>
         {thing.sharedWith.map((shared) => (
           <Column
-            key={shared.userUuid}
+            key={shared}
             styles={{
               paddingHorizontal: 10,
               paddingVertical: 8,
@@ -101,8 +88,8 @@ const ThingDetailsScreen = ({ route, navigation }: any) => {
               alignSelf: 'flex-start'
             }}
           >
-            <H3 key={shared.userUuid} white>
-              @{shared.username}
+            <H3 key={shared} white>
+              @{shared}
             </H3>
           </Column>
         ))}
@@ -129,7 +116,7 @@ const ThingDetailsScreen = ({ route, navigation }: any) => {
         <Column>
           <FlatList
             scrollEnabled={false}
-            data={thing.previousCheckpoints}
+            data={thing.images}
             keyExtractor={(item, index) => index.toString()}
             style={{
               marginTop: 20
@@ -138,7 +125,13 @@ const ThingDetailsScreen = ({ route, navigation }: any) => {
               gap: 16
             }}
             renderItem={({ item, index }) => (
-              <ImageViewer key={index.toString()} uri={item.photoUuid} name={item.thingName} username={item.username} />
+              <ImageViewer
+                key={index.toString()}
+                uri={item.image}
+                name={thing.name}
+                username={item.username}
+                createdAt={item.createdAt}
+              />
             )}
           />
         </Column>

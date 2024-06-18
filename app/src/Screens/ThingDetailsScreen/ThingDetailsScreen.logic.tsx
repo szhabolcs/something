@@ -1,57 +1,30 @@
 import { useState } from 'react';
-import RespositoryService from '../../services/RespositoryService';
-import AsyncStorage from '@react-native-async-storage/async-storage';
+import ApiService, { ApiHeaders, ApiResponse } from '../../services/ApiService';
+
+const api = new ApiService();
+type ThingDTO = ApiResponse<(typeof api)['client']['things'][':uuid']['details']['$get'], 200>;
 
 export const useThingDetailsScreenLogic = () => {
-  const [thing, setThing] = useState<{
-    name: string;
-    description: string;
-    type: string;
-    nextOccurrence?: {
-      startTime: string;
-      endTime: string;
-    };
-    sharedWith: {
-      userUuid: string;
-      username: string;
-    }[];
-    previousCheckpoints: {
-      username: string;
-      thingName: string;
-      photoUuid: string;
-    }[];
-  } | null>(null);
+  const [thing, setThing] = useState<ThingDTO | null>(null);
   const [refreshing, setRefreshing] = useState(true);
+  const [headers, setHeaders] = useState<ApiHeaders>({ Authorization: '' });
 
   const getDetails = async (id: string) => {
     setRefreshing(true);
-    const repositoryService = new RespositoryService();
+    const response = await api.call(api.client.things[':uuid'].details.$get, { param: { uuid: id } });
+    if (response.ok) {
+      const data = await response.json();
+      setThing(data);
 
-    const response = await repositoryService.thingRepository.getThingDetails<{
-      name: string;
-      description: string;
-      type: string;
-      nextOccurrence?: {
-        startTime: string;
-        endTime: string;
-      };
-      sharedWith: {
-        userUuid: string;
-        username: string;
-      }[];
-      previousCheckpoints: {
-        username: string;
-        thingName: string;
-        photoUuid: string;
-      }[];
-    }>(id, (await AsyncStorage.getItem('accessToken')) || '');
-
-    setThing(response);
+      const headers = await api.getAuthorizationHeaders();
+      setHeaders(headers);
+    }
     setRefreshing(false);
   };
   return {
     thing,
     getDetails,
-    refreshing
+    refreshing,
+    headers
   };
 };
