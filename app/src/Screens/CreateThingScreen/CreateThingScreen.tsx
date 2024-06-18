@@ -4,7 +4,7 @@ import Column from '../../components/atoms/Column';
 import H1 from '../../components/atoms/H1';
 import MyButton from '../../components/molecules/MyButton';
 import Row from '../../components/atoms/Row';
-import TextInputWithLabel from '../../components/organisms/TextInputWithLabel';
+import LabeledInput from '../../components/organisms/TextInputWithLabel';
 import ActionRow from '../../components/molecules/ActionRow';
 import { useCreateThingScreenLogic } from './CreateThingsScreen.logic';
 import H3 from '../../components/atoms/H3';
@@ -53,13 +53,13 @@ const CreateThingScreen = ({ navigation }: any) => {
               As of now, you cannot change anything about the Thing after being created. But if you want to, feel free
               to contact me :)
             </Text>
-            <TextInputWithLabel
+            <LabeledInput
               label={'Name'}
               placeholder={'Thing name'}
               value={thingName}
               onChangeText={setThingName}
             />
-            <TextInputWithLabel
+            <LabeledInput
               multiline
               label={'Description'}
               placeholder={'Thing description'}

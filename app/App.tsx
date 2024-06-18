@@ -5,10 +5,11 @@ import { Provider } from 'react-redux';
 import { store } from './src/redux/store';
 import { navigationRef } from './src/navigation/RootNavigation';
 import { useFonts } from 'expo-font';
-import { usePushNotifications } from './src/hooks/notifications';
+// import { usePushNotifications } from './src/hooks/notifications';
+import { AlertNotificationRoot} from 'react-native-alert-notification';
 
 export default function App() {
-  const { expoPushToken, notification, lastNotificationResponse } = usePushNotifications();
+  // const { expoPushToken, notification, lastNotificationResponse } = usePushNotifications();
 
   const [fontsLoaded] = useFonts({
     'Cursive-Regular': require('./assets/fonts/CedarvilleCursive-Regular.ttf'),
@@ -19,7 +20,9 @@ export default function App() {
     <SafeAreaView style={styles.container}>
       <Provider store={store}>
         <NavigationContainer ref={navigationRef}>
-          <RootNavigation />
+          <AlertNotificationRoot>
+            <RootNavigation />
+          </AlertNotificationRoot>
         </NavigationContainer>
       </Provider>
     </SafeAreaView>

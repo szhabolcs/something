@@ -70,7 +70,7 @@ export const getTodaysPersonalThingsPreview = createAsyncThunk('thing/getTodaysP
   }
   const repositoryService = new RespositoryService();
   const response = await repositoryService.thingRepository.getTodaysPersonalThings<PersonalThing[]>(
-    userState.user.token
+    userState.user.accessToken
   );
   if (!response) {
     throw new Error('No response');
@@ -84,7 +84,7 @@ export const getOtherThingsToday = createAsyncThunk('thing/getOtherThingsToday',
     return;
   }
   const repositoryService = new RespositoryService();
-  const response = await repositoryService.thingRepository.getOtherThingsToday<OtherThings[]>(userState.user.token);
+  const response = await repositoryService.thingRepository.getOtherThingsToday<OtherThings[]>(userState.user.accessToken);
   return response;
 });
 
@@ -95,7 +95,7 @@ export const getAllTodaysPersonalThings = createAsyncThunk('thing/getAllTodaysPe
   }
   const repositoryService = new RespositoryService();
   const response = await repositoryService.thingRepository.getAllTodaysPersonalThings<PersonalThing[]>(
-    userState.user.token
+    userState.user.accessToken
   );
 
   return response;
@@ -107,7 +107,7 @@ export const getAllPersonalThings = createAsyncThunk('thing/getAllPersonalThings
     return;
   }
   const repositoryService = new RespositoryService();
-  const response = await repositoryService.thingRepository.getAllPersonalThings<PersonalThing[]>(userState.user.token);
+  const response = await repositoryService.thingRepository.getAllPersonalThings<PersonalThing[]>(userState.user.accessToken);
 
   return response;
 });
@@ -134,7 +134,7 @@ export const createThing = createAsyncThunk(
     }
     const repositoryService = new RespositoryService();
     console.log('Creating thing...', JSON.stringify(data));
-    const response = await repositoryService.thingRepository.createThing<PersonalThing>(data, userState.user.token);
+    const response = await repositoryService.thingRepository.createThing<PersonalThing>(data, userState.user.accessToken);
 
     return response;
   }

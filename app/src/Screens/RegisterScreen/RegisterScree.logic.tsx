@@ -1,17 +1,21 @@
 import { useState } from 'react';
 import { authSelector, register } from '../../redux/auth/AuthSlice';
 import { useAppDispatch, useAppSelector } from '../../hooks/hooks';
+import { ALERT_TYPE, Toast } from 'react-native-alert-notification';
 
 export const useRegisterScreenLogic = () => {
   const [password, setPassword] = useState('');
+  const [passwordAgain, setPasswordAgain] = useState('');
   const [username, setUsername] = useState('');
+  const { loading, error } = useAppSelector(authSelector);
   const dispatch = useAppDispatch();
-  const userState = useAppSelector(authSelector);
-  const [error, setError] = useState(userState.error);
 
   const handleRegister = () => {
-    if (username === '' || password === '') {
-      setError('Please fill in all fields');
+    if (password !== passwordAgain) {
+      Toast.show({
+        type: ALERT_TYPE.DANGER,
+        textBody: 'Passwords must match'
+      });
       return;
     }
     dispatch(
@@ -28,6 +32,9 @@ export const useRegisterScreenLogic = () => {
     username,
     setUsername,
     handleRegister,
+    passwordAgain,
+    setPasswordAgain,
+    loading,
     error
   };
 };

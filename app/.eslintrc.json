@@ -25,10 +25,11 @@
     "@typescript-eslint/no-unused-vars": "off",
     "no-case-declarations": "off",
     "deprecation/deprecation": "error",
-    "no-console": "warn",
+    "no-console": "off",
     "comma-dangle": ["error", "never"],
     "react/react-in-jsx-scope": "off",
-    "react-hooks/exhaustive-deps": "off"
+    "react-hooks/exhaustive-deps": "off",
+    "react-native/no-inline-styles": "off",
   },
   "ignorePatterns": [".eslintrc.json", "node_modules"]
 }

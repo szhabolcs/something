@@ -44,7 +44,7 @@ export const useThingDetailsScreenLogic = () => {
         thingName: string;
         photoUuid: string;
       }[];
-    }>(id, (await AsyncStorage.getItem('token')) || '');
+    }>(id, (await AsyncStorage.getItem('accessToken')) || '');
 
     setThing(response);
     setRefreshing(false);

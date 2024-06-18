@@ -14,7 +14,7 @@ export default class CameraRepository extends BaseRepository {
 
     await this.api.postFormData('image-upload', {
       body,
-      token: (await AsyncStorage.getItem('token')) || ''
+      token: (await AsyncStorage.getItem('accessToken')) || ''
     });
   }
 }

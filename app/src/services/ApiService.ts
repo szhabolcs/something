@@ -1,6 +1,34 @@
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import type { Client } from '../../../api/dist/index';
+// eslint-disable-next-line @typescript-eslint/no-var-requires
+const hono = require('../../node_modules/hono/dist/client/index.js');
+
+export type ApiError =
+  | {
+      type: 'general';
+      message: string;
+    }
+  | {
+      type: 'validation';
+      errors: {
+        path: (string | number)[];
+        message: string;
+      }[];
+    };
+
+export function extractError(error: ApiError | undefined, path: (string | number)[]) {
+  if (typeof error === 'undefined') return undefined;
+  if (!(error?.type === 'validation')) return undefined;
+  const err = error.errors.find((e) => JSON.stringify(e.path) === JSON.stringify(path));
+  return err?.message;
+}
+
 export default class ApiService {
   private readonly baseUrl = process.env.EXPO_PUBLIC_API_URL;
   private static instance: ApiService;
+  private readonly _client = hono.hc(`${process.env.EXPO_PUBLIC_API_URL}/`, {
+    headers: this.getAuthorizationHeaders
+  }) as unknown as Client;
 
   public constructor() {
     if (ApiService.instance) {
@@ -8,6 +36,50 @@ export default class ApiService {
     } else {
       ApiService.instance = this;
       return this;
+    }
+  }
+
+  get client() {
+    return this._client;
+  }
+
+  async call<TArgs, TResponse>(fn: (args: TArgs) => Promise<TResponse>, args: TArgs) {
+    console.debug(`[api] Calling ${JSON.parse(JSON.stringify(fn))['url']}`);
+
+    try {
+      const response: any = await fn(args);
+      if (response.status === 401) {
+        await this.refreshTokens();
+      }
+
+      return fn(args) as TResponse;
+    } catch (error) {
+      console.error('[api] Unexpected error %o', error);
+      return {} as TResponse;
+    }
+  }
+
+  private async getAuthorizationHeaders() {
+    const accessToken = await AsyncStorage.getItem('accessToken');
+    return {
+      Authorization: `Bearer ${accessToken}`
+    };
+  }
+
+  private async refreshTokens() {
+    console.debug('[api] Refreshing tokens');
+    const refreshToken = await AsyncStorage.getItem('refreshToken');
+    if (!refreshToken) {
+      return;
+    }
+
+    const headers = () => ({ Authorization: `Bearer ${refreshToken}` });
+    const response = await this.client.auth.refresh.$post({}, { headers });
+
+    if (response.ok) {
+      const data = await response.json();
+      await AsyncStorage.setItem('accessToken', data.accessToken);
+      await AsyncStorage.setItem('refreshToken', data.refreshToken);
     }
   }
 

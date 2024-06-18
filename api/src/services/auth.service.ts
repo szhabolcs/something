@@ -95,6 +95,10 @@ export class AuthService extends BaseService {
     return tokenPair;
   }
 
+  public async silentLogin(userId: string, pushToken: string) {
+    return this.repositories.user.updatePushToken(userId, pushToken);
+  }
+
   public async logout(refreshToken: string) {
     return this.repositories.session.delete(refreshToken);
   }
