@@ -1,6 +1,6 @@
 import { DrizzleDatabaseSession, DrizzleTransactionSession, db } from '../db/db.js';
 import { StreakTable } from '../db/schema.js';
-import { and, eq, inArray } from 'drizzle-orm';
+import { and, eq } from 'drizzle-orm';
 
 export class StreakRepository {
   /**
@@ -37,15 +37,18 @@ export class StreakRepository {
       .where(and(eq(StreakTable.userId, userId), eq(StreakTable.thingId, thingId)));
   }
 
-  public async setStreaks(
+  public async createStreaks(
     userIds: string[],
     thingId: string,
     value: number,
     tx: DrizzleDatabaseSession | DrizzleTransactionSession = db
   ) {
-    return tx
-      .update(StreakTable)
-      .set({ count: value })
-      .where(and(inArray(StreakTable.userId, userIds), eq(StreakTable.thingId, thingId)));
+    return tx.insert(StreakTable).values(
+      userIds.map((userId) => ({
+        userId,
+        thingId,
+        count: value
+      }))
+    );
   }
 }
