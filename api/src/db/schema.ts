@@ -134,7 +134,6 @@ export const NotificationTable = pgTable(
     title: text('title').notNull(),
     body: text('body').notNull(),
     data: json('data').notNull(),
-    pushToken: text('push_token').notNull(),
     scheduledAt: timestamp('scheduled_at', { mode: 'string' }).notNull(),
     status: text('status', { enum: ['scheduled', 'completed'] })
       .notNull()

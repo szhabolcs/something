@@ -1,11 +1,14 @@
 import { BaseService } from './base.service.js';
-import scheduler from 'node-schedule';
 import { InferInsertModel, InferSelectModel } from 'drizzle-orm';
-import { NotificationTable, ScheduleTable, ThingTable } from '../db/schema.js';
+import { NotificationTable, ScheduleTable } from '../db/schema.js';
 import { DateTime, Interval } from 'luxon';
+import { CronJob } from 'cron';
+import { DrizzleDatabaseSession, DrizzleTransactionSession, db } from '../db/db.js';
 
 export class NotificationService extends BaseService {
   private static _instance: NotificationService;
+  /** notificationId -> job  */
+  private runningJobs: Map<string, CronJob> = new Map();
 
   constructor() {
     super();
@@ -18,26 +21,98 @@ export class NotificationService extends BaseService {
   }
 
   public async start() {
-    await this.createNotificationsForToday();
-    await this.scheduleForToday();
+    // Get scheduled notifications from database
+    const scheduledNotifications = await this.repositories.notification.getScheduledNotifications();
+    // Create jobs for these notifications
+    for (const notification of scheduledNotifications) {
+      await this.createNotificationJob(notification);
+    }
 
-    // Create a job that runs every day
-    const action = (async () => {
-      console.log(`[Scheduler][Job] Started %o`, 'CreateNotificationsForToday');
-      await this.createNotificationsForToday();
-      await this.scheduleForToday();
-      console.log(`[Scheduler][Job] Finished %o`, 'CreateNotificationsForToday');
-    }).bind(this);
+    // Create a job, that runs on midnight, to schedule the day's notifications
+    CronJob.from({
+      cronTime: '0 0 * * *', // At 12:00 AM
+      onTick: this.createNotificationsForToday.bind(this),
+      start: true
+    });
+  }
 
-    const everyMinuteCron = '* * * * *';
-    new scheduler.Job('CreateNotificationsForToday', action).schedule(everyMinuteCron);
-    console.log(`[Scheduler][Job] Created %o`, 'CreateNotificationsForToday');
+  /**
+   * Create a notification and also schedule a job
+   *
+   * Does not create it if it exists already (aka user has a thing notification in the given interval)
+   */
+  public async createNotification(
+    userId: string,
+    thingId: string,
+    thingName: string,
+    interval: Interval<true>,
+    tx: DrizzleDatabaseSession | DrizzleTransactionSession = db
+  ) {
+    const existingNotification = await this.repositories.notification.notificationExists(
+      userId,
+      thingId,
+      interval.start.toISO(),
+      interval.end.toISO()
+    );
+
+    if (existingNotification) {
+      return;
+    }
+
+    // Generate random time between the interval
+    // Generate a random millisecond value within the interval
+    const randomMs = interval.start.toMillis() + Math.random() * interval.toDuration().toMillis();
+
+    // Create a new DateTime object from the random millisecond value in UTC
+    const randomDateTime = DateTime.fromMillis(randomMs, { zone: 'utc' }) as DateTime<true>;
+    const notificationModel = this.createNotificationModel(userId, thingId, thingName, randomDateTime.toISO());
+
+    const notification = await this.repositories.notification.create(notificationModel, tx);
+    await this.createNotificationJob(notification);
+  }
+
+  /**
+   * Delete a notification and also cancel a job
+   */
+  public async removeNotification(notificationId: string) {
+    await this.repositories.notification.removeNotification(notificationId);
+    const job = this.runningJobs.get(notificationId);
+    if (job) {
+      job.stop();
+      this.runningJobs.delete(notificationId);
+    }
+  }
+
+  private async createNotificationJob(notification: InferSelectModel<typeof NotificationTable>) {
+    const scheduledDate = DateTime.fromSQL(notification.scheduledAt, { zone: 'utc' }).toJSDate();
+
+    if (scheduledDate < new Date()) {
+      await this.removeNotification(notification.id);
+      console.log(`[Notifications][Job] ${notification.id} at ${scheduledDate} is late (removed)`);
+      return;
+    }
+
+    if (this.runningJobs.has(notification.id)) {
+      console.log(`[Notifications][Job] ${notification.id} at ${scheduledDate} exists already`);
+      return;
+    }
+
+    this.runningJobs.set(
+      notification.id,
+      CronJob.from({
+        cronTime: scheduledDate,
+        onTick: (() => this.sendNotification(notification.id)).bind(this),
+        start: true
+      })
+    );
+
+    console.log(`[Notifications][Job] ${notification.id} at ${scheduledDate}`);
   }
 
   /**
    * Creates notifications that will be scheduled for today
    */
-  public async createNotificationsForToday() {
+  private async createNotificationsForToday() {
     const today = DateTime.utc();
     const day = ScheduleTable.dayOfWeek.enumValues[today.weekday - 1];
     const schedules = await this.repositories.schedule.getSchedulesForToday(today.toISO(), day);
@@ -47,55 +122,40 @@ export class NotificationService extends BaseService {
       const thing = await this.repositories.thing.getDetails(schedule.thingId);
 
       for (const user of users) {
-        if (!user.pushToken) {
-          continue;
-        }
         const interval = NotificationService.computeScheduleInterval(schedule.startTime, schedule.endTime);
-
-        const notificationExists = await this.repositories.notification.notificationExists(
-          user.id,
-          thing.id,
-          interval.start.toISO(),
-          interval.end.toISO()
-        );
-
-        if (notificationExists) {
-          continue;
-        }
-
-        // Generate random time between the interval
-        // Generate a random millisecond value within the interval
-        const randomMs = interval.start.toMillis() + Math.random() * interval.toDuration().toMillis();
-
-        // Create a new DateTime object from the random millisecond value in UTC
-        const randomDateTime = DateTime.fromMillis(randomMs, { zone: 'utc' }) as DateTime<true>;
-        const notification = this.createNotificationData(user.id, user.pushToken, randomDateTime.toISO(), thing);
-
-        await this.repositories.notification.create(notification);
+        await this.createNotification(user.id, thing.id, thing.name, interval);
       }
     }
+
+    console.log(`[Notifications][CreateToday] Created notifications`);
   }
 
   /**
-   * Schedules uncompleted notifications
+   * Sends a single notification to the client
    */
-  public async scheduleForToday() {
-    console.log('[Scheduler] Scheduling notifications');
+  private async sendNotification(notificationId: string) {
+    const data = await this.repositories.notification.getNotificationDataById(notificationId);
+    await this.repositories.notification.changeNotificationStatus(notificationId, 'completed');
+    this.runningJobs.delete(notificationId);
+    console.log(`[Notifications][Send] Sent notification "${data.notification.body}" to "${data.user.username}"`);
+  }
 
-    const notifications = await this.repositories.notification.getScheduledNotifications();
-    for (const notification of notifications) {
-      const notificationDate = DateTime.fromSQL(notification.scheduledAt, { zone: 'utc' });
+  /**
+   * Creates a notification model to be inserted in the database
+   *
+   * **scheduledAt is ISO**
+   */
+  private createNotificationModel(userId: string, thingId: string, thingName: string, scheduledAt: string) {
+    const notification: InferInsertModel<typeof NotificationTable> = {
+      title: 'You have a ✨thing✨ to do!',
+      body: `Don't forget: ${thingName}`,
+      data: { name: thingName, thingId },
+      thingId: thingId,
+      userId,
+      scheduledAt
+    };
 
-      if (notificationDate < DateTime.utc()) {
-        console.log('[Scheduler] Notification is in the past');
-        continue;
-      }
-
-      this.addNotificationToScheduler(notification);
-    }
-
-    console.log('[Scheduler] Notifications scheduled');
-    console.log('[Scheduler] Jobs running ', this.jobsRunning);
+    return notification;
   }
 
   /**
@@ -123,73 +183,5 @@ export class NotificationService extends BaseService {
     }
 
     return Interval.fromDateTimes(scheduleStart, scheduleEnd) as Interval<true>;
-  }
-
-  /**
-   * Array of the names of the running jobs
-   */
-  private get jobsRunning() {
-    return Object.keys(scheduler.scheduledJobs);
-  }
-
-  /**
-   * Adds the notification to the scheduler
-   */
-  private addNotificationToScheduler(
-    notification: InferSelectModel<typeof NotificationTable>,
-    override: boolean = true
-  ) {
-    const name = notification.id;
-    const date = notification.scheduledAt;
-
-    if (override && Object.keys(scheduler.scheduledJobs).includes(name)) {
-      scheduler.scheduledJobs[name].cancel();
-    }
-
-    const action = (async () => {
-      console.log(`[Scheduler][Job] Started %o`, name);
-      try {
-        await this.sendNotification(notification);
-      } catch (error) {
-        console.error('[Scheduler][Job] Error %o', error);
-        await this.repositories.notification.removeNotification(notification.id);
-      } finally {
-        console.log(`[Scheduler][Job] Finished %o`, name);
-      }
-    }).bind(this);
-
-    const localDate = DateTime.fromSQL(date, { zone: 'utc' });
-    new scheduler.Job(name, action).runOnDate(localDate.toJSDate());
-
-    console.log(`[Scheduler][Job] Created %o`, name);
-  }
-
-  /**
-   * Sends a single notification to the client
-   */
-  private async sendNotification(notification: InferSelectModel<typeof NotificationTable>) {
-    await this.repositories.notification.changeNotificationStatus(notification.id, 'completed');
-  }
-
-  /**
-   * Creates a notification object
-   */
-  private createNotificationData(
-    userId: string,
-    pushToken: string,
-    scheduledAt: string,
-    thing: InferSelectModel<typeof ThingTable>
-  ) {
-    const notification: InferInsertModel<typeof NotificationTable> = {
-      title: 'You have a ✨thing✨ to do!',
-      body: `Don't forder to ${thing.name}`,
-      data: { name: thing.name, thingId: thing.id },
-      thingId: thing.id,
-      userId,
-      pushToken,
-      scheduledAt
-    };
-
-    return notification;
   }
 }

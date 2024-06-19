@@ -3,6 +3,7 @@ import { useAppDispatch, useAppSelector } from '../../hooks/hooks';
 import {
   createThing,
   resetNewPersonalThing,
+  setDescriptionForNewPersonalThing,
   setNameForNewPersonalThing,
   thingSelector
 } from '../../redux/thing/ThingStack';
@@ -19,22 +20,17 @@ export const useCreateThingScreenLogic = (navigation: any) => {
   const [currentSharedUsername, setCurrentSharedUsername] = useState<string>('');
   const [loading, setLoading] = useState(false);
 
-  const thingState = useAppSelector(thingSelector);
   const userState = useAppSelector(authSelector);
+  const thingState = useAppSelector(thingSelector);
   const dispatch = useAppDispatch();
 
-  const newThing = thingState.newThing;
-  const error = thingState.error;
+  const { error, newThing, newThingSent } = thingState;
 
   const handleCreateThing = async () => {
-    try {
-      setLoading(true);
-      // throws error when failing
-      await dispatch(createThing());
-      handleCanel();
-    } finally {
-      setLoading(false);
-    }
+    setLoading(true);
+    // throws error when failing
+    await dispatch(createThing());
+    setLoading(false);
   };
 
   const handleCanel = () => {
@@ -45,6 +41,20 @@ export const useCreateThingScreenLogic = (navigation: any) => {
   useEffect(() => {
     dispatch(setNameForNewPersonalThing(thingName));
   }, [thingName]);
+
+  useEffect(() => {
+    dispatch(setDescriptionForNewPersonalThing(thingDescription));
+  }, [thingDescription]);
+
+  useEffect(() => {
+    if (newThingSent) {
+      handleCanel();
+      Toast.show({
+        type: ALERT_TYPE.SUCCESS,
+        textBody: 'Thing created!'
+      });
+    }
+  }, [newThingSent]);
 
   const handleUsernameAdd = async () => {
     const username = currentSharedUsername.trim();

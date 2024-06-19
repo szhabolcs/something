@@ -3,6 +3,8 @@ import { db } from '../db/db.js';
 import { ThingCardModel, ThingDTO, ThingDetailsModel, ThingPreviewModel } from '../types/thing.types.js';
 import { BaseService } from './base.service.js';
 import { ImageService } from './image.service.js';
+import { notificationService } from '../index.js';
+import { NotificationService } from './notification.service.js';
 
 export class ThingService extends BaseService {
   public async create(userId: string, data: ThingDTO) {
@@ -16,14 +18,22 @@ export class ThingService extends BaseService {
 
         // Add user as admin
         await this.repositories.access.giveThingAccess(thingId, [userId], 'admin', tx);
-        await this.repositories.streak.createStreaks([userId], thingId, 0, tx);
 
         // Share with people
+        let sharedUserIds: string[] = [];
         if (data.sharedUsernames.length !== 0) {
           const res = await this.repositories.user.getUserIds(data.sharedUsernames, tx);
-          const userIds = res.map((u) => u.userId);
-          await this.repositories.access.giveThingAccess(thingId, userIds, 'viewer', tx);
-          await this.repositories.streak.createStreaks(userIds, thingId, 0, tx);
+          sharedUserIds = res.map((u) => u.userId);
+          await this.repositories.access.giveThingAccess(thingId, sharedUserIds, 'viewer', tx);
+        }
+
+        // Init streaks
+        await this.repositories.streak.createStreaks([...sharedUserIds, userId], thingId, 0, tx);
+
+        // Create notifications
+        for (const _userId of [...sharedUserIds, userId]) {
+          const interval = NotificationService.computeScheduleInterval(data.schedule.startTime, data.schedule.endTime);
+          await notificationService.createNotification(_userId, thingId, data.name, interval, tx);
         }
       } catch (error) {
         console.error('Error creating thing: %o', error);

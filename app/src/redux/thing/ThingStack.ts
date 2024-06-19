@@ -16,6 +16,7 @@ interface ThingState {
   };
   loading: boolean;
   error: ApiError | undefined;
+  newThingSent: boolean;
 }
 
 const initialState: ThingState = {
@@ -33,7 +34,8 @@ const initialState: ThingState = {
     home: []
   },
   loading: false,
-  error: undefined
+  error: undefined,
+  newThingSent: false
 };
 
 const api = new ApiService();
@@ -70,16 +72,16 @@ export const createThing = createAsyncThunk('thing/createThing', async (_, { rej
 
   const response = await api.call(api.client.things.create.$post, { json: thing });
   if (response.ok) {
-    const data = await response.json();
-    return data;
+    return 'ok';
   }
 
   if (response.status === 400) {
-    const data = await response.json();
-    return rejectWithValue(data);
+    const error = await response.json();
+    console.log('[thing/createThing] error %s', JSON.stringify(error, null, 2));
+    return rejectWithValue(error);
   }
 
-  return rejectWithValue({});
+  return rejectWithValue({ type: 'general', message: 'Could not save, please try again.' } as ApiError);
 });
 
 const thingSlice = createSlice({
@@ -145,7 +147,6 @@ const thingSlice = createSlice({
     builder.addCase(getUserThingsTodayAll.rejected, (state, action) => {
       state.loading = false;
       state.error = action.payload as any;
-      throw new Error('getUserThingsTodayAll.rejected');
     });
 
     // createThing
@@ -153,8 +154,11 @@ const thingSlice = createSlice({
       state.loading = true;
       state.error = undefined;
     });
-    builder.addCase(createThing.fulfilled, (state, action) => {
+    builder.addCase(createThing.fulfilled, (state, _) => {
       state.loading = false;
+      state.error = undefined;
+      state.newThingSent = true;
+      console.log('[newThingSent in stack]', state.newThingSent);
     });
     builder.addCase(createThing.rejected, (state, action) => {
       state.loading = false;
