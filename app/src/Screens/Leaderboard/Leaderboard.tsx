@@ -71,7 +71,7 @@ const Leaderboard = () => {
                   fontSize: 20
                 }}
               >
-                {item.points} points
+                {item.score} points
               </Text>
             </Row>
           );

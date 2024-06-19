@@ -21,7 +21,7 @@ export class ScheduleRepository {
   }
 
   public async getSchedulesForToday(
-    day: Date,
+    day: string,
     weekday: Exclude<InferSelectModel<typeof ScheduleTable>['dayOfWeek'], null>
   ) {
     return db

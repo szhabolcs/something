@@ -13,7 +13,7 @@ import ImageViewer from '../../components/molecules/ImageViewer';
 import MyButton from '../../components/molecules/MyButton';
 
 const ThingDetailsScreen = ({ route, navigation }: any) => {
-  const { getDetails, thing, refreshing, headers } = useThingDetailsScreenLogic();
+  const { getDetails, thing, refreshing } = useThingDetailsScreenLogic();
   const { thingId, streakCount } = route.params;
 
   useEffect(() => {

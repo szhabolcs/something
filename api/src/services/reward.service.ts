@@ -19,7 +19,7 @@ export class RewardService extends BaseService {
 
         // Add image to database
         const _createdAt = await this.repositories.image.insert(userId, thingId, filename, tx);
-        const createdAt = DateTime.fromJSDate(_createdAt, { zone: 'UTC' });
+        const createdAt = DateTime.fromSQL(_createdAt, { zone: 'utc' });
 
         const schedule = await this.repositories.schedule.getThingSchedule(thingId, tx);
         const scheduleInterval = NotificationService.computeScheduleInterval(schedule.startTime, schedule.endTime);
@@ -48,8 +48,8 @@ export class RewardService extends BaseService {
         const [{ count: imageCount }] = await this.repositories.image.getCountBetween(
           userId,
           thingId,
-          previousDayInterval.start?.toJSDate(),
-          previousDayInterval.end.toJSDate(),
+          previousDayInterval.start?.toISO(),
+          previousDayInterval.end.toISO(),
           tx
         );
 

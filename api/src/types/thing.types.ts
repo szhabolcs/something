@@ -31,7 +31,7 @@ export const ScheduleDTO = z
     startTime: TimeModel,
     endTime: TimeModel,
     repeat: z.enum(['once', 'daily', 'weekly']),
-    specificDate: z.date().nullable().optional(),
+    specificDate: z.string().nullable().optional(),
     dayOfWeek: z
       .enum(['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday'])
       .nullable()
@@ -89,7 +89,7 @@ export const ThingCardModel = z.object({
   name: z.string(),
   image: z.string().openapi({ description: 'This is actually the link to the image' }),
   username: z.string(),
-  createdAt: z.date()
+  createdAt: z.string()
 });
 export type ThingCardModel = z.infer<typeof ThingCardModel>;
 

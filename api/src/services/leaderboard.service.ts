@@ -10,6 +10,7 @@ export class LeaderboardService extends BaseService {
   }
 
   public async toggleUserVisibility(userId: string) {
+    console.log('Toggling user visibility for %o', userId);
     return this.repositories.leaderboard.toggleUserVisibility(userId);
   }
 }

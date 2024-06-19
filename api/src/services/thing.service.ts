@@ -58,14 +58,9 @@ export class ThingService extends BaseService {
   }
 
   public async getUserThingsToday(userId: string, limit: number | undefined = undefined): Promise<ThingPreviewModel[]> {
-    const dayStart = DateTime.utc().startOf('day');
-    const dayEnd = DateTime.utc().endOf('day');
-    return this.repositories.thing.getThingPreviewsScheduledBetween(
-      userId,
-      dayStart.toJSDate(),
-      dayEnd.toJSDate(),
-      limit
-    );
+    const dayStart = DateTime.utc().startOf('day').minus({ hours: 3 });
+    const dayEnd = DateTime.utc().endOf('day').minus({ hours: 3 });
+    return this.repositories.thing.getThingPreviewsScheduledBetween(userId, dayStart.toISO(), dayEnd.toISO(), limit);
   }
 
   public async getUserThings(userId: string, limit: number | undefined = undefined): Promise<ThingPreviewModel[]> {
@@ -77,8 +72,8 @@ export class ThingService extends BaseService {
     const dayEnd = DateTime.utc().endOf('day');
     const things = await this.repositories.thing.getOthersThingImagesCreatedBetween(
       userId,
-      dayStart.toJSDate(),
-      dayEnd.toJSDate()
+      dayStart.toISO(),
+      dayEnd.toISO()
     );
 
     return things.map(({ id, name, username, filename, createdAt }) => ({

@@ -34,8 +34,8 @@ export class ThingRepository {
 
   public async getThingPreviewsScheduledBetween(
     userId: string,
-    from: Date,
-    to: Date,
+    from: string,
+    to: string,
     limit: number | undefined = undefined,
     tx: DrizzleDatabaseSession | DrizzleTransactionSession = db
   ): Promise<ThingPreviewModel[]> {
@@ -89,8 +89,8 @@ export class ThingRepository {
 
   public async getOthersThingImagesCreatedBetween(
     userId: string,
-    from: Date,
-    to: Date,
+    from: string,
+    to: string,
     tx: DrizzleDatabaseSession | DrizzleTransactionSession = db
   ) {
     return tx

@@ -1,6 +1,6 @@
 import { db } from '../db/db.js';
 import { ScoreTable, UserTable } from '../db/schema.js';
-import { eq, not } from 'drizzle-orm';
+import { desc, eq, not } from 'drizzle-orm';
 
 export class LeaderboardRepository {
   public async getUserVisibility(userId: string) {
@@ -24,6 +24,7 @@ export class LeaderboardRepository {
       .select({ username: UserTable.username, score: ScoreTable.value })
       .from(ScoreTable)
       .innerJoin(UserTable, eq(ScoreTable.userId, UserTable.id))
-      .where(eq(ScoreTable.public, true));
+      .where(eq(ScoreTable.public, true))
+      .orderBy(desc(ScoreTable.value));
   }
 }

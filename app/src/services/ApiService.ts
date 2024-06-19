@@ -53,11 +53,13 @@ export default class ApiService {
 
     try {
       const response: any = await fn(args);
+
       if (response.status === 401) {
         await this.refreshTokens();
+        return fn(args) as TResponse;
       }
 
-      return fn(args) as TResponse;
+      return response;
     } catch (error) {
       console.error('[api] Unexpected error %o', error);
       return {} as TResponse;
