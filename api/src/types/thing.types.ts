@@ -77,7 +77,7 @@ export const ScheduleDTO = z
 export type ScheduleDTO = z.infer<typeof ScheduleDTO>;
 
 export const ThingDTO = z.object({
-  name: z.string(),
+  name: z.string().min(3),
   description: z.string(),
   schedule: ScheduleDTO,
   sharedUsernames: z.string().array()

@@ -1,6 +1,6 @@
 import { createRoute } from '@hono/zod-openapi';
 import { z } from 'zod';
-import { bearerAuth, jsonc, textc, useAccessToken } from '../utils/openapi.js';
+import { bearerAuth, defaultResponses, jsonc, textc, useAccessToken } from '../utils/openapi.js';
 import { StatusCodes } from '../types/status-codes.js';
 import { ThingCardModel, ThingDTO, ThingDetailsModel, ThingPreviewModel } from '../types/thing.types.js';
 
@@ -12,12 +12,10 @@ export const userThingsToday = createRoute({
   description: 'Retrieve some data about upcoming things scheduled for today. <br> This is only a preview.',
   tags: ['Things'],
   responses: {
+    ...defaultResponses,
     [StatusCodes.OK]: {
       ...jsonc(ThingPreviewModel.array()),
       description: `Snippet of user's things today.`
-    },
-    [StatusCodes.INTERNAL_SERVER_ERROR]: {
-      description: 'Unexpected error occured.'
     }
   }
 });
@@ -30,12 +28,10 @@ export const userThingsTodayAll = createRoute({
   description: 'Retrieve some data about things that are scheduled for today.',
   tags: ['Things'],
   responses: {
+    ...defaultResponses,
     [StatusCodes.OK]: {
       ...jsonc(ThingPreviewModel.array()),
       description: `All things to be completed today by a user.`
-    },
-    [StatusCodes.INTERNAL_SERVER_ERROR]: {
-      description: 'Unexpected error occured.'
     }
   }
 });
@@ -48,12 +44,10 @@ export const userThingsAll = createRoute({
   description: `Retrieve some data about all of the user's things, created or shared with them.`,
   tags: ['Things'],
   responses: {
+    ...defaultResponses,
     [StatusCodes.OK]: {
       ...jsonc(ThingPreviewModel.array()),
       description: `All things of a user.`
-    },
-    [StatusCodes.INTERNAL_SERVER_ERROR]: {
-      description: 'Unexpected error occured.'
     }
   }
 });
@@ -67,12 +61,10 @@ export const otherThingsToday = createRoute({
     'Retrieve what others are doing today. <br> Only activity from shared things is shown (shared by user, or with the user).',
   tags: ['Things'],
   responses: {
+    ...defaultResponses,
     [StatusCodes.OK]: {
       ...jsonc(ThingCardModel.array()),
       description: `Daily activities of the user's friends.`
-    },
-    [StatusCodes.INTERNAL_SERVER_ERROR]: {
-      description: 'Unexpected error occured.'
     }
   }
 });
@@ -90,12 +82,10 @@ export const thingDetails = createRoute({
     })
   },
   responses: {
+    ...defaultResponses,
     [StatusCodes.OK]: {
       ...jsonc(ThingDetailsModel),
       description: `Details about a thing.`
-    },
-    [StatusCodes.INTERNAL_SERVER_ERROR]: {
-      description: 'Unexpected error occured.'
     }
   }
 });
@@ -111,12 +101,10 @@ export const createThing = createRoute({
     body: jsonc(ThingDTO)
   },
   responses: {
+    ...defaultResponses,
     [StatusCodes.CREATED]: {
       ...textc(z.string()),
       description: `New thing created.`
-    },
-    [StatusCodes.INTERNAL_SERVER_ERROR]: {
-      description: 'Unexpected error occured.'
     }
   }
 });

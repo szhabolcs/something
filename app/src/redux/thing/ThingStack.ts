@@ -1,21 +1,22 @@
 import { PayloadAction, createAsyncThunk, createSlice } from '@reduxjs/toolkit';
 import RespositoryService from '../../services/RespositoryService';
 import { RootState } from '../store';
-import ApiService, { ApiRequest, ApiResponse } from '../../services/ApiService';
+import ApiService, { ApiError, ApiRequest, ApiResponse } from '../../services/ApiService';
 
 export type NewThingDTO = ApiRequest<typeof api.client.things.create.$post>['json'];
 
 interface ThingState {
-  newThing: NewThingDTO | undefined;
+  newThing: NewThingDTO;
   userThings: {
     home: ApiResponse<typeof api.client.things.mine.today.$get, 200>;
     all: ApiResponse<typeof api.client.things.mine.today.all.$get, 200>;
   };
+  newThingSent: boolean;
   otherThings: {
     home: ApiResponse<typeof api.client.things.others.today.$get, 200>;
   };
   loading: boolean;
-  error: string | undefined;
+  error: ApiError | undefined;
 }
 
 const initialState: ThingState = {
@@ -25,6 +26,7 @@ const initialState: ThingState = {
     schedule: undefined as any,
     sharedUsernames: []
   },
+  newThingSent: false,
   userThings: {
     home: [],
     all: []
@@ -68,14 +70,15 @@ export const getOtherThingsToday = createAsyncThunk('thing/getOtherThingsToday',
 export const createThing = createAsyncThunk('thing/createThing', async (_, { rejectWithValue, getState }) => {
   const thing = (getState() as RootState).thingReducer.newThing;
 
-  if (!thing) {
-    return rejectWithValue({});
-  }
-
   const response = await api.call(api.client.things.create.$post, { json: thing });
   if (response.ok) {
     const data = await response.json();
     return data;
+  }
+
+  if (response.status === 400) {
+    const data = await response.json();
+    return rejectWithValue(data);
   }
 
   return rejectWithValue({});
@@ -89,7 +92,10 @@ const thingSlice = createSlice({
       state.newThing = action.payload;
     },
     resetNewPersonalThing: (state) => {
-      state.newThing = undefined;
+      state.newThing = initialState.newThing;
+      state.newThingSent = false;
+      state.error = undefined;
+      state.loading = false;
     },
     setScheduleForNewPersonalThing: (state, action: PayloadAction<NewThingDTO['schedule']>) => {
       state.newThing!.schedule = action.payload;
@@ -147,14 +153,19 @@ const thingSlice = createSlice({
     // createThing
     builder.addCase(createThing.pending, (state) => {
       state.loading = true;
+      state.newThingSent = false;
+      state.error = undefined;
     });
     builder.addCase(createThing.fulfilled, (state, action) => {
       state.loading = false;
-      // state.personalThings.today.push(action.payload);
+      state.newThingSent = true;
     });
     builder.addCase(createThing.rejected, (state, action) => {
       state.loading = false;
-      state.error = action.error.message;
+      state.newThingSent = false;
+      state.error = action.payload as any;
+
+      console.debug('[createThing.rejected] Error: %o', JSON.stringify(action.payload, null, 2));
     });
   }
 });
