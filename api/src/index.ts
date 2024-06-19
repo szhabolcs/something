@@ -43,7 +43,7 @@ serve({
   port
 });
 
-const notificationService = new NotificationService();
+export const notificationService = new NotificationService();
 await notificationService.start();
 
 export type AppType = typeof app;

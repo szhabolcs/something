@@ -1,5 +1,5 @@
 import { DrizzleDatabaseSession, DrizzleTransactionSession, db } from '../db/db.js';
-import { NotificationTable } from '../db/schema.js';
+import { NotificationTable, UserTable } from '../db/schema.js';
 import { InferInsertModel, and, between, eq, ne } from 'drizzle-orm';
 
 export class NotificationRepository {
@@ -45,11 +45,15 @@ export class NotificationRepository {
       .orderBy(NotificationTable.scheduledAt)
       .limit(1);
 
-    return !!query;
+    return query ? query : undefined;
   }
 
   public async getScheduledNotifications() {
-    return db.select().from(NotificationTable).where(ne(NotificationTable.status, 'completed'));
+    return db
+      .select()
+      .from(NotificationTable)
+      .where(ne(NotificationTable.status, 'completed'))
+      .orderBy(NotificationTable.scheduledAt);
   }
 
   public async changeNotificationStatus(
@@ -63,7 +67,20 @@ export class NotificationRepository {
     return db.delete(NotificationTable).where(eq(NotificationTable.id, notificationId));
   }
 
-  public async create(notification: InferInsertModel<typeof NotificationTable>) {
-    return db.insert(NotificationTable).values(notification);
+  public async create(
+    notification: InferInsertModel<typeof NotificationTable>,
+    tx: DrizzleDatabaseSession | DrizzleTransactionSession = db
+  ) {
+    const [data] = await tx.insert(NotificationTable).values(notification).returning();
+    return data;
+  }
+
+  public async getNotificationDataById(notificationId: string) {
+    const [data] = await db
+      .select()
+      .from(NotificationTable)
+      .innerJoin(UserTable, eq(NotificationTable.userId, UserTable.id))
+      .where(eq(NotificationTable.id, notificationId));
+    return data;
   }
 }
