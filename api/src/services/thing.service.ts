@@ -16,14 +16,14 @@ export class ThingService extends BaseService {
 
         // Add user as admin
         await this.repositories.access.giveThingAccess(thingId, [userId], 'admin', tx);
-        await this.repositories.streak.setStreaks([userId], thingId, 0);
+        await this.repositories.streak.createStreaks([userId], thingId, 0, tx);
 
         // Share with people
         if (data.sharedUsernames.length !== 0) {
           const res = await this.repositories.user.getUserIds(data.sharedUsernames, tx);
           const userIds = res.map((u) => u.userId);
           await this.repositories.access.giveThingAccess(thingId, userIds, 'viewer', tx);
-          await this.repositories.streak.setStreaks(userIds, thingId, 0);
+          await this.repositories.streak.createStreaks(userIds, thingId, 0, tx);
         }
       } catch (error) {
         console.error('Error creating thing: %o', error);
@@ -59,8 +59,8 @@ export class ThingService extends BaseService {
   }
 
   public async getUserThingsToday(userId: string, limit: number | undefined = undefined): Promise<ThingPreviewModel[]> {
-    const dayStart = DateTime.utc().startOf('day').minus({ hours: 3 });
-    const dayEnd = DateTime.utc().endOf('day').minus({ hours: 3 });
+    const dayStart = DateTime.utc().startOf('day');
+    const dayEnd = DateTime.utc().endOf('day');
     return this.repositories.thing.getThingPreviewsScheduledBetween(userId, dayStart.toISO(), dayEnd.toISO(), limit);
   }
 

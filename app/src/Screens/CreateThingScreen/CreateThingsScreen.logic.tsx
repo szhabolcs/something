@@ -25,24 +25,22 @@ export const useCreateThingScreenLogic = (navigation: any) => {
 
   const newThing = thingState.newThing;
   const error = thingState.error;
-  const newThingSent = thingState.newThingSent;
 
   const handleCreateThing = async () => {
-    setLoading(true);
-    dispatch(createThing());
-    setLoading(false);
+    try {
+      setLoading(true);
+      // throws error when failing
+      await dispatch(createThing());
+      handleCanel();
+    } finally {
+      setLoading(false);
+    }
   };
 
   const handleCanel = () => {
     dispatch(resetNewPersonalThing());
     navigation.pop();
   };
-
-  useEffect(() => {
-    if (newThingSent) {
-      handleCanel();
-    }
-  }, [newThingSent]);
 
   useEffect(() => {
     dispatch(setNameForNewPersonalThing(thingName));
@@ -98,7 +96,6 @@ export const useCreateThingScreenLogic = (navigation: any) => {
     handleCanel,
     handleUsernameAdd,
     loading,
-    error,
-    newThingSent
+    error
   };
 };

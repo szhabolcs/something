@@ -11,7 +11,6 @@ interface ThingState {
     home: ApiResponse<typeof api.client.things.mine.today.$get, 200>;
     all: ApiResponse<typeof api.client.things.mine.today.all.$get, 200>;
   };
-  newThingSent: boolean;
   otherThings: {
     home: ApiResponse<typeof api.client.things.others.today.$get, 200>;
   };
@@ -26,7 +25,6 @@ const initialState: ThingState = {
     schedule: undefined as any,
     sharedUsernames: []
   },
-  newThingSent: false,
   userThings: {
     home: [],
     all: []
@@ -93,7 +91,6 @@ const thingSlice = createSlice({
     },
     resetNewPersonalThing: (state) => {
       state.newThing = initialState.newThing;
-      state.newThingSent = false;
       state.error = undefined;
       state.loading = false;
     },
@@ -148,24 +145,20 @@ const thingSlice = createSlice({
     builder.addCase(getUserThingsTodayAll.rejected, (state, action) => {
       state.loading = false;
       state.error = action.payload as any;
+      throw new Error('getUserThingsTodayAll.rejected');
     });
 
     // createThing
     builder.addCase(createThing.pending, (state) => {
       state.loading = true;
-      state.newThingSent = false;
       state.error = undefined;
     });
     builder.addCase(createThing.fulfilled, (state, action) => {
       state.loading = false;
-      state.newThingSent = true;
     });
     builder.addCase(createThing.rejected, (state, action) => {
       state.loading = false;
-      state.newThingSent = false;
       state.error = action.payload as any;
-
-      console.debug('[createThing.rejected] Error: %o', JSON.stringify(action.payload, null, 2));
     });
   }
 });
