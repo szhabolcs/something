@@ -3,6 +3,7 @@ import React from 'react';
 import Row from '../atoms/Row';
 import Label from '../atoms/Label';
 import { ChevronRight } from 'react-native-feather';
+import Column from '../atoms/Column';
 
 type ActionRowProps = {
   label: string;
@@ -11,21 +12,31 @@ type ActionRowProps = {
 
 const ActionRow = ({ label, action }: ActionRowProps) => {
   return (
-    <Pressable onPress={action}>
-      <Row
-        styles={{
-          justifyContent: 'space-between',
-          padding: 15,
-          borderTopWidth: 1,
-          borderBottomWidth: 1,
-          borderBottomColor: '#f0f0f0',
-          borderTopColor: '#f0f0f0'
-        }}
-      >
-        <Label text={label} />
-        <ChevronRight color={'black'} />
-      </Row>
-    </Pressable>
+    <Column
+      styles={{
+        justifyContent: 'space-between',
+        marginHorizontal: 16,
+        gap: 5
+      }}
+    >
+      <Label text={'Schedule'} />
+      <Pressable onPress={action}>
+        <Row
+          styles={{
+            justifyContent: 'space-between',
+            alignItems: 'center',
+            padding: 15,
+            borderWidth: 1,
+            borderColor: 'gray',
+            // marginHorizontal: 16,
+            borderRadius: 5
+          }}
+        >
+          <Label text={label} />
+          <ChevronRight color={'black'} />
+        </Row>
+      </Pressable>
+    </Column>
   );
 };
 

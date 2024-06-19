@@ -43,24 +43,27 @@ export const logout = createAsyncThunk('auth/logout', async () => {
   return;
 });
 
-export const loginSilently = createAsyncThunk('auth/loginSilently', async (pushToken: string | undefined, { rejectWithValue }) => {
-  console.log(`[auth/loginSilently] pushToken: %o`, pushToken);
-  await api.call(api.client.auth.silent.$post, { json: { pushToken } });
+export const loginSilently = createAsyncThunk(
+  'auth/loginSilently',
+  async (pushToken: string | undefined, { rejectWithValue }) => {
+    console.log('[auth/loginSilently] pushToken: %o', pushToken);
+    await api.call(api.client.auth.silent.$post, { json: { pushToken } });
 
-  const accessToken = await AsyncStorage.getItem('accessToken');
-  const username = await AsyncStorage.getItem('username');
+    const accessToken = await AsyncStorage.getItem('accessToken');
+    const username = await AsyncStorage.getItem('username');
 
-  if (accessToken && username) {
-    return { accessToken, username };
+    if (accessToken && username) {
+      return { accessToken, username };
+    }
+
+    return rejectWithValue(null);
   }
-
-  return rejectWithValue(null);
-});
+);
 
 export const login = createAsyncThunk(
   'auth/login',
   async (payload: { username: string; password: string }, { rejectWithValue }) => {
-    console.log(`[auth/login] Data: %o`, payload);
+    console.log('[auth/login] Data: %o', payload);
 
     const response = await api.call(api.client.auth.login.$post, { json: payload });
 
@@ -85,7 +88,7 @@ export const login = createAsyncThunk(
 export const register = createAsyncThunk(
   'auth/register',
   async (payload: { username: string; password: string }, { rejectWithValue }) => {
-    console.log(`[auth/register] Data: %o`, payload);
+    console.log('[auth/register] Data: %o', payload);
 
     const response = await api.call(api.client.auth.register.$post, { json: payload });
 

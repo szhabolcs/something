@@ -22,8 +22,12 @@ export type ApiError =
     };
 
 export function extractError(error: ApiError | undefined, path: (string | number)[]) {
-  if (typeof error === 'undefined') return undefined;
-  if (!(error?.type === 'validation')) return undefined;
+  if (typeof error === 'undefined') {
+    return undefined;
+  }
+  if (!(error?.type === 'validation')) {
+    return undefined;
+  }
   const err = error.errors.find((e) => JSON.stringify(e.path) === JSON.stringify(path));
   return err?.message;
 }
@@ -48,8 +52,8 @@ export default class ApiService {
     return this._client;
   }
 
-  async call<TArgs, TResponse>(fn: (args: TArgs) => Promise<TResponse>, args: TArgs) {
-    console.debug(`[api] Calling ${JSON.parse(JSON.stringify(fn))['url']}`);
+  async call<TArgs, TResponse>(fn: (args: TArgs) => Promise<TResponse>, args: TArgs): Promise<TResponse> {
+    console.debug(`[api] Calling ${JSON.parse(JSON.stringify(fn)).url}`);
 
     try {
       const response: any = await fn(args);
@@ -59,7 +63,7 @@ export default class ApiService {
         return fn(args) as TResponse;
       }
 
-      return response;
+      return response as TResponse;
     } catch (error) {
       console.error('[api] Unexpected error %o', error);
       return {} as TResponse;
@@ -92,7 +96,6 @@ export default class ApiService {
       await AsyncStorage.removeItem('accessToken');
       await AsyncStorage.removeItem('refreshToken');
     }
-
   }
 
   async fetchData(

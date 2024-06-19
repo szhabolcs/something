@@ -22,7 +22,7 @@ const initialState: ThingState = {
   newThing: {
     name: '',
     description: '',
-    schedule: {} as any,
+    schedule: undefined as any,
     sharedUsernames: []
   },
   userThings: {
@@ -164,7 +164,7 @@ export const thingSelector = (state: RootState) => state.thingReducer;
 export const {
   setNewPersonalThing,
   resetNewPersonalThing,
-  setScheduleForNewPersonalThing: setOccuranceForNewPersonalThing,
+  setScheduleForNewPersonalThing,
   setNameForNewPersonalThing,
   setDescriptionForNewPersonalThing,
   setSharedUserNamesForNewPersonalThing

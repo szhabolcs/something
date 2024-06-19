@@ -16,7 +16,7 @@ const MyInput = ({ text, setText, placeholder, secure, error, multiline }: MyInp
   return (
     <TextInput
       placeholder={placeholder}
-      style={[styles.input, error && styles.error]}
+      style={[styles.input, error && styles.error, multiline && { verticalAlign: 'top' }]}
       onChangeText={setText}
       value={text}
       secureTextEntry={secure}

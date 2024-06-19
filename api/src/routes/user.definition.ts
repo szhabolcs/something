@@ -95,3 +95,23 @@ export const toggleLeaderboardVisibility = createRoute({
     }
   }
 });
+
+export const usernameExists = createRoute({
+  method: 'get',
+  path: '/username/{username}',
+  middleware: useAccessToken(),
+  security: bearerAuth,
+  description: 'Retrieve if username exists.',
+  tags: ['User'],
+  responses: {
+    [StatusCodes.OK]: {
+      description: `Username exists.`
+    },
+    [StatusCodes.NOT_FOUND]: {
+      description: `Username does not exists.`
+    },
+    [StatusCodes.INTERNAL_SERVER_ERROR]: {
+      description: 'Unexpected error occured.'
+    }
+  }
+});
