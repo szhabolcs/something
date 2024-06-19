@@ -15,7 +15,7 @@
     "@react-native-community"
   ],
   "parser": "@typescript-eslint/parser",
-  "plugins": ["@typescript-eslint", "deprecation", "prettier", "jest"],
+  "plugins": ["@typescript-eslint", "prettier", "jest"],
   "rules": {
     "@typescript-eslint/ban-ts-comment": "off",
     "@typescript-eslint/no-empty-function": "off",
@@ -24,12 +24,12 @@
     "@typescript-eslint/no-non-null-assertion": "off",
     "@typescript-eslint/no-unused-vars": "off",
     "no-case-declarations": "off",
-    "deprecation/deprecation": "error",
     "no-console": "off",
     "comma-dangle": ["error", "never"],
     "react/react-in-jsx-scope": "off",
     "react-hooks/exhaustive-deps": "off",
     "react-native/no-inline-styles": "off",
+    "react/no-unstable-nested-components": "off"
   },
   "ignorePatterns": [".eslintrc.json", "node_modules"]
 }

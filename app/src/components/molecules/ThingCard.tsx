@@ -16,8 +16,12 @@ type ThingCardProps = {
 };
 
 const ThingCard = ({ navigation, name, startTime, endTime, streak, id }: ThingCardProps) => {
-  startTime = DateTime.fromFormat(startTime, 'hh:mm:ss', { zone: 'utc'}).toLocal().toLocaleString({ hour: 'numeric', minute: 'numeric' });
-  endTime = DateTime.fromFormat(endTime, 'hh:mm:ss', { zone: 'utc'}).toLocal().toLocaleString({ hour: 'numeric', minute: 'numeric' });
+  startTime = DateTime.fromFormat(startTime, 'hh:mm:ss', { zone: 'utc' })
+    .toLocal()
+    .toLocaleString({ hour: 'numeric', minute: 'numeric' });
+  endTime = DateTime.fromFormat(endTime, 'hh:mm:ss', { zone: 'utc' })
+    .toLocal()
+    .toLocaleString({ hour: 'numeric', minute: 'numeric' });
 
   return (
     <Pressable

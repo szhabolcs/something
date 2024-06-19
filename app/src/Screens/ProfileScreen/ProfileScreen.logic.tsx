@@ -17,7 +17,7 @@ export const useProfileScreenLogic = () => {
 
   const handleLogout = () => {
     dispatch(logout());
-  }
+  };
 
   return { loading, error, profile, getData, handleLogout, refreshing, user };
 };

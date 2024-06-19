@@ -163,4 +163,14 @@ export class AuthService extends BaseService {
       throw error;
     }
   }
+
+  public async checkUsername(username: string) {
+    const user = await this.repositories.user.getByUsername(username);
+    if (!user) {
+      console.log('User not found');
+      return false;
+    }
+
+    return true;
+  }
 }

@@ -24,7 +24,7 @@ const LabeledInput = ({ label, placeholder, value, onChangeText, secure, error, 
         secure={secure}
         text={value}
         setText={onChangeText}
-        placeholder={placeholder}
+        placeholder={placeholder + (multiline ? '\n\n\n' : '')}
         error={!!extractError(error, path ?? [])}
         multiline={multiline}
       />

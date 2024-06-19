@@ -15,7 +15,6 @@ import MyButton from '../../components/molecules/MyButton';
 
 type NonUndefined<T> = T extends undefined ? never : T;
 
-
 const ProfileScreen = ({ navigation }: any) => {
   const logic = useProfileScreenLogic();
 

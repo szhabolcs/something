@@ -5,16 +5,19 @@ import {
   userBadges,
   userProfile,
   toggleLeaderboardVisibility,
-  UserProfileModel
+  UserProfileModel,
+  usernameExists
 } from './user.definition.js';
 import { zodErrorHandler } from '../utils/errors.js';
 import { ThingService } from '../services/thing.service.js';
 import { RewardService } from '../services/reward.service.js';
 import { LeaderboardService } from '../services/leaderboard.service.js';
+import { AuthService } from '../services/auth.service.js';
 
 const thingService = new ThingService();
 const rewardService = new RewardService();
 const leaderboardService = new LeaderboardService();
+const authservice = new AuthService();
 
 export const userRouter = new OpenAPIHono({ defaultHook: zodErrorHandler })
   .openapi(userProfile, async (c) => {
@@ -53,4 +56,14 @@ export const userRouter = new OpenAPIHono({ defaultHook: zodErrorHandler })
     const userId = c.get('jwtPayload').id;
     await leaderboardService.toggleUserVisibility(userId);
     return c.text(reasonPhrase(StatusCodes.OK), StatusCodes.OK);
+  })
+
+  .openapi(usernameExists, async (c) => {
+    const { username } = c.req.param();
+    const exists = await authservice.checkUsername(username);
+    if (exists) {
+      return c.text(reasonPhrase(StatusCodes.OK), StatusCodes.OK);
+    } else {
+      return c.text(reasonPhrase(StatusCodes.NOT_FOUND), StatusCodes.NOT_FOUND);
+    }
   });

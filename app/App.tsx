@@ -6,7 +6,7 @@ import { store } from './src/redux/store';
 import { navigationRef } from './src/navigation/RootNavigation';
 import { useFonts } from 'expo-font';
 // import { usePushNotifications } from './src/hooks/notifications';
-import { AlertNotificationRoot} from 'react-native-alert-notification';
+import { AlertNotificationRoot } from 'react-native-alert-notification';
 
 export default function App() {
   // const { expoPushToken, notification, lastNotificationResponse } = usePushNotifications();

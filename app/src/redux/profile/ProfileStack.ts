@@ -5,10 +5,10 @@ import ApiService, { ApiError, ApiResponse } from '../../services/ApiService';
 export type ProfileDTO = ApiResponse<typeof api.client.user.me.profile.$get, 200>;
 
 type InitialState = {
-  profile: ProfileDTO | undefined,
-  loading: boolean,
-  error: ApiError | undefined
-}
+  profile: ProfileDTO | undefined;
+  loading: boolean;
+  error: ApiError | undefined;
+};
 
 const initialState: InitialState = {
   profile: undefined,

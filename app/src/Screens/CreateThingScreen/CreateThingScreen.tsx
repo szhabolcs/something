@@ -10,6 +10,8 @@ import { useCreateThingScreenLogic } from './CreateThingsScreen.logic';
 import H3 from '../../components/atoms/H3';
 import MyInput from '../../components/molecules/MyInput';
 import { X } from 'react-native-feather';
+import { DateTime } from 'luxon';
+import LoadingOverlay from '../../components/organisms/LoadingOverlay';
 
 const CreateThingScreen = ({ navigation }: any) => {
   const {
@@ -23,42 +25,52 @@ const CreateThingScreen = ({ navigation }: any) => {
     currentSharedUsername,
     setCurrentSharedUsername,
     handleCreateThing,
-    handleCanel
+    handleCanel,
+    handleUsernameAdd,
+    loading
   } = useCreateThingScreenLogic();
+
+  const scheduleText = () => {
+    if (!newThing?.schedule) {
+      return 'Not set';
+    }
+
+    const startTime = DateTime.fromFormat(newThing!.schedule!.startTime, 'hh:mm', { zone: 'utc' })
+      .toLocal()
+      .toLocaleString({ hour: 'numeric', minute: 'numeric' });
+    const endTime = DateTime.fromFormat(newThing!.schedule!.endTime, 'hh:mm', { zone: 'utc' })
+      .toLocal()
+      .toLocaleString({ hour: 'numeric', minute: 'numeric' });
+
+    if (newThing?.schedule.repeat === 'once') {
+      const readableDate = DateTime.fromISO(newThing!.schedule.specificDate!).toLocaleString({
+        month: 'long',
+        day: 'numeric'
+      });
+      return `Once on ${readableDate}, from ${startTime} to ${endTime}`;
+    }
+    if (newThing?.schedule.repeat === 'daily') {
+      return `Every day, from ${startTime} to ${endTime}`;
+    }
+    if (newThing?.schedule.repeat === 'weekly') {
+      return `Every week on ${newThing.schedule.dayOfWeek}, from ${startTime} to ${endTime}`;
+    }
+
+    return 'Not set';
+  };
 
   return (
     <ScrollView>
-      <Column
-        styles={{
-          paddingVertical: 16,
-          gap: 30
-        }}
-      >
+      <LoadingOverlay visible={loading} />
+      <Column styles={{ paddingVertical: 16, gap: 30 }}>
         <H1>
           Create a <H1 accent>new Thing</H1>
         </H1>
 
-        <Column
-          styles={{
-            justifyContent: 'flex-start'
-          }}
-        >
-          <Column
-            styles={{
-              padding: 16,
-              gap: 16
-            }}
-          >
-            <Text>
-              As of now, you cannot change anything about the Thing after being created. But if you want to, feel free
-              to contact me :)
-            </Text>
-            <LabeledInput
-              label={'Name'}
-              placeholder={'Thing name'}
-              value={thingName}
-              onChangeText={setThingName}
-            />
+        <Column styles={{ justifyContent: 'flex-start' }}>
+          {/* NAME AND DESCRIPTION */}
+          <Column styles={{ padding: 16, gap: 16 }}>
+            <LabeledInput label={'Name'} placeholder={'Thing name'} value={thingName} onChangeText={setThingName} />
             <LabeledInput
               multiline
               label={'Description'}
@@ -67,94 +79,70 @@ const CreateThingScreen = ({ navigation }: any) => {
               onChangeText={setThingDescription}
             />
           </Column>
-          <Column
-            styles={{
-              justifyContent: 'center',
-              alignItems: 'center',
-              padding: 16,
-              gap: 16
-            }}
-          >
-            {newThing &&
-              newThing.occurances.map((occurance: any, idx) => {
-                return (
-                  <H3 key={idx}>
-                    {occurance.startTime} - {occurance.endTime} repeats: {occurance.repeat}{' '}
-                    {occurance.dayOfWeek.length ? 'on' : ''} {occurance.dayOfWeek?.join(', ')}
-                  </H3>
-                );
-              })}
-          </Column>
-          {(!newThing || !newThing?.occurances) && (
-            <ActionRow
-              label={'Set time'}
-              action={() => {
-                navigation.push('SetTime');
-              }}
-            />
-          )}
-        </Column>
-        <Column>
-          <Row
-            styles={{
-              alignItems: 'center',
-              justifyContent: 'flex-end',
-              padding: 16
-            }}
-          >
-            <Column
+
+          {/* EDIT AND SEE SCHEDULE */}
+          <ActionRow label={scheduleText()} action={() => navigation.push('SetTime')} />
+
+          {/* USERNAMES */}
+          <Column>
+            <Row
               styles={{
-                flex: 1
+                alignItems: 'center',
+                justifyContent: 'flex-end',
+                padding: 16,
+                marginTop: 30
               }}
             >
-              <MyInput
-                text={currentSharedUsername}
-                setText={setCurrentSharedUsername}
-                placeholder={"Type your friend's username"}
-              />
-            </Column>
-            <MyButton
-              text={'Add'}
-              onPress={() => {
-                setSharedUsernames([...sharedUsernames, currentSharedUsername]);
-                setCurrentSharedUsername('');
-              }}
-            />
-          </Row>
-          <Column
-            styles={{
-              gap: 10
-            }}
-          >
-            {sharedUsernames.map((username, index) => {
-              return (
-                <Row
-                  key={index}
-                  styles={{
-                    gap: 8,
-                    alignItems: 'center',
-                    marginHorizontal: 16,
-                    padding: 8,
-                    borderRadius: 5,
-                    backgroundColor: 'rgba(16, 185, 129, 0.5)'
-                  }}
-                >
-                  <X
-                    color={'#fff'}
-                    onPress={() => {
-                      setSharedUsernames(sharedUsernames.filter((name) => name !== username));
+              <Column
+                styles={{
+                  flex: 1,
+                  height: 50,
+                  justifyContent: 'center'
+                }}
+              >
+                <LabeledInput
+                  label="Friends"
+                  value={currentSharedUsername}
+                  onChangeText={setCurrentSharedUsername}
+                  placeholder={"Type your friend's username"}
+                />
+              </Column>
+              <MyButton text={'Add'} onPress={handleUsernameAdd} />
+            </Row>
+            <Column styles={{ gap: 10 }}>
+              {sharedUsernames.map((username, index) => {
+                return (
+                  <Row
+                    key={index}
+                    styles={{
+                      gap: 8,
+                      alignItems: 'center',
+                      marginHorizontal: 16,
+                      padding: 8,
+                      borderRadius: 5,
+                      backgroundColor: '#16a34a'
                     }}
-                  />
-                  <H3>{username}</H3>
-                </Row>
-              );
-            })}
+                  >
+                    <X
+                      color={'#fff'}
+                      onPress={() => {
+                        setSharedUsernames(sharedUsernames.filter((name) => name !== username));
+                      }}
+                    />
+                    <H3 white>@{username}</H3>
+                  </Row>
+                );
+              })}
+            </Column>
           </Column>
         </Column>
+
+        {/* ACTIONS */}
         <Row
           styles={{
             alignItems: 'center',
-            justifyContent: 'space-evenly'
+            justifyContent: 'space-evenly',
+            marginTop: 30
           }}
         >
           <MyButton
