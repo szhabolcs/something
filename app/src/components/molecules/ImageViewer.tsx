@@ -5,20 +5,25 @@ import H2 from '../atoms/H2';
 import H4 from '../atoms/H4';
 import ApiService from '../../services/ApiService';
 import Row from '../atoms/Row';
-import H3 from '../atoms/H3';
+import { DateTime } from 'luxon';
 
 type ImageViewerProps = {
   uri: string;
   name: string;
   username: string;
-  createdAt: Date;
+  createdAt: string;
 };
 
 const api = new ApiService();
 
 const ImageViewer = ({ uri, createdAt, name, username }: ImageViewerProps) => {
   const [image, setImage] = useState('');
-  const date = new Date(createdAt).toLocaleString(undefined, {
+  // console.log('createdAt', createdAt);
+  // console.log(
+  //   'createdAt DateTime',
+  //   DateTime.fromSQL(createdAt, { zone: 'utc' }).toJSDate().toLocaleString()
+  // );
+  const date = DateTime.fromSQL(createdAt, { zone: 'utc' }).toLocal().toLocaleString({
     month: 'long',
     day: 'numeric',
     hour: 'numeric',
@@ -63,11 +68,13 @@ const ImageViewer = ({ uri, createdAt, name, username }: ImageViewerProps) => {
         }}
       />
       <H2 cursive>{name}</H2>
-      <Row styles={{justifyContent: 'space-between', width: '100%'}}>
+      <Row styles={{ justifyContent: 'space-between', width: '100%' }}>
         <H4 cursive accent>
           @{username}
         </H4>
-        <H2 cursive>{date} { }</H2>
+        <H2 cursive>
+          {date} {}
+        </H2>
       </Row>
     </Column>
   );

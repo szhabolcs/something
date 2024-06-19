@@ -8,7 +8,6 @@ import Spacer from '../../components/atoms/Spacer';
 import { useHomeScreenLogic } from './HomeScreen.logic';
 import { Plus } from 'react-native-feather';
 import ImageViewer from '../../components/molecules/ImageViewer';
-import LoadingOverlay from '../../components/organisms/LoadingOverlay';
 
 const HomeScreen = ({ navigation }: any) => {
   const logic = useHomeScreenLogic();
@@ -55,7 +54,9 @@ const HomeScreen = ({ navigation }: any) => {
         keyExtractor={(_, index) => index.toString()}
         style={{ marginTop: 18, marginBottom: 50 }}
         contentContainerStyle={{ gap: 14 }}
-        renderItem={({ item }) => <ImageViewer uri={item.image} name={item.name} username={item.username} />}
+        renderItem={({ item }) => (
+          <ImageViewer uri={item.image} name={item.name} username={item.username} createdAt={item.createdAt} />
+        )}
       />
     );
   };
@@ -86,7 +87,6 @@ const HomeScreen = ({ navigation }: any) => {
 
   return (
     <Column styles={{ flex: 1 }}>
-      <LoadingOverlay visible={logic.refreshing} />
       <ScrollView
         style={styles.container}
         refreshControl={<RefreshControl refreshing={logic.refreshing} onRefresh={logic.getHomeThings} />}

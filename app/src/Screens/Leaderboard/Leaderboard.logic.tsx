@@ -1,42 +1,32 @@
 import { useState } from 'react';
-import RespositoryService from '../../services/RespositoryService';
-import AsyncStorage from '@react-native-async-storage/async-storage';
+import ApiService, { ApiResponse } from '../../services/ApiService';
+
+const api = new ApiService();
+type LeaderboardDTO = ApiResponse<typeof api.client.user.leaderboard.all.$get, 200>;
 
 export const useLeaderboardLogic = () => {
   const [visibility, setVisibility] = useState(false);
   const [refreshing, setRefreshing] = useState(true);
-  const [leaderBoard, setLeaderBoard] = useState<
-    {
-      username: string;
-      points: number;
-    }[]
-  >([]);
+  const [leaderBoard, setLeaderBoard] = useState<LeaderboardDTO['leaderboard']>([]);
 
   const getData = async () => {
     setRefreshing(true);
-    const repositoryService = new RespositoryService();
-    const response = await repositoryService.leaderboardResository.getLeaderboard<{
-      leaderboard: {
-        username: string;
-        points: number;
-      }[];
-      currentVisibility: boolean;
-    }>((await AsyncStorage.getItem('accessToken')) || '');
 
-    setLeaderBoard(response.leaderboard);
-    setVisibility(response.currentVisibility);
+    const response = await api.call(api.client.user.leaderboard.all.$get, {});
+    if (response.ok) {
+      const data = await response.json();
+      setLeaderBoard(data.leaderboard);
+      setVisibility(data.currentVisibility);
+    }
+
     setRefreshing(false);
   };
 
   const toggleVisibility = async () => {
-    const repositoryService = new RespositoryService();
-    const response = await repositoryService.leaderboardResository.toggleVisibility<{
-      currentVisibility: boolean;
-    }>((await AsyncStorage.getItem('accessToken')) || '');
+    setVisibility((value) => !value);
 
-    getData();
-
-    setVisibility((o) => !o);
+    await api.call(api.client.user.leaderboard['toggle-visibility'].$patch, {});
+    await getData();
   };
 
   return {

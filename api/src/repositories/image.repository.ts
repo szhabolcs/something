@@ -9,8 +9,8 @@ export class ImageRepository {
   public async getCountBetween(
     userId: string,
     thingId: string,
-    from: Date,
-    to: Date,
+    from: string,
+    to: string,
     tx: DrizzleDatabaseSession | DrizzleTransactionSession = db
   ) {
     return tx

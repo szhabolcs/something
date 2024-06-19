@@ -40,7 +40,7 @@ export class NotificationService extends BaseService {
   public async createNotificationsForToday() {
     const today = DateTime.utc();
     const day = ScheduleTable.dayOfWeek.enumValues[today.weekday - 1];
-    const schedules = await this.repositories.schedule.getSchedulesForToday(today.toJSDate(), day);
+    const schedules = await this.repositories.schedule.getSchedulesForToday(today.toISO(), day);
 
     for (const schedule of schedules) {
       const users = await this.repositories.access.getUsersForThing(schedule.thingId);
@@ -55,8 +55,8 @@ export class NotificationService extends BaseService {
         const notificationExists = await this.repositories.notification.notificationExists(
           user.id,
           thing.id,
-          interval.start.toJSDate(),
-          interval.end.toJSDate()
+          interval.start.toISO(),
+          interval.end.toISO()
         );
 
         if (notificationExists) {
@@ -68,8 +68,8 @@ export class NotificationService extends BaseService {
         const randomMs = interval.start.toMillis() + Math.random() * interval.toDuration().toMillis();
 
         // Create a new DateTime object from the random millisecond value in UTC
-        const randomDateTime = DateTime.fromMillis(randomMs, { zone: 'utc' });
-        const notification = this.createNotificationData(user.id, user.pushToken, randomDateTime.toJSDate(), thing);
+        const randomDateTime = DateTime.fromMillis(randomMs, { zone: 'utc' }) as DateTime<true>;
+        const notification = this.createNotificationData(user.id, user.pushToken, randomDateTime.toISO(), thing);
 
         await this.repositories.notification.create(notification);
       }
@@ -84,7 +84,7 @@ export class NotificationService extends BaseService {
 
     const notifications = await this.repositories.notification.getScheduledNotifications();
     for (const notification of notifications) {
-      const notificationDate = DateTime.fromJSDate(notification.scheduledAt, { zone: 'utc' });
+      const notificationDate = DateTime.fromSQL(notification.scheduledAt, { zone: 'utc' });
 
       if (notificationDate < DateTime.utc()) {
         console.log('[Scheduler] Notification is in the past');
@@ -158,7 +158,8 @@ export class NotificationService extends BaseService {
       }
     }).bind(this);
 
-    new scheduler.Job(name, action).runOnDate(date);
+    const localDate = DateTime.fromSQL(date, { zone: 'utc' });
+    new scheduler.Job(name, action).runOnDate(localDate.toJSDate());
 
     console.log(`[Scheduler][Job] Created %o`, name);
   }
@@ -176,7 +177,7 @@ export class NotificationService extends BaseService {
   private createNotificationData(
     userId: string,
     pushToken: string,
-    scheduledAt: Date,
+    scheduledAt: string,
     thing: InferSelectModel<typeof ThingTable>
   ) {
     const notification: InferInsertModel<typeof NotificationTable> = {

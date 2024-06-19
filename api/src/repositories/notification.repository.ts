@@ -8,8 +8,8 @@ export class NotificationRepository {
    */
   public async getUserNotificationsBetween(
     userId: string,
-    from: Date,
-    to: Date,
+    from: string,
+    to: string,
     tx: DrizzleDatabaseSession | DrizzleTransactionSession = db
   ) {
     const query = await tx
@@ -28,8 +28,8 @@ export class NotificationRepository {
   public async notificationExists(
     userId: string,
     thingId: string,
-    from: Date,
-    to: Date,
+    from: string,
+    to: string,
     tx: DrizzleDatabaseSession | DrizzleTransactionSession = db
   ) {
     const [query] = await tx

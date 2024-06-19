@@ -7,7 +7,6 @@ type ThingDTO = ApiResponse<(typeof api)['client']['things'][':uuid']['details']
 export const useThingDetailsScreenLogic = () => {
   const [thing, setThing] = useState<ThingDTO | null>(null);
   const [refreshing, setRefreshing] = useState(true);
-  const [headers, setHeaders] = useState<ApiHeaders>({ Authorization: '' });
 
   const getDetails = async (id: string) => {
     setRefreshing(true);
@@ -15,16 +14,12 @@ export const useThingDetailsScreenLogic = () => {
     if (response.ok) {
       const data = await response.json();
       setThing(data);
-
-      const headers = await api.getAuthorizationHeaders();
-      setHeaders(headers);
     }
     setRefreshing(false);
   };
   return {
     thing,
     getDetails,
-    refreshing,
-    headers
+    refreshing
   };
 };

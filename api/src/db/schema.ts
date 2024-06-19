@@ -15,7 +15,7 @@ import {
 } from 'drizzle-orm/pg-core';
 
 const timechangeColumns = {
-  createdAt: timestamp('created_at').notNull().defaultNow(),
+  createdAt: timestamp('created_at', { mode: 'string' }).notNull().defaultNow(),
   updatedAt: timestamp('updated_at', { mode: 'string' })
     .notNull()
     .defaultNow()
@@ -91,7 +91,7 @@ export const ScheduleTable = pgTable(
     repeat: text('repeat', { enum: ['once', 'daily', 'weekly'] })
       .notNull()
       .default(check(`'once'`, `repeat IN ('once', 'daily', 'weekly')`)),
-    specificDate: date('specific_date', { mode: 'date' }) // used for repeat 'once'
+    specificDate: date('specific_date', { mode: 'string' }) // used for repeat 'once'
       .default(
         check(
           'NULL',
@@ -135,7 +135,7 @@ export const NotificationTable = pgTable(
     body: text('body').notNull(),
     data: json('data').notNull(),
     pushToken: text('push_token').notNull(),
-    scheduledAt: timestamp('scheduled_at').notNull(),
+    scheduledAt: timestamp('scheduled_at', { mode: 'string' }).notNull(),
     status: text('status', { enum: ['scheduled', 'completed'] })
       .notNull()
       .default(check(`'scheduled'`, `status IN ('scheduled', 'completed')`)),
