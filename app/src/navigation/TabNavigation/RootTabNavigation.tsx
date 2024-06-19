@@ -34,7 +34,7 @@ export const RootTabNavigation = () => {
         options={({ route }) => ({
           tabBarStyle: ((route) => {
             const routeName = getFocusedRouteNameFromRoute(route) ?? '';
-            if (routeName === 'Camera') {
+            if (['Camera', 'CreateThing', 'Details', 'SetTime'].includes(routeName)) {
               return { display: 'none' };
             }
             return;
@@ -54,10 +54,17 @@ export const RootTabNavigation = () => {
       <Tab.Screen
         name="ProfileStack"
         component={ProfileStackNavigation}
-        options={{
+        options={({ route }) => ({
+          tabBarStyle: ((route) => {
+            const routeName = getFocusedRouteNameFromRoute(route) ?? '';
+            if (['Leaderboard', 'Details'].includes(routeName)) {
+              return { display: 'none' };
+            }
+            return;
+          })(route),
           title: 'Profile',
           tabBarIcon: ({ color, size }) => <User color={color} />
-        }}
+        })}
       />
     </Tab.Navigator>
   );

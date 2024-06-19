@@ -1,13 +1,18 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useAppDispatch, useAppSelector } from '../../hooks/hooks';
-import { createThing, resetNewPersonalThing, thingSelector } from '../../redux/thing/ThingStack';
+import {
+  createThing,
+  resetNewPersonalThing,
+  setNameForNewPersonalThing,
+  thingSelector
+} from '../../redux/thing/ThingStack';
 import { authSelector } from '../../redux/auth/AuthSlice';
 import { ALERT_TYPE, Toast } from 'react-native-alert-notification';
 import ApiService from '../../services/ApiService';
 
 const api = new ApiService();
 
-export const useCreateThingScreenLogic = () => {
+export const useCreateThingScreenLogic = (navigation: any) => {
   const [thingName, setThingName] = useState('');
   const [thingDescription, setThingDescription] = useState('');
   const [sharedUsernames, setSharedUsernames] = useState<string[]>([]);
@@ -19,21 +24,29 @@ export const useCreateThingScreenLogic = () => {
   const dispatch = useAppDispatch();
 
   const newThing = thingState.newThing;
+  const error = thingState.error;
+  const newThingSent = thingState.newThingSent;
 
   const handleCreateThing = async () => {
-    if (thingName && newThing && newThing?.schedule) {
-      await dispatch(createThing());
-      handleCanel();
-    }
+    setLoading(true);
+    dispatch(createThing());
+    setLoading(false);
   };
 
   const handleCanel = () => {
-    setThingName('');
-    setThingDescription('');
-    setSharedUsernames([]);
-    setCurrentSharedUsername('');
     dispatch(resetNewPersonalThing());
+    navigation.pop();
   };
+
+  useEffect(() => {
+    if (newThingSent) {
+      handleCanel();
+    }
+  }, [newThingSent]);
+
+  useEffect(() => {
+    dispatch(setNameForNewPersonalThing(thingName));
+  }, [thingName]);
 
   const handleUsernameAdd = async () => {
     const username = currentSharedUsername.trim();
@@ -84,6 +97,8 @@ export const useCreateThingScreenLogic = () => {
     setCurrentSharedUsername,
     handleCanel,
     handleUsernameAdd,
-    loading
+    loading,
+    error,
+    newThingSent
   };
 };

@@ -16,6 +16,7 @@ export class ThingService extends BaseService {
 
         // Add user as admin
         await this.repositories.access.giveThingAccess(thingId, [userId], 'admin', tx);
+        await this.repositories.streak.setStreaks([userId], thingId, 0);
 
         // Share with people
         if (data.sharedUsernames.length !== 0) {

@@ -12,6 +12,9 @@ import MyInput from '../../components/molecules/MyInput';
 import { X } from 'react-native-feather';
 import { DateTime } from 'luxon';
 import LoadingOverlay from '../../components/organisms/LoadingOverlay';
+import { LinearGradient } from 'expo-linear-gradient';
+import ErrorText from '../../components/atoms/ErrorText';
+import { extractError } from '../../services/ApiService';
 
 const CreateThingScreen = ({ navigation }: any) => {
   const {
@@ -27,8 +30,9 @@ const CreateThingScreen = ({ navigation }: any) => {
     handleCreateThing,
     handleCanel,
     handleUsernameAdd,
-    loading
-  } = useCreateThingScreenLogic();
+    loading,
+    error
+  } = useCreateThingScreenLogic(navigation);
 
   const scheduleText = () => {
     if (!newThing?.schedule) {
@@ -60,56 +64,72 @@ const CreateThingScreen = ({ navigation }: any) => {
   };
 
   return (
-    <ScrollView>
+    <Column styles={{ paddingVertical: 16, gap: 30, justifyContent: 'space-between', flex: 1 }}>
       <LoadingOverlay visible={loading} />
-      <Column styles={{ paddingVertical: 16, gap: 30 }}>
-        <H1>
-          Create a <H1 accent>new Thing</H1>
-        </H1>
+      <H1>
+        Create a <H1 accent>new Thing</H1>
+      </H1>
 
-        <Column styles={{ justifyContent: 'flex-start' }}>
-          {/* NAME AND DESCRIPTION */}
-          <Column styles={{ padding: 16, gap: 16 }}>
-            <LabeledInput label={'Name'} placeholder={'Thing name'} value={thingName} onChangeText={setThingName} />
-            <LabeledInput
-              multiline
-              label={'Description'}
-              placeholder={'Thing description'}
-              value={thingDescription}
-              onChangeText={setThingDescription}
-            />
-          </Column>
+      <Column styles={{ justifyContent: 'flex-start' }}>
+        {/* NAME AND DESCRIPTION */}
+        <Column styles={{ padding: 16, gap: 16 }}>
+          <LabeledInput
+            label={'Name'}
+            placeholder={'Thing name'}
+            value={thingName}
+            onChangeText={setThingName}
+            error={error}
+            path={['name']}
+          />
+          <LabeledInput
+            multiline
+            label={'Description'}
+            placeholder={'Thing description'}
+            value={thingDescription}
+            onChangeText={setThingDescription}
+          />
+        </Column>
 
-          {/* EDIT AND SEE SCHEDULE */}
-          <ActionRow label={scheduleText()} action={() => navigation.push('SetTime')} />
+        {/* EDIT AND SEE SCHEDULE */}
+        <ActionRow label={scheduleText()} action={() => navigation.push('SetTime')} />
+        <Row styles={{ marginHorizontal: 16 }}>
+          <ErrorText>{extractError(error, ['schedule'])}</ErrorText>
+        </Row>
 
-          {/* USERNAMES */}
-          <Column>
-            <Row
+        {/* USERNAMES */}
+        <Column>
+          <Row
+            styles={{
+              alignItems: 'center',
+              justifyContent: 'flex-end',
+              padding: 16,
+              marginTop: 30
+            }}
+          >
+            <Column
               styles={{
-                alignItems: 'center',
-                justifyContent: 'flex-end',
-                padding: 16,
-                marginTop: 30
+                flex: 1,
+                height: 50,
+                justifyContent: 'center'
               }}
             >
-              <Column
-                styles={{
-                  flex: 1,
-                  height: 50,
-                  justifyContent: 'center'
-                }}
-              >
-                <LabeledInput
-                  label="Friends"
-                  value={currentSharedUsername}
-                  onChangeText={setCurrentSharedUsername}
-                  placeholder={"Type your friend's username"}
-                />
-              </Column>
-              <MyButton text={'Add'} onPress={handleUsernameAdd} />
-            </Row>
-            <Column styles={{ gap: 10 }}>
+              <LabeledInput
+                label="Friends"
+                value={currentSharedUsername}
+                onChangeText={setCurrentSharedUsername}
+                placeholder={"Type your friend's username"}
+              />
+            </Column>
+            <MyButton text={'Add'} onPress={handleUsernameAdd} />
+          </Row>
+          <LinearGradient
+            pointerEvents="none"
+            // Background Linear Gradient
+            colors={['transparent', 'transparent', 'transparent', 'rgba(0,0,0,0.5)']}
+            style={[sharedUsernames.length >= 4 && styles.background]}
+          />
+          <ScrollView style={{ height: 150 }}>
+            <Column styles={{ gap: 10, paddingBottom: 10 }}>
               {sharedUsernames.map((username, index) => {
                 return (
                   <Row
@@ -134,38 +154,33 @@ const CreateThingScreen = ({ navigation }: any) => {
                 );
               })}
             </Column>
-          </Column>
+          </ScrollView>
         </Column>
-
-        {/* ACTIONS */}
-        <Row
-          styles={{
-            alignItems: 'center',
-            justifyContent: 'space-evenly',
-            marginTop: 30
-          }}
-        >
-          <MyButton
-            text={'Cancel'}
-            onPress={() => {
-              handleCanel();
-              navigation.pop();
-            }}
-          />
-          <MyButton
-            text={'Save'}
-            onPress={() => {
-              handleCreateThing();
-              navigation.pop();
-            }}
-            accent
-          />
-        </Row>
       </Column>
-    </ScrollView>
+
+      {/* ACTIONS */}
+      <Row
+        styles={{
+          alignItems: 'center',
+          justifyContent: 'space-evenly'
+        }}
+      >
+        <MyButton text={'Cancel'} onPress={handleCanel} />
+        <MyButton text={'Save'} onPress={handleCreateThing} accent />
+      </Row>
+    </Column>
   );
 };
 
 export default CreateThingScreen;
 
-const styles = StyleSheet.create({});
+const styles = StyleSheet.create({
+  background: {
+    position: 'absolute',
+    zIndex: 10,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    height: 150
+  }
+});
