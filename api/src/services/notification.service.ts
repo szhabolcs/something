@@ -3,12 +3,14 @@ import { InferInsertModel, InferSelectModel } from 'drizzle-orm';
 import { NotificationTable, ScheduleTable } from '../db/schema.js';
 import { DateTime, Interval } from 'luxon';
 import { CronJob } from 'cron';
+import { Expo } from 'expo-server-sdk';
 import { DrizzleDatabaseSession, DrizzleTransactionSession, db } from '../db/db.js';
 
 export class NotificationService extends BaseService {
   private static _instance: NotificationService;
   /** notificationId -> job  */
-  private runningJobs: Map<string, CronJob> = new Map();
+  private readonly runningJobs: Map<string, CronJob> = new Map();
+  private readonly expoClient = new Expo();
 
   constructor() {
     super();
@@ -137,6 +139,25 @@ export class NotificationService extends BaseService {
    */
   private async sendNotification(notificationId: string) {
     const data = await this.repositories.notification.getNotificationDataById(notificationId);
+
+    if (data.user.pushToken) {
+      try {
+        await this.expoClient.sendPushNotificationsAsync([
+          {
+            to: data.user.pushToken,
+            title: data.notification.title,
+            body: data.notification.body,
+            data: data.notification.data as any
+          }
+        ]);
+      } catch (error) {
+        console.log(
+          `[Notifications][Send] Error on notification "${data.notification.body}" to "${data.user.username}"\n\t%o`,
+          error
+        );
+      }
+    }
+
     await this.repositories.notification.changeNotificationStatus(notificationId, 'completed');
     this.runningJobs.delete(notificationId);
     console.log(`[Notifications][Send] Sent notification "${data.notification.body}" to "${data.user.username}"`);
@@ -151,7 +172,7 @@ export class NotificationService extends BaseService {
     const notification: InferInsertModel<typeof NotificationTable> = {
       title: 'You have a ✨thing✨ to do!',
       body: `Don't forget: ${thingName}`,
-      data: { name: thingName, thingId },
+      data: { name: thingName, uuid: thingId },
       thingId: thingId,
       userId,
       scheduledAt

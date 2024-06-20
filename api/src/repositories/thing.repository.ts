@@ -8,7 +8,7 @@ import {
   ThingTable,
   UserTable
 } from '../db/schema.js';
-import { and, between, desc, eq, ne } from 'drizzle-orm';
+import { and, between, eq, ne } from 'drizzle-orm';
 import { ThingPreviewModel } from '../types/thing.types.js';
 
 export class ThingRepository {
@@ -53,7 +53,7 @@ export class ThingRepository {
       .innerJoin(NotificationTable, eq(ThingTable.id, NotificationTable.thingId))
       .innerJoin(ThingAccessTable, eq(ThingTable.id, ThingAccessTable.thingId))
       .where(and(between(NotificationTable.createdAt, from, to), eq(ThingAccessTable.userId, userId)))
-      .orderBy(desc(ScheduleTable.startTime));
+      .orderBy(ScheduleTable.startTime);
 
     if (limit) {
       return query.limit(limit);

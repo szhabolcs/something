@@ -42,8 +42,6 @@ export const zodErrorHandler: Parameters<OpenAPIHono['openapi']>['2'] = (result,
 };
 
 export const globalErrorHandler: ErrorHandler = (error, c) => {
-  console.error(error);
-
   if (error instanceof ClientError) {
     const body: GeneralError = { type: 'general', message: error.message };
     return c.json(body, error.status);
@@ -53,5 +51,6 @@ export const globalErrorHandler: ErrorHandler = (error, c) => {
     return c.json(reasonPhrase(StatusCodes.UNAUTHORIZED), StatusCodes.UNAUTHORIZED);
   }
 
+  console.error(error);
   return c.json(reasonPhrase(StatusCodes.INTERNAL_SERVER_ERROR), StatusCodes.INTERNAL_SERVER_ERROR);
 };
