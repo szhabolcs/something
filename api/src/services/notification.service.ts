@@ -34,6 +34,8 @@ export class NotificationService extends BaseService {
       onTick: this.createNotificationsForToday.bind(this),
       start: true
     });
+
+    await this.createNotificationsForToday();
   }
 
   /**

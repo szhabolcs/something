@@ -151,6 +151,7 @@ export default class ApiService {
 
   async postFormData<T = object | null>(endPoint: string, options: { body: FormData; token: string }) {
     try {
+      await this.call(this.client.auth.protected.$get, {});
       const response = await fetch(`${this.baseUrl}/${endPoint}`, {
         method: 'POST',
         headers: {
@@ -159,6 +160,7 @@ export default class ApiService {
         },
         body: options?.body
       });
+      return (await response.json()) as T;
     } catch (e) {
       console.log('Error while fetching: ', JSON.stringify(e, null, 2));
     }

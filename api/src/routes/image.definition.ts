@@ -13,10 +13,12 @@ export const uploadImage = createRoute({
   tags: ['Images'],
   request: {
     body: formc(
-      z.object({
-        image: z.any().openapi({ format: 'binary' }),
-        thingId: z.string()
-      })
+      z
+        .object({
+          image: z.any().openapi({ format: 'binary' }).optional(),
+          thingId: z.string().optional()
+        })
+        .optional()
     )
   },
   responses: {

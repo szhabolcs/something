@@ -1,4 +1,4 @@
-import { Camera, CameraType, FaceDetectionResult } from 'expo-camera';
+import { Camera, CameraType } from 'expo-camera/legacy';
 import React, { useEffect, useState, useRef } from 'react';
 import { StyleSheet, Text, Dimensions, View, TouchableOpacity, ActivityIndicator } from 'react-native';
 import H1 from '../../components/atoms/H1';
@@ -7,6 +7,7 @@ import Row from '../../components/atoms/Row';
 import { RefreshCcw, Send } from 'react-native-feather';
 import CameraRepository from '../../repositories/camera/CameraRepository';
 import { manipulateAsync, FlipType, SaveFormat } from 'expo-image-manipulator';
+import ApiService from '../../services/ApiService';
 
 export default function CameraScreen({ route, navigation }: any) {
   const [hasPermission, setHasPermission] = useState(false);
@@ -69,7 +70,8 @@ export default function CameraScreen({ route, navigation }: any) {
       try {
         setPauseImageCapture(true);
         const repo = new CameraRepository();
-        await repo.uploadImage(uri!, route.params.uuid);
+        const rewards = await repo.uploadImage(uri!, route.params.uuid);
+        console.log('[CameraScreen] rewards ', JSON.stringify(rewards, null, 2));
         setCapturingImage(false);
 
         navigation.navigate('Home');
