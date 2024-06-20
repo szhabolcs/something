@@ -1,6 +1,6 @@
 import { DrizzleDatabaseSession, DrizzleTransactionSession, db } from '../db/db.js';
 import { ImageTable, UserTable } from '../db/schema.js';
-import { and, between, count, eq } from 'drizzle-orm';
+import { and, between, count, desc, eq } from 'drizzle-orm';
 
 export class ImageRepository {
   /**
@@ -56,7 +56,8 @@ export class ImageRepository {
       .select({ username: UserTable.username, filename: ImageTable.filename, createdAt: ImageTable.createdAt })
       .from(ImageTable)
       .innerJoin(UserTable, eq(ImageTable.userId, UserTable.id))
-      .where(eq(ImageTable.thingId, thingId));
+      .where(eq(ImageTable.thingId, thingId))
+      .orderBy(desc(ImageTable.createdAt));
   }
 
   /**

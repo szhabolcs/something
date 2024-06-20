@@ -8,8 +8,11 @@ import Spacer from '../../components/atoms/Spacer';
 import { useHomeScreenLogic } from './HomeScreen.logic';
 import { Plus } from 'react-native-feather';
 import ImageViewer from '../../components/molecules/ImageViewer';
+import { useNotifications } from '../../hooks/notifications';
 
 const HomeScreen = ({ navigation }: any) => {
+  useNotifications();
+
   const logic = useHomeScreenLogic();
 
   useEffect(() => {

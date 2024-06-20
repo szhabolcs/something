@@ -6,6 +6,7 @@ import { useAppSelector } from '../hooks/hooks';
 import { authSelector } from '../redux/auth/AuthSlice';
 import { ALERT_TYPE, Toast } from 'react-native-alert-notification';
 import { thingSelector } from '../redux/thing/ThingStack';
+import { useNotifications } from '../hooks/notifications';
 
 export const navigationRef = createNavigationContainerRef();
 
