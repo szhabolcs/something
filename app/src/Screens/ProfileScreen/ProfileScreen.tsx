@@ -53,7 +53,9 @@ const ProfileScreen = ({ navigation }: any) => {
       getData={logic.getData}
       styles={{
         flex: 1,
-        padding: 16
+        paddingTop: 30,
+        paddingVertical: 20,
+        paddingHorizontal: 23
       }}
     >
       <H1>

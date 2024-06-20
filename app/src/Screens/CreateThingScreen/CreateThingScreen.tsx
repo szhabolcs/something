@@ -64,7 +64,16 @@ const CreateThingScreen = ({ navigation }: any) => {
   };
 
   return (
-    <Column styles={{ paddingVertical: 16, gap: 30, justifyContent: 'space-between', flex: 1 }}>
+    <Column
+      styles={{
+        paddingTop: 30,
+        paddingVertical: 20,
+        paddingHorizontal: 23,
+        gap: 30,
+        justifyContent: 'space-between',
+        flex: 1
+      }}
+    >
       <LoadingOverlay visible={loading} />
       <H1>
         Create a <H1 accent>new Thing</H1>
@@ -72,7 +81,7 @@ const CreateThingScreen = ({ navigation }: any) => {
 
       <Column styles={{ justifyContent: 'flex-start' }}>
         {/* NAME AND DESCRIPTION */}
-        <Column styles={{ padding: 16, gap: 16 }}>
+        <Column styles={{ gap: 16 }}>
           <LabeledInput
             label={'Name'}
             placeholder={'Thing name'}
@@ -92,7 +101,7 @@ const CreateThingScreen = ({ navigation }: any) => {
 
         {/* EDIT AND SEE SCHEDULE */}
         <ActionRow label={scheduleText()} action={() => navigation.push('SetTime')} />
-        <Row styles={{ marginHorizontal: 16 }}>
+        <Row>
           <ErrorText>{extractError(error, ['schedule'])}</ErrorText>
         </Row>
 
@@ -102,7 +111,6 @@ const CreateThingScreen = ({ navigation }: any) => {
             styles={{
               alignItems: 'center',
               justifyContent: 'flex-end',
-              padding: 16,
               marginTop: 30
             }}
           >
@@ -126,9 +134,9 @@ const CreateThingScreen = ({ navigation }: any) => {
             pointerEvents="none"
             // Background Linear Gradient
             colors={['transparent', 'transparent', 'transparent', 'rgba(0,0,0,0.5)']}
-            style={[sharedUsernames.length >= 4 && styles.background]}
+            style={[sharedUsernames.length >= 4 && styles.background, { borderRadius: 5 }]}
           />
-          <ScrollView style={{ height: 150 }}>
+          <ScrollView style={{ height: 150, marginTop: 8 }}>
             <Column styles={{ gap: 10, paddingBottom: 10 }}>
               {sharedUsernames.map((username, index) => {
                 return (
@@ -137,7 +145,6 @@ const CreateThingScreen = ({ navigation }: any) => {
                     styles={{
                       gap: 8,
                       alignItems: 'center',
-                      marginHorizontal: 16,
                       padding: 8,
                       borderRadius: 5,
                       backgroundColor: '#16a34a'

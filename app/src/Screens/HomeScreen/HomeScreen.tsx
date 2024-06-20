@@ -56,7 +56,7 @@ const HomeScreen = ({ navigation }: any) => {
         scrollEnabled={false}
         keyExtractor={(_, index) => index.toString()}
         style={{ marginTop: 18, marginBottom: 50 }}
-        contentContainerStyle={{ gap: 14 }}
+        contentContainerStyle={{ gap: 20 }}
         renderItem={({ item }) => (
           <ImageViewer uri={item.image} name={item.name} username={item.username} createdAt={item.createdAt} />
         )}
@@ -114,7 +114,8 @@ export default HomeScreen;
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    padding: 16,
-    paddingTop: 32
+    paddingTop: 30,
+    paddingVertical: 20,
+    paddingHorizontal: 23
   }
 });

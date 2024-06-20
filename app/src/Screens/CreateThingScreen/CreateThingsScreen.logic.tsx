@@ -16,7 +16,7 @@ const api = new ApiService();
 export const useCreateThingScreenLogic = (navigation: any) => {
   const [thingName, setThingName] = useState('');
   const [thingDescription, setThingDescription] = useState('');
-  const [sharedUsernames, setSharedUsernames] = useState<string[]>([]);
+  const [sharedUsernames, setSharedUsernames] = useState<string[]>(['1', '2', '3', '4']);
   const [currentSharedUsername, setCurrentSharedUsername] = useState<string>('');
   const [loading, setLoading] = useState(false);
 

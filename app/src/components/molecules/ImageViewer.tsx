@@ -1,4 +1,4 @@
-import { ImageBackground, StyleSheet, Text, View } from 'react-native';
+import { Image, StyleSheet, Text, View } from 'react-native';
 import React, { useEffect, useState } from 'react';
 import Column from '../atoms/Column';
 import H2 from '../atoms/H2';
@@ -9,7 +9,7 @@ import { DateTime } from 'luxon';
 
 type ImageViewerProps = {
   uri: string;
-  name: string;
+  name?: string;
   username: string;
   createdAt: string;
 };
@@ -60,21 +60,29 @@ const ImageViewer = ({ uri, createdAt, name, username }: ImageViewerProps) => {
         paddingVertical: 16
       }}
     >
-      <ImageBackground
+      <Image
         source={{ uri: image }}
         style={{
           width: '100%',
-          aspectRatio: 1
+          height: 417,
+          resizeMode: 'contain',
+          backgroundColor: '#a5d1b5',
+          borderRadius: 5,
+          marginBottom: 16
         }}
       />
-      <H2 cursive>{name}</H2>
-      <Row styles={{ justifyContent: 'space-between', width: '100%' }}>
-        <H4 cursive accent>
-          @{username}
-        </H4>
-        <H2 cursive>
-          {date} {}
-        </H2>
+      <Row styles={{ justifyContent: 'space-between', width: '100%', alignItems: 'flex-end' }}>
+        <Column styles={{ gap: 5 }}>
+          {name && <H2 cursive>{name}</H2>}
+          <H4 cursive accent>
+            @{username}
+          </H4>
+        </Column>
+        <Column>
+          <H2 cursive>
+            {date} {}
+          </H2>
+        </Column>
       </Row>
     </Column>
   );

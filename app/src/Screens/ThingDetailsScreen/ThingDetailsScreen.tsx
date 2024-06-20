@@ -42,7 +42,9 @@ const ThingDetailsScreen = ({ route, navigation }: any) => {
       styles={{
         flex: 1,
         gap: 32,
-        padding: 16
+        paddingTop: 30,
+        paddingVertical: 20,
+        paddingHorizontal: 23
       }}
     >
       <Row
@@ -128,7 +130,6 @@ const ThingDetailsScreen = ({ route, navigation }: any) => {
               <ImageViewer
                 key={index.toString()}
                 uri={item.image}
-                name={thing.name}
                 username={item.username}
                 createdAt={item.createdAt}
               />

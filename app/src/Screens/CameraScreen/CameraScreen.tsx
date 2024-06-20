@@ -1,20 +1,21 @@
-import { Camera, CameraType } from 'expo-camera/legacy';
-import React, { useEffect, useState, useRef } from 'react';
-import { StyleSheet, Text, Dimensions, View, TouchableOpacity, ActivityIndicator } from 'react-native';
+import { CameraCapturedPicture, CameraView, useCameraPermissions } from 'expo-camera';
+import React, { useState, useRef } from 'react';
+import { StyleSheet, Text, Dimensions, View, TouchableOpacity, ActivityIndicator, Image } from 'react-native';
 import H1 from '../../components/atoms/H1';
 import H3 from '../../components/atoms/H3';
 import Row from '../../components/atoms/Row';
 import { RefreshCcw, Send } from 'react-native-feather';
 import CameraRepository from '../../repositories/camera/CameraRepository';
-import { manipulateAsync, FlipType, SaveFormat } from 'expo-image-manipulator';
-import ApiService from '../../services/ApiService';
+import { manipulateAsync, FlipType } from 'expo-image-manipulator';
+import MyButton from '../../components/molecules/MyButton';
+import { ALERT_TYPE, Toast } from 'react-native-alert-notification';
 
 export default function CameraScreen({ route, navigation }: any) {
-  const [hasPermission, setHasPermission] = useState(false);
+  const [permission, requestPermission] = useCameraPermissions();
   const [capturingImage, setCapturingImage] = useState(true);
-  const [type, setType] = useState(CameraType.front);
+  const [facing, setFacing] = useState<'front' | 'back'>('front');
   const [pauseImageCapture, setPauseImageCapture] = useState(false);
-  const [uri, setUri] = useState<string | null>(null);
+  const [capturedPicture, setCapturedPicture] = useState<CameraCapturedPicture | null>(null);
 
   const { height, width } = Dimensions.get('window');
   const cameraWidth = 300;
@@ -22,17 +23,10 @@ export default function CameraScreen({ route, navigation }: any) {
   const widthOffset = width / 2 - cameraWidth / 2;
   const cameraTopOffset = height / 2 - cameraHeight / 2 - 100;
 
-  const cameraRef = useRef<Camera | null>(null);
-
-  useEffect(() => {
-    (async () => {
-      const { status } = await Camera.requestCameraPermissionsAsync();
-      setHasPermission(status === 'granted');
-    })();
-  }, []);
+  const cameraRef = useRef<CameraView | null>(null);
 
   const toggleCameraType = () => {
-    setType((current) => (current === CameraType.back ? CameraType.front : CameraType.back));
+    setFacing((current) => (current === 'back' ? 'front' : 'back'));
   };
 
   const captureImage = async () => {
@@ -40,23 +34,28 @@ export default function CameraScreen({ route, navigation }: any) {
       return;
     }
 
-    let photo = await cameraRef.current.takePictureAsync({
-      base64: true,
-      exif: true
-    });
-    if (type === CameraType.back) {
-      photo = await manipulateAsync(photo.uri, [{ rotate: 90 }, { flip: FlipType.Vertical }]);
+    let photo = await cameraRef.current.takePictureAsync();
+
+    if (!photo) {
+      Toast.show({
+        type: ALERT_TYPE.WARNING,
+        textBody: 'Failed to take picture. Please try again.'
+      });
+      return;
     }
 
-    await cameraRef.current?.pausePreview();
+    if (facing === 'front') {
+      photo = await manipulateAsync(photo.uri, [{ flip: FlipType.Horizontal }]);
+    }
+
     setPauseImageCapture(true);
     setCapturingImage(false);
-    setUri(photo.uri);
+    setCapturedPicture(photo);
   };
 
   const retakeImage = () => {
     setPauseImageCapture(false);
-    cameraRef.current?.resumePreview();
+    setCapturedPicture(null);
   };
 
   const sendImage = async () => {
@@ -64,44 +63,88 @@ export default function CameraScreen({ route, navigation }: any) {
       return;
     }
 
-    if (cameraRef.current) {
-      setCapturingImage(true);
+    setCapturingImage(true);
 
-      try {
-        setPauseImageCapture(true);
-        const repo = new CameraRepository();
-        const rewards = await repo.uploadImage(uri!, route.params.uuid);
-        console.log('[CameraScreen] rewards ', JSON.stringify(rewards, null, 2));
-        setCapturingImage(false);
+    try {
+      setPauseImageCapture(true);
+      const repo = new CameraRepository();
+      // Throws error
+      const rewards = await repo.uploadImage(capturedPicture!.uri!, route.params.uuid);
 
-        navigation.navigate('Home');
-      } catch (error) {
-        console.error('Error capturing image:', error);
-      }
+      console.log('[CameraScreen] rewards ', JSON.stringify(rewards, null, 2));
+      setCapturingImage(false);
+
+      Toast.show({
+        type: ALERT_TYPE.SUCCESS,
+        textBody: 'Thing captured! ✨'
+      });
+
+      navigation.navigate('Home');
+    } catch (error) {
+      Toast.show({
+        type: ALERT_TYPE.WARNING,
+        textBody: 'Failed to send picture. Please try again.'
+      });
+      setCapturingImage(false);
     }
   };
 
-  if (hasPermission === false) {
-    return <Text>No access to camera. Please provide access in the phone's settings, and try again.</Text>;
+  if (!permission) {
+    // Camera permissions are still loading.
+    return <View />;
+  }
+
+  if (!permission.granted) {
+    // Camera permissions are not granted yet.
+    return (
+      <View style={styles.container}>
+        <Text style={{ textAlign: 'center' }}>We need your permission to show the camera</Text>
+        <MyButton text={'Grant permission'} onPress={requestPermission} accent />
+      </View>
+    );
   }
 
   return (
     <View style={styles.container}>
-      <Camera
-        onCameraReady={() => setCapturingImage(false)}
-        ref={cameraRef}
-        type={type}
-        style={[
-          styles.camera,
-          {
-            left: widthOffset,
-            right: widthOffset,
-            top: cameraTopOffset,
-            width: cameraWidth,
-            height: cameraHeight
-          }
-        ]}
-      />
+      {!capturedPicture && (
+        <CameraView
+          onCameraReady={() => setCapturingImage(false)}
+          ref={cameraRef}
+          facing={facing}
+          mode="picture"
+          animateShutter={false}
+          style={[
+            styles.camera,
+            {
+              left: widthOffset,
+              right: widthOffset,
+              top: cameraTopOffset,
+              width: cameraWidth,
+              height: cameraHeight
+            }
+          ]}
+        />
+      )}
+
+      {capturedPicture && (
+        <Image
+          source={{ uri: capturedPicture.uri }}
+          style={[
+            styles.camera,
+            {
+              left: widthOffset,
+              right: widthOffset,
+              top: cameraTopOffset,
+              width: cameraWidth,
+              height: cameraHeight,
+              resizeMode: 'contain',
+              backgroundColor: '#a5d1b5',
+              borderRadius: 5
+            }
+          ]}
+        />
+      )}
+
       <Row>
         {!capturingImage && !pauseImageCapture && <TouchableOpacity style={styles.shutter} onPress={captureImage} />}
         {capturingImage && <ActivityIndicator size="large" />}
