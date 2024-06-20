@@ -15,7 +15,6 @@ const ActionRow = ({ label, action }: ActionRowProps) => {
     <Column
       styles={{
         justifyContent: 'space-between',
-        marginHorizontal: 16,
         gap: 5
       }}
     >

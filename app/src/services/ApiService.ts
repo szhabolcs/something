@@ -160,9 +160,15 @@ export default class ApiService {
         },
         body: options?.body
       });
+
+      if (!response.ok) {
+        throw Error(await response.text());
+      }
+
       return (await response.json()) as T;
     } catch (e) {
-      console.log('Error while fetching: ', JSON.stringify(e, null, 2));
+      console.log('Error while postFormData: ', e);
+      return null;
     }
   }
 

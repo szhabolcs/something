@@ -26,7 +26,9 @@ const Leaderboard = () => {
         height: '100%',
         position: 'relative',
         flex: 1,
-        paddingTop: 20
+        paddingTop: 30,
+        paddingVertical: 20,
+        paddingHorizontal: 23
       }}
     >
       <H1>

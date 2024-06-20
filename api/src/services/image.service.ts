@@ -21,10 +21,7 @@ export class ImageService extends BaseService {
       const filename = `${randomUUID()}${ext}`;
 
       const path = this.getImagePath(filename);
-      await sharp(Buffer.from(data))
-        .jpeg({ quality: 50, mozjpeg: true })
-        .flop() // Because the image is mirrored
-        .toFile(path);
+      await sharp(Buffer.from(data)).jpeg({ quality: 50, mozjpeg: true }).toFile(path);
 
       console.log(`Image saved to ${path}`);
 
