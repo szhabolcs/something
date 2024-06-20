@@ -66,7 +66,7 @@ export class RewardService extends BaseService {
           await this.repositories.streak.setStreak(userId, thingId, 1, tx);
           streak.value = 1;
 
-          if (currentStreak !== 0) {
+          if (currentStreak > 1) {
             // The user just lost their streak, show message
             streak.reset = true;
           }
