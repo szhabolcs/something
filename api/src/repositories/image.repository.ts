@@ -1,6 +1,6 @@
 import { DrizzleDatabaseSession, DrizzleTransactionSession, db } from '../db/db.js';
-import { ImageTable, UserTable } from '../db/schema.js';
-import { and, between, count, desc, eq } from 'drizzle-orm';
+import { ImageTable, ThingTable, UserTable } from '../db/schema.js';
+import { and, between, count, desc, eq, notLike } from 'drizzle-orm';
 
 export class ImageRepository {
   /**
@@ -45,7 +45,8 @@ export class ImageRepository {
     return tx
       .select({ count: count(ImageTable.thingId) })
       .from(ImageTable)
-      .where(eq(ImageTable.userId, userId));
+      .innerJoin(ThingTable, eq(ImageTable.thingId, ThingTable.id))
+      .where(and(eq(ImageTable.userId, userId), eq(ThingTable.type, 'personal')));
   }
 
   /**
@@ -56,7 +57,7 @@ export class ImageRepository {
       .select({ username: UserTable.username, filename: ImageTable.filename, createdAt: ImageTable.createdAt })
       .from(ImageTable)
       .innerJoin(UserTable, eq(ImageTable.userId, UserTable.id))
-      .where(eq(ImageTable.thingId, thingId))
+      .where(and(eq(ImageTable.thingId, thingId), notLike(ImageTable.filename, 'cover-%')))
       .orderBy(desc(ImageTable.createdAt));
   }
 

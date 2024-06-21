@@ -31,48 +31,12 @@ const RewardDisplay = ({
   reward: ApiResponse<typeof api.client.images.upload.$post, 200>;
   navigation: any;
 }) => {
-  // reward = {
-  //   points: [
-  //     {
-  //       value: 5,
-  //       reason: 'OFF_SCHEDULE'
-  //     },
-  //     {
-  //       value: 5,
-  //       reason: 'ON_SCHEDULE'
-  //     },
-  //     {
-  //       value: 5,
-  //       reason: 'STREAK_KEPT'
-  //     }
-  //   ],
-  //   streak: {
-  //     value: 1,
-  //     reset: true
-  //   },
-  //   badge: {
-  //     icon: 'CheckSquare',
-  //     name: 'Complete 3 Things',
-  //     description: 'Complete a thing! You can do this!'
-  //   },
-  //   level: {
-  //     currentLevel: {
-  //       name: 'Rookie',
-  //       minThreshold: 10
-  //     },
-  //     nextLevel: {
-  //       name: 'Master',
-  //       minThreshold: 999999
-  //     },
-  //     currentScore: 130
-  //   }
-  // };
-
   const points = reward.points.reduce((sum, point) => sum + point.value, 0);
   const readableReason = {
     ['OFF_SCHEDULE']: 'being off schedule',
     ['ON_SCHEDULE']: 'being on schedule',
-    ['STREAK_KEPT']: 'keeping your streak'
+    ['STREAK_KEPT']: 'keeping your streak',
+    ['SOCIAL']: 'being social'
   };
   const Icon = reward.badge ? Icons[reward.badge.icon as keyof typeof Icons] : Icons['Activity'];
 
@@ -104,11 +68,13 @@ const RewardDisplay = ({
 
         <Row styles={{ gap: 20 }}>
           {/* STREAK */}
-          <Column styles={{ marginTop: 50 }}>
-            <Text style={{ fontSize: 16 }}>Your current streak is</Text>
-            <Text style={{ fontSize: 30, textAlign: 'center', marginVertical: 8 }}>{reward.streak.value}</Text>
-            {reward.streak.reset && <Text>ℹ️ Streak has been reset</Text>}
-          </Column>
+          {reward.streak && (
+            <Column styles={{ marginTop: 50 }}>
+              <Text style={{ fontSize: 16 }}>Your current streak is</Text>
+              <Text style={{ fontSize: 30, textAlign: 'center', marginVertical: 8 }}>{reward.streak.value}</Text>
+              {reward.streak.reset && <Text>ℹ️ Streak has been reset</Text>}
+            </Column>
+          )}
 
           {/* BADGE */}
           {reward.badge && (
@@ -184,7 +150,7 @@ const RewardDisplay = ({
         </Column>
       </Column>
 
-      <MyButton accent smalltext text="Neat!" onPress={() => navigation.navigate('Home')} />
+      <MyButton accent smalltext text="Neat!" onPress={() => navigation.pop()} />
     </Column>
   );
 };

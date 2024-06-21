@@ -108,7 +108,7 @@ export class AuthService extends BaseService {
    */
   private generateTokenPair(payload: AccessTokenPayload) {
     const accessToken = jwt.sign(payload, this.ACCESS_TOKEN_SECRET, {
-      expiresIn: '15m'
+      expiresIn: '1h'
     });
     const refreshToken = jwt.sign({ type: 'refresh', id: payload.id }, this.REFRESH_TOKEN_SECRET, {
       expiresIn: '30d'

@@ -2,7 +2,7 @@ import { z } from '@hono/zod-openapi';
 
 export const PointInfoModel = z.object({
   value: z.number(),
-  reason: z.enum(['ON_SCHEDULE', 'OFF_SCHEDULE', 'STREAK_KEPT'])
+  reason: z.enum(['ON_SCHEDULE', 'OFF_SCHEDULE', 'STREAK_KEPT', 'SOCIAL'])
 });
 export type PointInfoModel = z.infer<typeof PointInfoModel>;
 
@@ -33,7 +33,7 @@ export type LevelInfoModel = z.infer<typeof LevelInfoModel>;
 
 export const RewardInfoModel = z.object({
   points: PointInfoModel.array(),
-  streak: StreakInfoModel,
+  streak: StreakInfoModel.optional(),
   badge: BadgeInfoModel.optional(),
   level: LevelInfoModel
 });

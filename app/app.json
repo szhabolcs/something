@@ -50,6 +50,12 @@
             "./assets/fonts/CedarvilleCursive-Regular.ttf"
           ]
         }
+      ],
+      [
+        "expo-image-picker",
+        {
+          "photosPermission": "Allow $(PRODUCT_NAME) to access your images"
+        }
       ]
     ]
   }

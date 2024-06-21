@@ -35,6 +35,16 @@ export class ImageService extends BaseService {
     return path.join(process.env.API_IMAGE_DIR, filename);
   }
 
+  public async getThingTypeFromFilename(filename: string) {
+    const thingId = await this.repositories.image.getThingIdFromFilename(filename);
+    if (!thingId) {
+      return null;
+    }
+    const thing = await this.repositories.thing.getDetails(thingId);
+
+    return thing.type;
+  }
+
   static getImageUrl(filename: string) {
     return `${process.env.API_HOST}/images/${filename}`;
   }

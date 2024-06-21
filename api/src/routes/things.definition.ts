@@ -2,7 +2,13 @@ import { createRoute } from '@hono/zod-openapi';
 import { z } from 'zod';
 import { bearerAuth, defaultResponses, jsonc, textc, useAccessToken } from '../utils/openapi.js';
 import { StatusCodes } from '../types/status-codes.js';
-import { ThingCardModel, ThingDTO, ThingDetailsModel, ThingPreviewModel } from '../types/thing.types.js';
+import {
+  SocialThingPreviewModel,
+  ThingCardModel,
+  ThingDTO,
+  ThingDetailsModel,
+  ThingPreviewModel
+} from '../types/thing.types.js';
 
 export const userThingsToday = createRoute({
   method: 'get',
@@ -105,6 +111,60 @@ export const createThing = createRoute({
     [StatusCodes.CREATED]: {
       ...textc(z.string()),
       description: `New thing created.`
+    }
+  }
+});
+
+export const createSocialThing = createRoute({
+  method: 'post',
+  path: '/create-social',
+  middleware: useAccessToken(),
+  security: bearerAuth,
+  description: 'Create a new social thing.',
+  tags: ['Things'],
+  request: {
+    // body: formc(SocialThingDTO.optional())
+  },
+  responses: {
+    ...defaultResponses,
+    [StatusCodes.CREATED]: {
+      ...textc(z.string()),
+      description: `New social thing created.`
+    }
+  }
+});
+
+export const getSocialThings = createRoute({
+  method: 'get',
+  path: '/get-social',
+  middleware: useAccessToken(),
+  security: bearerAuth,
+  description: 'Get a social things.',
+  tags: ['Things'],
+  responses: {
+    ...defaultResponses,
+    [StatusCodes.OK]: {
+      ...jsonc(SocialThingPreviewModel.array()),
+      description: `New social thing created.`
+    }
+  }
+});
+
+export const toggleSocialThings = createRoute({
+  method: 'patch',
+  path: '/toggle-notified',
+  middleware: useAccessToken(),
+  security: bearerAuth,
+  description: 'Get a social things.',
+  tags: ['Things'],
+  request: {
+    body: jsonc(z.object({ thingId: z.string() }))
+  },
+  responses: {
+    ...defaultResponses,
+    [StatusCodes.OK]: {
+      ...textc(z.string()),
+      description: `Toggled notifications for thing.`
     }
   }
 });

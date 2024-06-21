@@ -29,9 +29,13 @@ export const imageRouter = new OpenAPIHono({ defaultHook: zodErrorHandler })
     const { filename } = c.req.param();
     const userId = (c.get('jwtPayload') as AccessTokenPayload).id;
 
-    const hasAccess = await imageService.checkAccess(userId, filename);
-    if (!hasAccess) {
-      return c.text(reasonPhrase(StatusCodes.NOT_FOUND), StatusCodes.NOT_FOUND);
+    const type = await imageService.getThingTypeFromFilename(filename);
+
+    if (type === 'personal') {
+      const hasAccess = await imageService.checkAccess(userId, filename);
+      if (!hasAccess) {
+        return c.text(reasonPhrase(StatusCodes.NOT_FOUND), StatusCodes.NOT_FOUND);
+      }
     }
 
     const filepath = imageService.getImagePath(filename);

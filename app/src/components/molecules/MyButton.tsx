@@ -3,6 +3,7 @@ import React from 'react';
 import Column from '../atoms/Column';
 import H4 from '../atoms/H4';
 import H3 from '../atoms/H3';
+import { Camera } from 'react-native-feather';
 
 type MyButtonProps = {
   text: string;
@@ -11,9 +12,10 @@ type MyButtonProps = {
   small?: boolean;
   subLine?: string;
   smalltext?: boolean;
+  icon?: boolean;
 };
 
-const MyButton = ({ text, onPress, accent, small, subLine, smalltext }: MyButtonProps) => {
+const MyButton = ({ text, onPress, accent, small, subLine, smalltext, icon }: MyButtonProps) => {
   if (small) {
     return (
       <Pressable onPress={onPress}>
@@ -27,6 +29,7 @@ const MyButton = ({ text, onPress, accent, small, subLine, smalltext }: MyButton
   return (
     <Pressable onPress={onPress}>
       <Column styles={[styles.button, accent ? styles.accent : styles.button]}>
+        {icon && <Camera color={'#16a34a'} style={{ marginRight: 10 }} />}
         {!smalltext ? <H4 accent={accent}>{text}</H4> : <H3 accent={accent}>{text}</H3>}
       </Column>
     </Pressable>
@@ -41,7 +44,8 @@ const styles = StyleSheet.create({
     paddingHorizontal: 30,
     borderRadius: 5,
     alignItems: 'center',
-    justifyContent: 'center'
+    justifyContent: 'center',
+    flexDirection: 'row'
   },
   accent: {
     borderWidth: 2,

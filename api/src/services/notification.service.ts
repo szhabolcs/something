@@ -207,4 +207,23 @@ export class NotificationService extends BaseService {
 
     return Interval.fromDateTimes(scheduleStart, scheduleEnd) as Interval<true>;
   }
+
+  public async unsubscribe(userId: string, thingId: string) {
+    const dayStart = DateTime.utc().startOf('day');
+    const dayEnd = DateTime.utc().endOf('day');
+    const notification = await this.repositories.notification.notificationExists(
+      userId,
+      thingId,
+      dayStart.toISO(),
+      dayEnd.toISO()
+    );
+
+    if (notification) {
+      await this.removeNotification(notification.id);
+    }
+  }
+
+  public async subscribe(userId: string, thingId: string) {
+    await this.createNotificationsForToday();
+  }
 }

@@ -84,6 +84,21 @@ export const ThingDTO = z.object({
 });
 export type ThingDTO = z.infer<typeof ThingDTO>;
 
+export const SocialThingDTO = z.object({
+  name: z.string().min(3).optional(),
+  description: z.string().optional(),
+  location: z.string().optional(),
+  schedule: z
+    .object({
+      startTime: TimeModel.optional(),
+      endTime: TimeModel.optional(),
+      specificDate: z.string().nullable().optional()
+    })
+    .optional(),
+  image: z.any().openapi({ format: 'binary' }).optional()
+});
+export type SocialThingDTO = z.infer<typeof SocialThingDTO>;
+
 export const ThingCardModel = z.object({
   id: z.string(),
   name: z.string(),
@@ -114,3 +129,16 @@ export const ThingPreviewModel = z.object({
   endTime: z.string()
 });
 export type ThingPreviewModel = z.infer<typeof ThingPreviewModel>;
+
+export const SocialThingPreviewModel = z.object({
+  id: z.string().uuid(),
+  name: z.string(),
+  userCount: z.number(),
+  date: z.string(),
+  startTime: z.string(),
+  endTime: z.string(),
+  location: z.string(),
+  coverImage: z.string(),
+  notified: z.boolean()
+});
+export type SocialThingPreviewModel = z.infer<typeof SocialThingPreviewModel>;

@@ -6,6 +6,33 @@ import { NotificationService } from './notification.service.js';
 
 export class RewardService extends BaseService {
   public async handleImageUpload(userId: string, thingId: string, filename: string) {
+    const thingData = await this.repositories.thing.getDetails(thingId);
+    if (thingData.type === 'social') {
+      return db.transaction(async (tx) => {
+        try {
+          // Add image to database
+          await this.repositories.image.insert(userId, thingId, filename, tx);
+
+          // Add social points
+          const points: PointInfoModel[] = [];
+          points.push({ value: 20, reason: 'SOCIAL' });
+
+          // Get current user level
+          const level = await this.repositories.score.getUserLevel(userId, tx);
+
+          const rewards: RewardInfoModel = {
+            points,
+            level
+          };
+
+          return rewards;
+        } catch (error) {
+          console.error('Error uploading image: %o', error);
+          tx.rollback();
+        }
+      });
+    }
+
     return db.transaction(async (tx) => {
       try {
         // First of all, lock the streak table so the scheduler won't be able to update it
