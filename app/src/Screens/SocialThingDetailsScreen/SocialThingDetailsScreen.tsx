@@ -1,19 +1,20 @@
 import { ActivityIndicator, StyleSheet, Text, View } from 'react-native';
 import React, { useEffect } from 'react';
 import Column from '../../components/atoms/Column';
-import { useThingDetailsScreenLogic } from './ThingDetailsScreen.logic';
+import { useThingDetailsScreenLogic } from './SocialThingDetailsScreen.logic';
 import Row from '../../components/atoms/Row';
 import H1 from '../../components/atoms/H1';
 import StreakChip from '../../components/atoms/StreakChip';
 import H3 from '../../components/atoms/H3';
 import H4 from '../../components/atoms/H4';
+import { ChevronLeft, ChevronsLeft } from 'react-native-feather';
 import { FlatList, ScrollView } from 'react-native-gesture-handler';
 import ImageViewer from '../../components/molecules/ImageViewer';
 import MyButton from '../../components/molecules/MyButton';
 
-const ThingDetailsScreen = ({ route, navigation }: any) => {
+const SocialThingDetailsScreen = ({ route, navigation }: any) => {
   const { getDetails, thing, refreshing } = useThingDetailsScreenLogic();
-  const { thingId, streakCount } = route.params;
+  const { thingId, userCount } = route.params;
 
   useEffect(() => {
     getDetails(thingId);
@@ -64,16 +65,13 @@ const ThingDetailsScreen = ({ route, navigation }: any) => {
           <Text>{thing.description}</Text>
         </Column>
       )}
-      <Row styles={{ justifyContent: 'space-between' }}>
-        <H4>Streak</H4>
-        <StreakChip streak={streakCount} />
-      </Row>
+
       <Column
         styles={{
           gap: 16
         }}
       >
-        <H4>Shared with</H4>
+        <H4>People</H4>
         {thing.sharedWith.map((shared) => (
           <Column
             key={shared}
@@ -139,6 +137,6 @@ const ThingDetailsScreen = ({ route, navigation }: any) => {
   );
 };
 
-export default ThingDetailsScreen;
+export default SocialThingDetailsScreen;
 
 const styles = StyleSheet.create({});

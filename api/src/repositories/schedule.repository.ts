@@ -1,5 +1,5 @@
 import { DrizzleDatabaseSession, DrizzleTransactionSession, db } from '../db/db.js';
-import { ScheduleTable } from '../db/schema.js';
+import { ScheduleTable, ThingTable } from '../db/schema.js';
 import { InferSelectModel, eq, or } from 'drizzle-orm';
 import type { ScheduleDTO } from '../types/thing.types.js';
 
@@ -24,9 +24,10 @@ export class ScheduleRepository {
     day: string,
     weekday: Exclude<InferSelectModel<typeof ScheduleTable>['dayOfWeek'], null>
   ) {
-    return db
-      .select()
+    const data = await db
+      .select({ schedules: ScheduleTable })
       .from(ScheduleTable)
+      .innerJoin(ThingTable, eq(ScheduleTable.thingId, ThingTable.id))
       .where(
         or(
           // once
@@ -34,8 +35,10 @@ export class ScheduleRepository {
           // daily
           eq(ScheduleTable.repeat, 'daily'),
           // weekly
-          eq(ScheduleTable.dayOfWeek, weekday)
+          eq(ScheduleTable.dayOfWeek, weekday),
+          eq(ThingTable.type, 'personal')
         )
       );
+    return data.map((d) => d.schedules);
   }
 }

@@ -6,8 +6,8 @@ import { AuthStackNavigation } from '../StackNavigation/AuthStack';
 import { Home, User, Users } from 'react-native-feather';
 import { getFocusedRouteNameFromRoute } from '@react-navigation/core';
 import { ProfileStackNavigation } from '../StackNavigation/ProfileStack';
-import SocialThings from '../../Screens/SocialThings/SocialThings';
 import { useEffect } from 'react';
+import { SocialStackNavigation } from '../StackNavigation/SocialStack';
 
 const Tab = createBottomTabNavigator();
 
@@ -44,12 +44,19 @@ export const RootTabNavigation = () => {
         })}
       />
       <Tab.Screen
-        name="SocialThings"
-        component={SocialThings}
-        options={{
+        name="SocialStack"
+        component={SocialStackNavigation}
+        options={({ route }) => ({
+          tabBarStyle: ((route) => {
+            const routeName = getFocusedRouteNameFromRoute(route) ?? '';
+            if (['Camera', 'CreateSocialThing', 'SocialDetails', 'SetSocialTime'].includes(routeName)) {
+              return { display: 'none' };
+            }
+            return;
+          })(route),
           title: 'Social',
           tabBarIcon: ({ color, size }) => <Users color={color} />
-        }}
+        })}
       />
       <Tab.Screen
         name="ProfileStack"

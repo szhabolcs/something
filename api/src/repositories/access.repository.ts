@@ -18,17 +18,30 @@ export class AccessRepository {
   /**
    * @throws {Error}
    */
+  public async removeThingAccess(
+    thingId: string,
+    userId: string,
+    tx: DrizzleDatabaseSession | DrizzleTransactionSession = db
+  ) {
+    await tx
+      .delete(ThingAccessTable)
+      .where(and(eq(ThingAccessTable.userId, userId), eq(ThingAccessTable.thingId, thingId)));
+  }
+
+  /**
+   * @throws {Error}
+   */
   public async getThingAccess(
     userId: string,
     thingId: string,
     tx: DrizzleDatabaseSession | DrizzleTransactionSession = db
   ) {
-    const [{ role }] = await tx
+    const [data] = await tx
       .select({ role: ThingAccessTable.role })
       .from(ThingAccessTable)
       .where(and(eq(ThingAccessTable.userId, userId), eq(ThingAccessTable.thingId, thingId)));
 
-    return role ? role : null;
+    return data ? data.role : null;
   }
 
   /**
@@ -37,13 +50,23 @@ export class AccessRepository {
   public async getSharedUsernames(
     userId: string,
     thingId: string,
+    omitQueriedUser: boolean = true,
     tx: DrizzleDatabaseSession | DrizzleTransactionSession = db
   ) {
-    const usernames = await tx
-      .select({ username: UserTable.username })
-      .from(ThingAccessTable)
-      .innerJoin(UserTable, eq(ThingAccessTable.userId, UserTable.id))
-      .where(and(eq(ThingAccessTable.thingId, thingId), ne(ThingAccessTable.userId, userId)));
+    let usernames;
+    if (omitQueriedUser) {
+      usernames = await tx
+        .select({ username: UserTable.username })
+        .from(ThingAccessTable)
+        .innerJoin(UserTable, eq(ThingAccessTable.userId, UserTable.id))
+        .where(and(eq(ThingAccessTable.thingId, thingId), ne(ThingAccessTable.userId, userId)));
+    } else {
+      usernames = await tx
+        .select({ username: UserTable.username })
+        .from(ThingAccessTable)
+        .innerJoin(UserTable, eq(ThingAccessTable.userId, UserTable.id))
+        .where(and(eq(ThingAccessTable.thingId, thingId)));
+    }
 
     return usernames.map((u) => u.username);
   }

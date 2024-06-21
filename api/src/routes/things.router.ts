@@ -6,12 +6,19 @@ import {
   userThingsToday,
   userThingsAll,
   thingDetails,
-  createThing
+  createThing,
+  createSocialThing,
+  getSocialThings,
+  toggleSocialThings
 } from './things.definition.js';
 import { zodErrorHandler } from '../utils/errors.js';
 import { ThingService } from '../services/thing.service.js';
+import { AccessTokenPayload } from '../services/auth.service.js';
+import { SocialThingDTO } from '../types/thing.types.js';
+import { ImageService } from '../services/image.service.js';
 
 const thingService = new ThingService();
+const imageService = new ImageService();
 
 export const thingRouter = new OpenAPIHono({ defaultHook: zodErrorHandler })
   .openapi(userThingsToday, async (c) => {
@@ -50,4 +57,41 @@ export const thingRouter = new OpenAPIHono({ defaultHook: zodErrorHandler })
     const body = c.req.valid('json');
     await thingService.create(userId, body);
     return c.text(reasonPhrase(StatusCodes.CREATED), StatusCodes.CREATED);
+  })
+
+  .openapi(createSocialThing, async (c) => {
+    const userId = (c.get('jwtPayload') as AccessTokenPayload).id;
+
+    const body = await c.req.parseBody();
+    const name = body['name'] as string;
+    const description = body['description'] as string;
+    const location = body['location'] as string;
+    const schedule = JSON.parse(body['schedule'] as string) as SocialThingDTO['schedule'];
+    const image = (await body['image']) as File;
+
+    const data = await image.arrayBuffer();
+    const filename = await imageService.saveImageToDisk(data);
+
+    // add filename as image
+    await thingService.createSocial(userId, {
+      name,
+      description,
+      location,
+      schedule: schedule as any,
+      image: `cover-${filename}`
+    });
+    return c.text(reasonPhrase(StatusCodes.CREATED), StatusCodes.CREATED);
+  })
+
+  .openapi(getSocialThings, async (c) => {
+    const userId = (c.get('jwtPayload') as AccessTokenPayload).id;
+    const things = await thingService.getSocialThings(userId);
+    return c.json(things, StatusCodes.OK);
+  })
+
+  .openapi(toggleSocialThings, async (c) => {
+    const userId = (c.get('jwtPayload') as AccessTokenPayload).id;
+    const { thingId } = c.req.valid('json');
+    await thingService.toggleSocialThings(userId, thingId);
+    return c.text(reasonPhrase(StatusCodes.OK), StatusCodes.OK);
   });

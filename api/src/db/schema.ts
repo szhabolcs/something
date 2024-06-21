@@ -71,6 +71,8 @@ export const ThingTable = pgTable(
     type: text('type', { enum: ['personal', 'social'] })
       .default(check(`'personal'`, `type IN ('personal', 'social')`))
       .notNull(),
+    location: text('location'),
+    coverFilename: text('cover_filename'),
     ...timechangeColumns
   },
   (table) => ({

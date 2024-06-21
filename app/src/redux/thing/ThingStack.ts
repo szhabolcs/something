@@ -2,11 +2,16 @@ import { PayloadAction, createAsyncThunk, createSlice } from '@reduxjs/toolkit';
 import RespositoryService from '../../services/RespositoryService';
 import { RootState } from '../store';
 import ApiService, { ApiError, ApiRequest, ApiResponse } from '../../services/ApiService';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 export type NewThingDTO = ApiRequest<typeof api.client.things.create.$post>['json'];
 
 interface ThingState {
   newThing: NewThingDTO;
+  newSocialThing: {
+    location: string;
+    uri: string;
+  };
   userThings: {
     home: ApiResponse<typeof api.client.things.mine.today.$get, 200>;
     all: ApiResponse<typeof api.client.things.mine.today.all.$get, 200>;
@@ -25,6 +30,10 @@ const initialState: ThingState = {
     description: '',
     schedule: undefined as any,
     sharedUsernames: []
+  },
+  newSocialThing: {
+    location: '',
+    uri: ''
   },
   userThings: {
     home: [],
@@ -84,6 +93,58 @@ export const createThing = createAsyncThunk('thing/createThing', async (_, { rej
   return rejectWithValue({ type: 'general', message: 'Could not save, please try again.' } as ApiError);
 });
 
+export const toggleSocialThingNotifications = createAsyncThunk(
+  'thing/toggleSocialThingNotifications',
+  async (thingId: string, { rejectWithValue, getState }) => {
+    const response = await api.call(api.client.things['toggle-notified'].$patch, { json: { thingId } });
+    if (response.ok) {
+      return 'ok';
+    }
+
+    if (response.status === 400) {
+      return rejectWithValue({ type: 'general', message: 'Operation not permitted when you created it.' } as ApiError);
+    }
+
+    return rejectWithValue({ type: 'general', message: 'Could not save, please try again.' } as ApiError);
+  }
+);
+
+export const createSocialThing = createAsyncThunk(
+  'thing/createSocialThing',
+  async (_, { rejectWithValue, getState }) => {
+    const thing = (getState() as RootState).thingReducer.newThing;
+    const extradata = (getState() as RootState).thingReducer.newSocialThing;
+
+    if (!thing.name || !thing.description || !extradata.location || !thing.schedule) {
+      return rejectWithValue({ type: 'general', message: 'Please fill in all the fields.' } as ApiError);
+    }
+
+    const body = new FormData();
+
+    body.append('name', thing.name);
+    body.append('description', thing.description);
+    body.append('location', extradata.location);
+    body.append('schedule', JSON.stringify(thing.schedule));
+    // @ts-ignore
+    body.append('image', {
+      uri: extradata.uri,
+      name: 'image',
+      type: 'image/jpg'
+    });
+
+    const response = await api.postFormData('things/create-social', {
+      body,
+      token: (await AsyncStorage.getItem('accessToken')) || ''
+    });
+
+    if (!response) {
+      return rejectWithValue({ type: 'general', message: 'Could not save, please try again.' } as ApiError);
+    }
+
+    return 'ok';
+  }
+);
+
 const thingSlice = createSlice({
   name: 'thing',
   initialState,
@@ -107,6 +168,12 @@ const thingSlice = createSlice({
     },
     setSharedUserNamesForNewPersonalThing: (state, action: PayloadAction<string[]>) => {
       state.newThing!.sharedUsernames = action.payload;
+    },
+    setLocationForNewPersonalThing: (state, action: PayloadAction<string>) => {
+      state.newSocialThing.location = action.payload;
+    },
+    setUriForNewPersonalThing: (state, action: PayloadAction<string>) => {
+      state.newSocialThing.uri = action.payload;
     }
   },
   extraReducers: (builder) => {
@@ -158,9 +225,38 @@ const thingSlice = createSlice({
       state.loading = false;
       state.error = undefined;
       state.newThingSent = true;
-      console.log('[newThingSent in stack]', state.newThingSent);
     });
     builder.addCase(createThing.rejected, (state, action) => {
+      state.loading = false;
+      state.error = action.payload as any;
+    });
+
+    // createSocialThing
+    builder.addCase(createSocialThing.pending, (state) => {
+      state.loading = true;
+      state.error = undefined;
+    });
+    builder.addCase(createSocialThing.fulfilled, (state, _) => {
+      state.loading = false;
+      state.error = undefined;
+      state.newThingSent = true;
+    });
+    builder.addCase(createSocialThing.rejected, (state, action) => {
+      state.loading = false;
+      state.error = action.payload as any;
+    });
+
+    // toggleSocialThingNotifications
+    builder.addCase(toggleSocialThingNotifications.pending, (state) => {
+      state.loading = true;
+      state.error = undefined;
+    });
+    builder.addCase(toggleSocialThingNotifications.fulfilled, (state, _) => {
+      state.loading = false;
+      state.error = undefined;
+      state.newThingSent = true;
+    });
+    builder.addCase(toggleSocialThingNotifications.rejected, (state, action) => {
       state.loading = false;
       state.error = action.payload as any;
     });
@@ -175,5 +271,7 @@ export const {
   setScheduleForNewPersonalThing,
   setNameForNewPersonalThing,
   setDescriptionForNewPersonalThing,
-  setSharedUserNamesForNewPersonalThing
+  setSharedUserNamesForNewPersonalThing,
+  setLocationForNewPersonalThing,
+  setUriForNewPersonalThing
 } = thingSlice.actions;

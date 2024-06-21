@@ -150,9 +150,10 @@ export default class ApiService {
   }
 
   async postFormData<T = object | null>(endPoint: string, options: { body: FormData; token: string }) {
+    let response;
     try {
       await this.call(this.client.auth.protected.$get, {});
-      const response = await fetch(`${this.baseUrl}/${endPoint}`, {
+      response = await fetch(`${this.baseUrl}/${endPoint}`, {
         method: 'POST',
         headers: {
           Authorization: options?.token ? `Bearer ${options.token}` : '',
@@ -167,6 +168,10 @@ export default class ApiService {
 
       return (await response.json()) as T;
     } catch (e) {
+      if (response && response.ok) {
+        return {};
+      }
+
       console.log('Error while postFormData: ', e);
       return null;
     }

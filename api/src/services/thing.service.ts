@@ -1,10 +1,18 @@
 import { DateTime } from 'luxon';
 import { db } from '../db/db.js';
-import { ThingCardModel, ThingDTO, ThingDetailsModel, ThingPreviewModel } from '../types/thing.types.js';
+import {
+  SocialThingDTO,
+  SocialThingPreviewModel,
+  ThingCardModel,
+  ThingDTO,
+  ThingDetailsModel,
+  ThingPreviewModel
+} from '../types/thing.types.js';
 import { BaseService } from './base.service.js';
 import { ImageService } from './image.service.js';
 import { notificationService } from '../index.js';
 import { NotificationService } from './notification.service.js';
+import { ClientError } from '../utils/errors.js';
 
 export class ThingService extends BaseService {
   public async create(userId: string, data: ThingDTO) {
@@ -42,30 +50,79 @@ export class ThingService extends BaseService {
     });
   }
 
+  public async createSocial(userId: string, data: Required<SocialThingDTO>) {
+    return db.transaction(async (tx) => {
+      try {
+        // Create thing
+        const [{ thingId }] = await this.repositories.thing.createSocial(
+          userId,
+          data.name,
+          data.description,
+          data.location,
+          data.image,
+          tx
+        );
+
+        // Schedule entry
+        await this.repositories.schedule.create(thingId, data.schedule as any, tx);
+
+        // Add user as admin
+        await this.repositories.access.giveThingAccess(thingId, [userId], 'admin', tx);
+
+        // Add cover image
+        await this.repositories.image.insert(userId, thingId, data.image, tx);
+      } catch (error) {
+        console.error('Error creating thing: %o', error);
+        tx.rollback();
+      }
+    });
+  }
+
   public async getDetails(userId: string, thingId: string): Promise<ThingDetailsModel> {
+    const { name, description, type, userId: thingUserId } = await this.repositories.thing.getDetails(thingId);
     const access = await this.repositories.access.getThingAccess(userId, thingId);
-    if (!access) {
-      throw new Error(`User (${userId}) has no access to thing (${thingId})`);
+
+    if (type === 'personal') {
+      if (!access) {
+        throw new Error(`User (${userId}) has no access to thing (${thingId})`);
+      }
+
+      const schedule = await this.repositories.schedule.getThingSchedule(thingId);
+      const sharedWith = await this.repositories.access.getSharedUsernames(userId, thingId);
+      const _images = await this.repositories.image.getThingImages(thingId);
+      const images = _images.map(({ username, filename, createdAt }) => ({
+        username,
+        image: ImageService.getImageUrl(filename),
+        createdAt
+      }));
+
+      return {
+        name,
+        description,
+        schedule,
+        sharedWith,
+        images,
+        access
+      };
+    } else {
+      const schedule = await this.repositories.schedule.getThingSchedule(thingId);
+      const sharedWith = await this.repositories.access.getSharedUsernames(userId, thingId, false);
+      const _images = await this.repositories.image.getThingImages(thingId);
+      const images = _images.map(({ username, filename, createdAt }) => ({
+        username,
+        image: ImageService.getImageUrl(filename),
+        createdAt
+      }));
+
+      return {
+        name,
+        description,
+        schedule,
+        sharedWith,
+        images,
+        access: userId === thingUserId ? 'admin' : 'viewer'
+      };
     }
-
-    const { name, description } = await this.repositories.thing.getDetails(thingId);
-    const schedule = await this.repositories.schedule.getThingSchedule(thingId);
-    const sharedWith = await this.repositories.access.getSharedUsernames(userId, thingId);
-    const _images = await this.repositories.image.getThingImages(thingId);
-    const images = _images.map(({ username, filename, createdAt }) => ({
-      username,
-      image: ImageService.getImageUrl(filename),
-      createdAt
-    }));
-
-    return {
-      name,
-      description,
-      schedule,
-      sharedWith,
-      images,
-      access
-    };
   }
 
   public async getUserThingsToday(userId: string, limit: number | undefined = undefined): Promise<ThingPreviewModel[]> {
@@ -94,5 +151,34 @@ export class ThingService extends BaseService {
       image: ImageService.getImageUrl(filename),
       createdAt
     }));
+  }
+
+  public async getSocialThings(userId: string): Promise<SocialThingPreviewModel[]> {
+    const things = await this.repositories.thing.getSocialThingPreviews();
+    const thingsWithNotified = [];
+
+    for (const thing of things) {
+      const role = await this.repositories.access.getThingAccess(userId, thing.id);
+      thingsWithNotified.push({ ...thing, notified: !!role, coverImage: ImageService.getImageUrl(thing.coverImage) });
+    }
+
+    return thingsWithNotified;
+  }
+
+  public async toggleSocialThings(userId: string, thingId: string) {
+    const role = await this.repositories.access.getThingAccess(userId, thingId);
+    if (role === 'admin') {
+      throw new ClientError(`Can't unsubscribe from created social thing`);
+    }
+
+    if (role === 'viewer') {
+      await this.repositories.access.removeThingAccess(thingId, userId);
+      await notificationService.unsubscribe(userId, thingId);
+    }
+
+    if (role === null) {
+      await this.repositories.access.giveThingAccess(thingId, [userId], 'viewer');
+      await notificationService.subscribe(userId, thingId);
+    }
   }
 }
