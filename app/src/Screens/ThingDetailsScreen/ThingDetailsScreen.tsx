@@ -10,6 +10,7 @@ import H4 from '../../components/atoms/H4';
 import { FlatList, ScrollView } from 'react-native-gesture-handler';
 import ImageViewer from '../../components/molecules/ImageViewer';
 import MyButton from '../../components/molecules/MyButton';
+import { DateTime } from 'luxon';
 
 const ThingDetailsScreen = ({ route, navigation }: any) => {
   const { getDetails, thing, refreshing } = useThingDetailsScreenLogic();
@@ -32,6 +33,35 @@ const ThingDetailsScreen = ({ route, navigation }: any) => {
       </Column>
     );
   }
+
+  const scheduleText = () => {
+    if (!thing?.schedule) {
+      return 'Not set';
+    }
+
+    const startTime = DateTime.fromFormat(thing!.schedule!.startTime, 'hh:mm:ss', { zone: 'utc' })
+      .toLocal()
+      .toLocaleString({ hour: 'numeric', minute: 'numeric' });
+    const endTime = DateTime.fromFormat(thing!.schedule!.endTime, 'hh:mm:ss', { zone: 'utc' })
+      .toLocal()
+      .toLocaleString({ hour: 'numeric', minute: 'numeric' });
+
+    if (thing?.schedule.repeat === 'once') {
+      const readableDate = DateTime.fromISO(thing!.schedule.specificDate!).toLocaleString({
+        month: 'long',
+        day: 'numeric'
+      });
+      return `Once on ${readableDate}, from ${startTime} to ${endTime}`;
+    }
+    if (thing?.schedule.repeat === 'daily') {
+      return `Every day, from ${startTime} to ${endTime}`;
+    }
+    if (thing?.schedule.repeat === 'weekly') {
+      return `Every week on ${thing.schedule.dayOfWeek}, from ${startTime} to ${endTime}`;
+    }
+
+    return 'Not set';
+  };
 
   return (
     <Column
@@ -64,34 +94,40 @@ const ThingDetailsScreen = ({ route, navigation }: any) => {
           <Text>{thing.description}</Text>
         </Column>
       )}
-      <Row styles={{ justifyContent: 'space-between' }}>
+      <Row styles={{ justifyContent: 'space-between', alignItems: 'center' }}>
         <H4>Streak</H4>
         <StreakChip streak={streakCount} />
       </Row>
-      <Column
-        styles={{
-          gap: 16
-        }}
-      >
-        <H4>Shared with</H4>
-        {thing.sharedWith.map((shared) => (
-          <Column
-            key={shared}
-            styles={{
-              paddingHorizontal: 10,
-              paddingVertical: 8,
-              backgroundColor: '#16a34a',
-              borderRadius: 10,
-              width: 'auto',
-              alignSelf: 'flex-start'
-            }}
-          >
-            <H3 key={shared} white>
-              @{shared}
-            </H3>
-          </Column>
-        ))}
+      <Column>
+        <H4>Schedule</H4>
+        <Text style={{ marginTop: 10 }}>{scheduleText()}</Text>
       </Column>
+      {thing.sharedWith.length > 0 && (
+        <Column
+          styles={{
+            gap: 10
+          }}
+        >
+          <H4>Shared with</H4>
+          {thing.sharedWith.map((shared) => (
+            <Column
+              key={shared}
+              styles={{
+                paddingHorizontal: 10,
+                paddingVertical: 8,
+                backgroundColor: '#16a34a',
+                borderRadius: 10,
+                width: 'auto',
+                alignSelf: 'flex-start'
+              }}
+            >
+              <H3 key={shared} white>
+                @{shared}
+              </H3>
+            </Column>
+          ))}
+        </Column>
+      )}
       <Column>
         <Row
           styles={{

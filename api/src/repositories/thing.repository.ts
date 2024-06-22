@@ -8,7 +8,7 @@ import {
   ThingTable,
   UserTable
 } from '../db/schema.js';
-import { and, between, eq, ne, count, like } from 'drizzle-orm';
+import { and, between, eq, ne, count, like, desc } from 'drizzle-orm';
 import { SocialThingPreviewModel, ThingPreviewModel } from '../types/thing.types.js';
 
 export class ThingRepository {
@@ -125,7 +125,8 @@ export class ThingRepository {
       })
       .from(ThingTable)
       .innerJoin(ScheduleTable, eq(ThingTable.id, ScheduleTable.thingId))
-      .where(eq(ThingTable.type, 'social'));
+      .where(eq(ThingTable.type, 'social'))
+      .orderBy(desc(ThingTable.createdAt));
 
     const data: SocialThingPreviewModel[] = [];
     for (const thing of things) {

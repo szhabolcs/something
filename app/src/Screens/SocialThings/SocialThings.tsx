@@ -25,6 +25,32 @@ import LoadingOverlay from '../../components/organisms/LoadingOverlay';
 
 const api = new ApiService();
 
+const ImageView = ({ url }: { url: string }) => {
+  const [image, setImage] = useState('');
+
+  useEffect(() => {
+    (async () => {
+      const filename = url.split('/')[4];
+      const response = await api.call(api.client.images[':filename'].$get, { param: { filename } });
+      if (response.ok) {
+        const data = await response.blob();
+        const fileReaderInstance = new FileReader();
+        fileReaderInstance.readAsDataURL(data);
+        fileReaderInstance.onload = () => {
+          const base64data = fileReaderInstance.result as string;
+          setImage(base64data);
+        };
+      }
+    })();
+  }, []);
+
+  if (!image) {
+    return <></>;
+  }
+
+  return <Image key={url} style={{ height: '100%', width: '100%' }} source={{ uri: image }} />;
+};
+
 const SocialThings = ({ navigation }: any) => {
   const logic = useSocialThingsLogic();
 
@@ -45,37 +71,11 @@ const SocialThings = ({ navigation }: any) => {
       .toLocaleString({ hour: 'numeric', minute: 'numeric' });
   };
 
-  const ImageView = ({ url }: { url: string }) => {
-    const [image, setImage] = useState('');
-
-    useEffect(() => {
-      (async () => {
-        const filename = url.split('/')[4];
-        const response = await api.call(api.client.images[':filename'].$get, { param: { filename } });
-        if (response.ok) {
-          const data = await response.blob();
-          const fileReaderInstance = new FileReader();
-          fileReaderInstance.readAsDataURL(data);
-          fileReaderInstance.onload = () => {
-            const base64data = fileReaderInstance.result as string;
-            setImage(base64data);
-          };
-        }
-      })();
-    }, []);
-
-    if (!image) {
-      return <></>;
-    }
-
-    return <Image key={url} style={{ height: '100%', width: '100%' }} source={{ uri: image }} />;
-  };
-
   const renderSocialThings = () => (
     <FlatList
       data={logic.socialThings}
       scrollEnabled={false}
-      keyExtractor={(_, index) => index.toString() + new Date()}
+      keyExtractor={(_, index) => index.toString()}
       renderItem={({ item }) => (
         <Pressable
           onPress={() => navigation.navigate('SocialDetails', { thingId: item.id, userCount: item.userCount })}

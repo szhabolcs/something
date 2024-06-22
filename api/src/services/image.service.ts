@@ -15,10 +15,10 @@ export class ImageService extends BaseService {
     return !!role;
   }
 
-  public async saveImageToDisk(data: ArrayBuffer) {
+  public async saveImageToDisk(data: ArrayBuffer, coverImage: boolean = false) {
     try {
       const ext = '.jpg';
-      const filename = `${randomUUID()}${ext}`;
+      const filename = `${coverImage ? 'cover-' : ''}${randomUUID()}${ext}`;
 
       const path = this.getImagePath(filename);
       await sharp(Buffer.from(data)).jpeg({ quality: 50, mozjpeg: true }).toFile(path);

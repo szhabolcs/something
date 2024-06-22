@@ -58,7 +58,7 @@ const SocialThingDetailsScreen = ({ route, navigation }: any) => {
       {thing.description && (
         <Column
           styles={{
-            gap: 16
+            gap: 10
           }}
         >
           <H4>Description</H4>
@@ -68,7 +68,7 @@ const SocialThingDetailsScreen = ({ route, navigation }: any) => {
 
       <Column
         styles={{
-          gap: 16
+          gap: 10
         }}
       >
         <H4>People</H4>

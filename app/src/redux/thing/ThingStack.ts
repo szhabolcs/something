@@ -156,6 +156,7 @@ const thingSlice = createSlice({
       state.newThing = initialState.newThing;
       state.error = undefined;
       state.loading = false;
+      state.newThingSent = initialState.newThingSent;
     },
     setScheduleForNewPersonalThing: (state, action: PayloadAction<NewThingDTO['schedule']>) => {
       state.newThing!.schedule = action.payload;

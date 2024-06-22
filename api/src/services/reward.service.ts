@@ -72,11 +72,19 @@ export class RewardService extends BaseService {
         ) as Interval<true>;
 
         // Get the number of images taken the day prior
-        const [{ count: imageCount }] = await this.repositories.image.getCountBetween(
+        const [{ count: imageCountYesterday }] = await this.repositories.image.getCountBetween(
           userId,
           thingId,
           previousDayInterval.start?.toISO(),
           previousDayInterval.end.toISO(),
+          tx
+        );
+
+        const [{ count: imageCountToday }] = await this.repositories.image.getCountBetween(
+          userId,
+          thingId,
+          dayInterval.start?.toISO(),
+          dayInterval.end.toISO(),
           tx
         );
 
@@ -88,7 +96,7 @@ export class RewardService extends BaseService {
         //    - the streak is already 0, if the scheduler reset it
         //    - the streak still has it's previous value
         // Either way, we reset it, because the previous day has been missed
-        if (imageCount === 0) {
+        if (imageCountYesterday === 0) {
           // reset streak to 1
           await this.repositories.streak.setStreak(userId, thingId, 1, tx);
           streak.value = 1;
@@ -102,13 +110,15 @@ export class RewardService extends BaseService {
         }
         // There are images on the prior day
         else {
-          // +1 streak count
-          streak.value++;
-          await this.repositories.streak.setStreak(userId, thingId, streak.value, tx);
-          points.push({
-            value: 5,
-            reason: 'STREAK_KEPT'
-          });
+          if (imageCountToday === 0) {
+            // +1 streak count
+            streak.value++;
+            await this.repositories.streak.setStreak(userId, thingId, streak.value, tx);
+            points.push({
+              value: 5,
+              reason: 'STREAK_KEPT'
+            });
+          }
         }
 
         // Update user score

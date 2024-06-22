@@ -70,7 +70,7 @@ export const thingRouter = new OpenAPIHono({ defaultHook: zodErrorHandler })
     const image = (await body['image']) as File;
 
     const data = await image.arrayBuffer();
-    const filename = await imageService.saveImageToDisk(data);
+    const filename = await imageService.saveImageToDisk(data, true);
 
     // add filename as image
     await thingService.createSocial(userId, {
@@ -78,7 +78,7 @@ export const thingRouter = new OpenAPIHono({ defaultHook: zodErrorHandler })
       description,
       location,
       schedule: schedule as any,
-      image: `cover-${filename}`
+      image: filename
     });
     return c.text(reasonPhrase(StatusCodes.CREATED), StatusCodes.CREATED);
   })
