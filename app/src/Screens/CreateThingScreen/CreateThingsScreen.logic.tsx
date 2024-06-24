@@ -5,6 +5,7 @@ import {
   resetNewPersonalThing,
   setDescriptionForNewPersonalThing,
   setNameForNewPersonalThing,
+  setSharedUserNamesForNewPersonalThing,
   thingSelector
 } from '../../redux/thing/ThingStack';
 import { authSelector } from '../../redux/auth/AuthSlice';
@@ -45,6 +46,10 @@ export const useCreateThingScreenLogic = (navigation: any) => {
   useEffect(() => {
     dispatch(setDescriptionForNewPersonalThing(thingDescription));
   }, [thingDescription]);
+
+  useEffect(() => {
+    dispatch(setSharedUserNamesForNewPersonalThing(sharedUsernames));
+  }, [sharedUsernames]);
 
   useEffect(() => {
     if (newThingSent) {
